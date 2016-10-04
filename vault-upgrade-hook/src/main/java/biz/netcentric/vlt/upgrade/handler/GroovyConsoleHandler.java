@@ -11,7 +11,7 @@ package biz.netcentric.vlt.upgrade.handler;
 import static biz.netcentric.vlt.upgrade.util.LogUtil.info;
 import static biz.netcentric.vlt.upgrade.util.LogUtil.warn;
 import static biz.netcentric.vlt.upgrade.util.Util.getService;
-import static com.day.jcr.vault.packaging.InstallContext.Phase;
+import static org.apache.jackrabbit.vault.packaging.InstallContext.Phase;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,7 +30,7 @@ import org.apache.sling.api.resource.ValueMap;
 import biz.netcentric.vlt.upgrade.util.FakeRequest;
 import com.citytechinc.aem.groovy.console.GroovyConsoleService;
 import com.citytechinc.aem.groovy.console.response.RunScriptResponse;
-import com.day.jcr.vault.packaging.InstallContext;
+import org.apache.jackrabbit.vault.packaging.InstallContext;
 import com.day.text.Text;
 
 /**

@@ -18,6 +18,10 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
+import org.apache.jackrabbit.vault.packaging.InstallContext;
+import org.apache.jackrabbit.vault.packaging.InstallHook;
+import org.apache.jackrabbit.vault.packaging.PackageException;
+import org.apache.jackrabbit.vault.packaging.PackageId;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 
@@ -25,10 +29,6 @@ import biz.netcentric.vlt.upgrade.handler.UpgradeHandlerBase;
 import biz.netcentric.vlt.upgrade.version.ArtifactVersion;
 import biz.netcentric.vlt.upgrade.version.DefaultArtifactVersion;
 import com.day.cq.commons.jcr.JcrUtil;
-import com.day.jcr.vault.packaging.InstallContext;
-import com.day.jcr.vault.packaging.InstallHook;
-import com.day.jcr.vault.packaging.PackageException;
-import com.day.jcr.vault.packaging.PackageId;
 
 public class UpgradeProcessor implements InstallHook {
 

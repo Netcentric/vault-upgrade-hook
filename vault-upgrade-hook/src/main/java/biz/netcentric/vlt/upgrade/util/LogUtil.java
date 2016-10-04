@@ -8,13 +8,13 @@
  */
 package biz.netcentric.vlt.upgrade.util;
 
+import org.apache.jackrabbit.vault.fs.api.ProgressTrackerListener;
+import org.apache.jackrabbit.vault.fs.api.ProgressTrackerListener.Mode;
+import org.apache.jackrabbit.vault.packaging.InstallContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import biz.netcentric.vlt.upgrade.UpgradeProcessor;
-import com.day.jcr.vault.fs.api.ProgressTrackerListener;
-import com.day.jcr.vault.fs.api.ProgressTrackerListener.Mode;
-import com.day.jcr.vault.packaging.InstallContext;
 
 public class LogUtil {
 	private static final Logger log = LoggerFactory.getLogger(UpgradeProcessor.class);
