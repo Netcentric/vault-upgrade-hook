@@ -26,7 +26,7 @@ import biz.netcentric.vlt.upgrade.handler.GroovyConsoleHandler;
 import biz.netcentric.vlt.upgrade.handler.UpgradeHandlerBase;
 import biz.netcentric.vlt.upgrade.version.ArtifactVersion;
 import biz.netcentric.vlt.upgrade.version.DefaultArtifactVersion;
-import com.day.jcr.vault.packaging.InstallContext;
+import org.apache.jackrabbit.vault.packaging.InstallContext;
 
 /**
  * User: Conrad Wöltge

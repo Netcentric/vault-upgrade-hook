@@ -23,7 +23,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 
-import com.day.jcr.vault.packaging.InstallContext;
+import org.apache.jackrabbit.vault.packaging.InstallContext;
 
 /**
  * Created by Conrad Wöltge on 7/16/15.

@@ -41,6 +41,4 @@ Run information is stored in Phase END under:
 
 ### Interface implementation AEM6.0 and AEM6.1+
  
- AEM6 expects `com.day.jcr.vault.packaging.InstallHook` 
-
-Packaging has been OpenSourced by Adobe and contributed to Jackrabbit. *AEM6.1+* expects `org.apache.jackrabbit.vault.packaging.InstallHook`. This is the OpenSource version 
+The hook requires AEM6 SP3. If you need to run this with an earlier version replace `org.apache.jackrabbit.vault.packaging.InstallHook` by `om.day.jcr.vault.packaging.InstallHook`

@@ -13,11 +13,11 @@ import static biz.netcentric.vlt.upgrade.util.LogUtil.info;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
+import org.apache.jackrabbit.vault.packaging.InstallContext;
 import org.apache.sling.api.resource.ResourceResolver;
 
 import biz.netcentric.vlt.upgrade.UpgradeInfo;
 import biz.netcentric.vlt.upgrade.util.Util;
-import com.day.jcr.vault.packaging.InstallContext;
 
 public abstract class UpgradeHandlerBase {
 
