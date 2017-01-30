@@ -127,4 +127,13 @@ public class GroovyConsoleHandler extends UpgradeHandlerBase {
 
     }
 
+    public static boolean isAvailable() {
+        try {
+            GroovyConsoleHandler.class.getClassLoader().loadClass("com.citytechinc.aem.groovy.console.GroovyConsoleService");
+            return true;
+        } catch(ClassNotFoundException cnfe) {
+            return false;
+        }
+    }
+
 }

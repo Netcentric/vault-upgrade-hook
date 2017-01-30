@@ -68,7 +68,12 @@
         <dependency>
             <groupId>com.citytechinc.aem.groovy.console</groupId>
             <artifactId>aem-groovy-console</artifactId>
-            <version>7.0.2-SNAPSHOT</version>
+            <version>7.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.sling</groupId>
+            <artifactId>org.apache.sling.pipes</artifactId>
+            <version>0.0.10</version>
         </dependency>
         <dependency>
             <groupId>org.apache.sling</groupId>

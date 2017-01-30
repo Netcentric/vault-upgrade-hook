@@ -17,8 +17,10 @@ import java.util.List;
 
 import javax.jcr.RepositoryException;
 
+import biz.netcentric.vlt.upgrade.handler.SlingPipesHandler;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.jackrabbit.vault.packaging.PackageException;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 
@@ -48,7 +50,24 @@ public class UpgradeInfo implements Comparable<UpgradeInfo> {
         }
     }
 
+    public enum HandlerType {
+        GROOVY,         // Groovy Console script
+        SLINGPIPES,     // Sling pipes definition
+        CUSTOM,         // Custom java handler
+        UNKNOWN;        // unrecognised type
+
+        public static HandlerType fromString(String text) {
+            for (HandlerType handlerType : HandlerType.values()) {
+                if (handlerType.toString().toLowerCase().equals(text.toLowerCase())) {
+                    return handlerType;
+                }
+            }
+            return UNKNOWN;
+        }
+    }
+
     private static final String PN_VERSION = "version";
+
     private static final String PN_PRIORITY = "priority";
     private static final String PN_HANDLER = "handler";
     private static final String PN_HANDLERCLASS = "handlerClass";
@@ -56,13 +75,12 @@ public class UpgradeInfo implements Comparable<UpgradeInfo> {
     private static final String PN_RUN = "run";
     private static final String PN_JCR_TITLE = "jcr:title";
 
-    private static final String PV_HANDLER_CUSTOM = "custom";
-    private static final String PV_HANDLER_SLING_PIPES = "slingpipes";
-
     private ArtifactVersion version;
+
     private long priority;
     private List<String> defaultSearchPaths;
     private RunType runType;
+    private HandlerType handlerType;
 
     private UpgradeHandlerBase handler;
     private InstallContext ctx;
@@ -87,7 +105,7 @@ public class UpgradeInfo implements Comparable<UpgradeInfo> {
         this.defaultSearchPaths = new ArrayList<>(Arrays.asList(
                 config.get(PN_DEFAULTSEARCHPATHS, ArrayUtils.EMPTY_STRING_ARRAY)));
         this.runType = RunType.fromString(config.get(PN_RUN, RunType.ONCE.toString()));
-
+        this.handlerType = HandlerType.fromString(config.get(PN_HANDLER, HandlerType.GROOVY.toString()));
     }
 
     /*
@@ -105,13 +123,27 @@ public class UpgradeInfo implements Comparable<UpgradeInfo> {
         return runType;
     }
 
-    public UpgradeHandlerBase getHandler() throws RepositoryException {
-        // lazy instantiation of handler
-        if (handler == null) {
-            // if the config specifies a handler, try to instantiate it
-            String handlerName = config.get(PN_HANDLER, StringUtils.EMPTY).toLowerCase();
+    public UpgradeHandlerBase getHandler() throws RepositoryException, PackageException {
 
-            if (PV_HANDLER_CUSTOM.equals(handlerName)) {
+        switch (handlerType) {
+
+            case GROOVY:
+                if (GroovyConsoleHandler.isAvailable()) {
+                    handler = new GroovyConsoleHandler();
+                } else {
+                    throw new PackageException("Could not find handler of type 'groovy', do you have it installed?");
+                }
+                break;
+
+            case SLINGPIPES:
+                if (SlingPipesHandler.isAvailable()) {
+                    handler = new SlingPipesHandler();
+                } else {
+                    throw new PackageException("Could not find handler of type 'slingpipes', do you have it installed?");
+                }
+                break;
+
+            case CUSTOM:
                 String handlerClass = config.get(PN_HANDLERCLASS, String.class);
                 if (StringUtils.isNotBlank(handlerClass)) {
                     try {
@@ -121,16 +153,17 @@ public class UpgradeInfo implements Comparable<UpgradeInfo> {
                         warn("W", "Could not load custom handler: " + handlerClass, ctx);
                     }
                 } else {
-                    info("W", "Custom handler, but no handlerClass specified.", ctx);
+                    throw new PackageException("Custom upgrade handler, but no handlerClass specified.");
                 }
-            }
+                break;
 
-            // fallback to default handler
-            if (handler == null) {
-//                info("I", "Using default command handler...", ctx);
-                handler = new GroovyConsoleHandler();
-            }
+            case UNKNOWN:
+            default:
+                String handlerName = config.get(PN_HANDLER, StringUtils.EMPTY).toLowerCase();
+                throw new PackageException("Did not recognise upgrade handler of name '" + handlerName + "'. Please use groovy, slingpipes or custom");
+        }
 
+        if (handler != null) {
             handler.setUpgradeInfo(this);
         }
 
