@@ -9,8 +9,8 @@ Copy `vault-upgrade-hook-0.0.1-SNAPSHOT.jar` to `META-INF/vault/hooks`
 Place your scripts to `META-INF/vault/definition/upgrader/foo`
 Package to a zip like this:
     
-    $ cd sample-package
-    $ zip --filesync -r ../sample-package.zip *
+    $ cd groovy-sample-package
+    $ zip --filesync -r ../groovy-sample-package.zip *
 
 Upload to AEM and install. Notice the scripts placed to `META-INF/vault/definition/upgrader/foo` are executed.
 
@@ -20,7 +20,7 @@ The sample package has scripts for PREPARE, INSTALLED and END phase as samples i
 
 For a quick turnaround you can install via cUrl like this
 
-    $ curl -X POST -F"file=@../sample-package.zip" -F"install=true" -uadmin:admin localhost:4502/crx/packmgr/service.jsp
+    $ curl -X POST -F"file=@../groovy-sample-package.zip" -F"install=true" -uadmin:admin localhost:4502/crx/packmgr/service.jsp
 
 Notice output:
 

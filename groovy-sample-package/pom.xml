@@ -7,10 +7,10 @@
     <!-- ====================================================================== -->
 
     <groupId>biz.netcentric.vlt.upgrade</groupId>
-    <artifactId>sample-package</artifactId>
+    <artifactId>groovy-sample-package</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>content-package</packaging>
-    <name>VLT Install Hook Sample Package</name>
+    <name>VLT Groovy Install Hook Sample Package</name>
 
     <properties>
         <crx.host>localhost</crx.host>
