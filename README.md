@@ -18,9 +18,9 @@ Instead of implementing and creating new Java.jars with every job, *Vault-Upgrad
 Two general ways of how to use it: 
 
 1. ad-hoc admin style:
-- take a copy of the sample package, 
+- take a copy of the sample package (sling pipes or groovy) 
 - update package info (make sure name, version and group are updated), 
-- update test-groovy (replace all scripts with yours, update the run-info (`run`,`version`,`jcr:title`))
+- update hook (e.g. test-groovy - replace all scripts with yours, update the run-info (`run`,`version`,`jcr:title`))
 - build and install
 
 2. dev-style:
