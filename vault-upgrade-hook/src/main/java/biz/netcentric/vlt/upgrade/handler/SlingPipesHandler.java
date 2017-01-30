@@ -40,7 +40,6 @@ public class SlingPipesHandler extends UpgradeHandlerBase {
     @Override
     public void execute(InstallContext ctx) throws RepositoryException {
         this.ctx = ctx;
-        info("I", "Executing sling pipes handler", ctx);
         scripts = getScriptsFromConfig();
         Collections.sort(scripts.get(ctx.getPhase())); // make sure we're executing in alphabetical order
         for (String scriptPath : scripts.get(ctx.getPhase())) {
@@ -62,7 +61,6 @@ public class SlingPipesHandler extends UpgradeHandlerBase {
         for (Resource child : resource.getChildren()) {
             // sling pipes
             if (StringUtils.startsWith(child.getResourceType(), "slingPipes/")) {
-                info("I", "Found sling pipe at " + child.getPath(), ctx);
                 scripts.get(getPhaseFromPrefix(child.getName())).add(child.getPath());
             }
         }
