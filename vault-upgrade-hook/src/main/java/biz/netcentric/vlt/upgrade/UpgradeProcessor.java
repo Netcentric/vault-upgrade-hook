@@ -85,7 +85,7 @@ public class UpgradeProcessor implements InstallHook {
      * @return      A list of upgrade infos.
      * @throws RepositoryException
      */
-    private List<UpgradeInfo> loadUpgradeInfos(InstallContext ctx) throws RepositoryException {
+    private List<UpgradeInfo> loadUpgradeInfos(InstallContext ctx) throws RepositoryException, PackageException {
 
         List<UpgradeInfo> infos = new ArrayList<>();
 
@@ -95,7 +95,10 @@ public class UpgradeProcessor implements InstallHook {
         Resource upgradeInfoResource = resourceResolver.getResource(upgradeInfoPath);
         if (upgradeInfoResource != null) {
             for (Resource res : upgradeInfoResource.getChildren()) {
-                infos.add(new UpgradeInfo(res, ctx));
+                final UpgradeInfo upgradeInfo = new UpgradeInfo(res, ctx);
+                if (upgradeInfo.getHandler() != null) {
+                    infos.add(upgradeInfo);
+                }
             }
         }
         return infos;

@@ -32,7 +32,8 @@
 
     <modules>
         <module>vault-upgrade-hook</module>
-        <module>sample-package</module>
+        <module>groovy-sample-package</module>
+        <module>sling-pipes-sample-package</module>
     </modules>
 
     <profiles>

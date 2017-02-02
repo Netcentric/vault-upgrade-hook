@@ -3,7 +3,7 @@
           xmlns:jcr="http://www.jcp.org/jcr/1.0" xmlns:nt="http://www.jcp.org/jcr/nt/1.0" xmlns:cq="http://www.day.com/jcr/cq/1.0"
           jcr:primaryType="sling:Folder"
           jcr:title="Update via Sling Pipe Handler."
-          handler="groovy"
-          run="once"
-          version="0.0.1-SNAPSHOT">
+              handler="slingpipes"
+              run="always"
+              version="0.0.1-SNAPSHOT">
 </jcr:root>
