@@ -50,6 +50,6 @@ public class LogUtil {
 		if (l != null) {
 			l.onError(Mode.TEXT, msg, e);
 		}
-		log.error(msg, e);
+		log.error("E " + msg, e);
 	}
 }
