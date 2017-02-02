@@ -15,6 +15,7 @@ import javax.jcr.Session;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.jackrabbit.vault.packaging.InstallContext;
+import org.apache.jackrabbit.vault.packaging.PackageException;
 import org.apache.sling.api.resource.ResourceResolver;
 
 import biz.netcentric.vlt.upgrade.UpgradeInfo;
@@ -32,7 +33,7 @@ public abstract class UpgradeHandlerBase {
 
 	// ----< lifecycle >--------------------------------------------------------
 
-    public void execute(InstallContext ctx) throws RepositoryException {
+    public void execute(InstallContext ctx) throws RepositoryException, PackageException {
         this.ctx = ctx;
 
         switch (ctx.getPhase()) {

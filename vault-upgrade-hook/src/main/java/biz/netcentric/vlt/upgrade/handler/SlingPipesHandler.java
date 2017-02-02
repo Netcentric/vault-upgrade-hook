@@ -36,7 +36,7 @@ public class SlingPipesHandler extends UpgradeHandlerBase {
     private Map<Phase, LinkedList<String>> scripts;
 
     @Override
-    public void execute(InstallContext ctx) throws RepositoryException {
+    public void execute(InstallContext ctx) throws RepositoryException, PackageException {
         this.ctx = ctx;
         scripts = getScriptsFromConfig();
         Collections.sort(scripts.get(ctx.getPhase())); // make sure we're executing in alphabetical order
@@ -69,7 +69,7 @@ public class SlingPipesHandler extends UpgradeHandlerBase {
      * Executes the sling pipe
      * @param pipePath    the path a package definition to execute
      */
-    public void runScript(String pipePath) {
+    public void runScript(String pipePath) throws PackageException {
 
         info("I", "Running sling pipe at " + Text.getName(pipePath), ctx);
         Plumber plumber = getService(Plumber.class);
@@ -95,7 +95,8 @@ public class SlingPipesHandler extends UpgradeHandlerBase {
                 try {
                     resourceResolver.commit();
                 } catch (PersistenceException e) {
-                    warn("E", "Exception saving sling pipe output " + pipePath + ". " + e.getMessage(), ctx);
+                    error("Exception saving sling pipe output " + pipePath + ".", e, ctx);
+                    throw new PackageException("Exception saving sling pipe output.");
                 }
             }
         }
