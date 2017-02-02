@@ -13,6 +13,7 @@ import static biz.netcentric.vlt.upgrade.util.LogUtil.info;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.jackrabbit.vault.packaging.InstallContext;
 import org.apache.sling.api.resource.ResourceResolver;
 
@@ -25,6 +26,7 @@ public abstract class UpgradeHandlerBase {
 
     protected InstallContext ctx;
     protected UpgradeInfo upgradeInfo;
+    protected static final InstallContext.Phase[] phases = InstallContext.Phase.values();
     private Session session;
 
 
@@ -123,4 +125,21 @@ public abstract class UpgradeHandlerBase {
         return Util.getResourceResolver(ctx);
     }
 
+    /**
+     * returns the correct Phase for a script name by its prefix.
+     * Important to handle PREPARE_FAILED and PREPARE correctly
+     * @param text  the script name
+     * @return      related phase. defaults to INSTALLED
+     */
+    protected InstallContext.Phase getPhaseFromPrefix(String text) {
+        String scriptName = text.toLowerCase();
+        InstallContext.Phase phase = InstallContext.Phase.INSTALLED;
+        for (int i = phases.length - 1; i >= 0; i--) {
+            if (StringUtils.startsWithIgnoreCase(scriptName, phases[i].name())) {
+                phase = phases[i];
+                break;
+            }
+        }
+        return phase;
+    }
 }

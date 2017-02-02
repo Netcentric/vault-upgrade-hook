@@ -22,6 +22,7 @@ import javax.jcr.RepositoryException;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.jackrabbit.JcrConstants;
+import org.apache.jackrabbit.vault.packaging.InstallContext;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
@@ -30,7 +31,6 @@ import org.apache.sling.api.resource.ValueMap;
 import biz.netcentric.vlt.upgrade.util.FakeRequest;
 import com.citytechinc.aem.groovy.console.GroovyConsoleService;
 import com.citytechinc.aem.groovy.console.response.RunScriptResponse;
-import org.apache.jackrabbit.vault.packaging.InstallContext;
 import com.day.text.Text;
 
 /**
@@ -39,7 +39,6 @@ import com.day.text.Text;
 public class GroovyConsoleHandler extends UpgradeHandlerBase {
 
     private Map<Phase, LinkedList<String>> scripts;
-    private static final Phase[] phases = Phase.values();
 
     @Override
     public void execute(InstallContext ctx) throws RepositoryException {
@@ -72,24 +71,6 @@ public class GroovyConsoleHandler extends UpgradeHandlerBase {
             }
         }
         return scripts;
-    }
-
-    /**
-     * returns the correct Phase for a script name by its prefix.
-     * Important to handle PREPARE_FAILED and PREPARE correctly
-     * @param text  the script name
-     * @return      related phase. defaults to INSTALLED
-     */
-    private Phase getPhaseFromPrefix(String text) {
-        String scriptName = text.toLowerCase();
-        Phase phase = Phase.INSTALLED;
-        for (int i = phases.length - 1; i >= 0; i--) {
-            if (StringUtils.startsWithIgnoreCase(scriptName, phases[i].name())) {
-                phase = phases[i];
-                break;
-            }
-        }
-        return phase;
     }
 
     /**

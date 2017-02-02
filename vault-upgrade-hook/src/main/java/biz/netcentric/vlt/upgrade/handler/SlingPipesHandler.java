@@ -8,26 +8,25 @@
  */
 package biz.netcentric.vlt.upgrade.handler;
 
-import com.day.text.Text;
+import static biz.netcentric.vlt.upgrade.util.LogUtil.error;
+import static biz.netcentric.vlt.upgrade.util.LogUtil.info;
+import static biz.netcentric.vlt.upgrade.util.Util.getService;
+import static org.apache.jackrabbit.vault.packaging.InstallContext.Phase;
+
+import java.util.*;
+
+import javax.jcr.RepositoryException;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.jackrabbit.vault.packaging.InstallContext;
+import org.apache.jackrabbit.vault.packaging.PackageException;
 import org.apache.sling.api.resource.PersistenceException;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.pipes.Pipe;
 import org.apache.sling.pipes.Plumber;
 
-import javax.jcr.RepositoryException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Map;
-
-import static biz.netcentric.vlt.upgrade.util.LogUtil.info;
-import static biz.netcentric.vlt.upgrade.util.LogUtil.warn;
-import static biz.netcentric.vlt.upgrade.util.Util.getService;
-import static org.apache.jackrabbit.vault.packaging.InstallContext.Phase;
+import com.day.text.Text;
 
 /**
  * User: Chris Pilsworth
@@ -35,7 +34,6 @@ import static org.apache.jackrabbit.vault.packaging.InstallContext.Phase;
 public class SlingPipesHandler extends UpgradeHandlerBase {
 
     private Map<Phase, LinkedList<String>> scripts;
-    private static final Phase[] phases = Phase.values();
 
     @Override
     public void execute(InstallContext ctx) throws RepositoryException {
@@ -65,24 +63,6 @@ public class SlingPipesHandler extends UpgradeHandlerBase {
             }
         }
         return scripts;
-    }
-
-    /**
-     * returns the correct Phase for a script name by its prefix.
-     * Important to handle PREPARE_FAILED and PREPARE correctly
-     * @param text  the script name
-     * @return      related phase. defaults to INSTALLED
-     */
-    private Phase getPhaseFromPrefix(String text) {
-        String scriptName = text.toLowerCase();
-        Phase phase = Phase.INSTALLED;
-        for (int i = phases.length - 1; i >= 0; i--) {
-            if (StringUtils.startsWithIgnoreCase(scriptName, phases[i].name())) {
-                phase = phases[i];
-                break;
-            }
-        }
-        return phase;
     }
 
     /**
