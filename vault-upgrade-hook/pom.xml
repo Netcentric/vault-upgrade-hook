@@ -68,12 +68,6 @@
             <artifactId>slf4j-api</artifactId>
             <version>1.7.7</version>
         </dependency>
-        <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-            <version>2.5</version>
-            <scope>provided</scope>
-        </dependency>
     
         <!-- optional dependencies for groovy scripts and sling pipes -->
         <dependency>
