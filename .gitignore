@@ -1,1 +1,14 @@
 target
+bin
+
+# idea
+.idea
+*.iml
+
+# eclipse
+.settings
+.project
+.classpath
+
+# mac os
+.DS_Store

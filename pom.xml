@@ -9,8 +9,10 @@
     <groupId>biz.netcentric.vlt.upgrade</groupId>
     <artifactId>vault-upgrade-hook-reactor</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    
     <packaging>pom</packaging>
-    <name>VLT Install Hook reactor</name>
+
+    <name>Vault Upgrade Hook :: Reactor</name>
 
     <description>Reactor project to build hook and sample package.</description>
 
@@ -32,30 +34,54 @@
 
     <modules>
         <module>vault-upgrade-hook</module>
-        <module>groovy-sample-package</module>
-        <module>sling-pipes-sample-package</module>
+        <module>samples</module>
     </modules>
 
-    <profiles>
-        <profile>
-            <id>autoInstallBundle</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.sling</groupId>
-                        <artifactId>maven-sling-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>install-bundle</id>
-                                <goals>
-                                    <goal>install</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/Netcentric/vault-upgrade-hook/issues</url>
+    </issueManagement>
 
-    </profiles>
+    <build>
+        <defaultGoal>clean install</defaultGoal>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>2.4</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.2</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>2.19.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>2.10</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>3.0.2</version>
+                </plugin>
+                <plugin>
+                    <groupId>com.day.jcr.vault</groupId>
+                    <artifactId>content-package-maven-plugin</artifactId>
+                    <version>0.5.1</version>
+                    <extensions>true</extensions>
+                    <configuration>
+                        <verbose>true</verbose>
+                        <filterSource>META-INF/vault/filter.xml</filterSource>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
 </project>
