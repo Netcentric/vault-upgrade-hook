@@ -23,60 +23,60 @@ public class PackageInstallLogger {
     private final Logger log;
 
     public PackageInstallLogger(Logger log) {
-	this.log = log;
+        this.log = log;
     }
 
     public static PackageInstallLogger create(Class<?> clazz) {
-	return new PackageInstallLogger(LoggerFactory.getLogger(clazz));
+        return new PackageInstallLogger(LoggerFactory.getLogger(clazz));
     }
 
     public void debug(InstallContext ctx, String format, Object... arguments) {
-	if (log.isDebugEnabled()) {
-	    FormattingTuple message = build(ctx, format, arguments);
-	    log.debug(message.getMessage(), message.getThrowable());
-	    log(ctx, message);
-	}
+        if (log.isDebugEnabled()) {
+            FormattingTuple message = build(ctx, format, arguments);
+            log.debug(message.getMessage(), message.getThrowable());
+            log(ctx, message);
+        }
     }
 
     public void info(InstallContext ctx, String format, Object... arguments) {
-	FormattingTuple message = build(ctx, format, arguments);
-	log.info(message.getMessage(), message.getThrowable());
-	log(ctx, message);
+        FormattingTuple message = build(ctx, format, arguments);
+        log.info(message.getMessage(), message.getThrowable());
+        log(ctx, message);
     }
 
     public void warn(InstallContext ctx, String format, Object... arguments) {
-	FormattingTuple message = build(ctx, format, arguments);
-	log.warn(message.getMessage(), message.getThrowable());
-	log(ctx, message);
+        FormattingTuple message = build(ctx, format, arguments);
+        log.warn(message.getMessage(), message.getThrowable());
+        log(ctx, message);
     }
 
     public void error(InstallContext ctx, String format, Object... arguments) {
-	FormattingTuple message = build(ctx, format, arguments);
-	log.error(message.getMessage(), message.getThrowable());
-	log(ctx, message);
+        FormattingTuple message = build(ctx, format, arguments);
+        log.error(message.getMessage(), message.getThrowable());
+        log(ctx, message);
     }
 
     protected FormattingTuple build(InstallContext ctx, String format, Object[] arguments) {
-	return MessageFormatter.arrayFormat(format, arguments);
+        return MessageFormatter.arrayFormat(format, arguments);
     }
 
     protected void log(InstallContext ctx, FormattingTuple message) {
-	ProgressTrackerListener l = ctx.getOptions().getListener();
-	if (l != null) {
-	    if (message.getThrowable() != null) {
-		l.onError(Mode.TEXT, message.getMessage(), toException(message.getThrowable()));
-	    } else {
-		l.onMessage(Mode.TEXT, "Upgrade", message.getMessage());
-	    }
-	}
+        ProgressTrackerListener l = ctx.getOptions().getListener();
+        if (l != null) {
+            if (message.getThrowable() != null) {
+                l.onError(Mode.TEXT, message.getMessage(), toException(message.getThrowable()));
+            } else {
+                l.onMessage(Mode.TEXT, "Upgrade", message.getMessage());
+            }
+        }
     }
 
     protected Exception toException(Throwable throwable) {
-	if (throwable instanceof Exception) {
-	    return (Exception) throwable;
-	} else {
-	    return new Exception(throwable);
-	}
+        if (throwable instanceof Exception) {
+            return (Exception) throwable;
+        } else {
+            return new Exception(throwable);
+        }
     }
 
 }

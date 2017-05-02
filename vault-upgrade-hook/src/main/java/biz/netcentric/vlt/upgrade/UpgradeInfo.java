@@ -77,169 +77,169 @@ public class UpgradeInfo implements Comparable<UpgradeInfo> {
     private long counter = 0;
 
     public UpgradeInfo(UpgradeStatus status, Node node, String packageVersion) throws RepositoryException {
-	this.status = status;
-	this.node = node;
-	priority = JcrUtils.getLongProperty(node, PN_PRIORITY, DEFAULT_PRIORITY);
-	saveThreshold = JcrUtils.getLongProperty(node, PN_SAVE_THRESHOLD, DEFAULT_SAVE_THRESHOLD);
-	targetVersion = Version.create(JcrUtils.getStringProperty(node, PN_TARGET_VERSION, packageVersion));
-	runMode = RunMode.valueOf(JcrUtils.getStringProperty(node, PN_RUN_MODE, DEFAULT_RUN_MODE).toUpperCase());
-	skipOnInitial = JcrUtils.getBooleanProperty(node, PN_SKIP_ON_INITIAL, DEFAULT_SKIP_ON_INITIAL);
-	defaultPhase = Phase.valueOf(JcrUtils.getStringProperty(node, PN_DEFAULT_PHASE, DEFAULT_PHASE).toUpperCase());
-	handler = UpgradeType.create(JcrUtils.getStringProperty(node, PN_HANDLER, DEFAULT_HANDLER));
-	loadActions();
+        this.status = status;
+        this.node = node;
+        priority = JcrUtils.getLongProperty(node, PN_PRIORITY, DEFAULT_PRIORITY);
+        saveThreshold = JcrUtils.getLongProperty(node, PN_SAVE_THRESHOLD, DEFAULT_SAVE_THRESHOLD);
+        targetVersion = Version.create(JcrUtils.getStringProperty(node, PN_TARGET_VERSION, packageVersion));
+        runMode = RunMode.valueOf(JcrUtils.getStringProperty(node, PN_RUN_MODE, DEFAULT_RUN_MODE).toUpperCase());
+        skipOnInitial = JcrUtils.getBooleanProperty(node, PN_SKIP_ON_INITIAL, DEFAULT_SKIP_ON_INITIAL);
+        defaultPhase = Phase.valueOf(JcrUtils.getStringProperty(node, PN_DEFAULT_PHASE, DEFAULT_PHASE).toUpperCase());
+        handler = UpgradeType.create(JcrUtils.getStringProperty(node, PN_HANDLER, DEFAULT_HANDLER));
+        loadActions();
     }
 
     private void loadActions() throws RepositoryException {
-	for (Phase availablePhase : Phase.values()) {
-	    actions.put(availablePhase, new ArrayList<UpgradeAction>());
-	}
-	for (UpgradeAction action : handler.create(this)) {
-	    actions.get(action.getPhase()).add(action);
-	}
-	for (Phase availablePhase : Phase.values()) {
-	    Collections.sort(actions.get(availablePhase)); // make sure the
-							   // scripts are
-							   // correctly sorted
-	}
+        for (Phase availablePhase : Phase.values()) {
+            actions.put(availablePhase, new ArrayList<UpgradeAction>());
+        }
+        for (UpgradeAction action : handler.create(this)) {
+            actions.get(action.getPhase()).add(action);
+        }
+        for (Phase availablePhase : Phase.values()) {
+            Collections.sort(actions.get(availablePhase)); // make sure the
+                                                           // scripts are
+                                                           // correctly sorted
+        }
     }
 
     public void execute(InstallContext ctx) throws RepositoryException {
-	List<UpgradeAction> actionsOfPhase = getActions().get(ctx.getPhase());
-	LOG.debug(ctx, "executing [{}]: [{}]", this, actionsOfPhase);
-	boolean reinstall = false;
-	for (UpgradeAction action : actionsOfPhase) {
-	    if (reinstall || getRunMode() == RunMode.ALWAYS || action.isRelevant(ctx, this)) {
-		reinstall = true; // if the one action was regarded relevant all
-				  // following actions are also executed no
-				  // matter what their status is
-		action.execute(ctx);
-		executedActions.add(action.getName());
-		saveOnThreshold(ctx, ++counter);
-	    }
-	}
+        List<UpgradeAction> actionsOfPhase = getActions().get(ctx.getPhase());
+        LOG.debug(ctx, "executing [{}]: [{}]", this, actionsOfPhase);
+        boolean reinstall = false;
+        for (UpgradeAction action : actionsOfPhase) {
+            if (reinstall || getRunMode() == RunMode.ALWAYS || action.isRelevant(ctx, this)) {
+                reinstall = true; // if the one action was regarded relevant all
+                                  // following actions are also executed no
+                                  // matter what their status is
+                action.execute(ctx);
+                executedActions.add(action.getName());
+                saveOnThreshold(ctx, ++counter);
+            }
+        }
     }
 
     public Map<Phase, List<UpgradeAction>> getActions() throws RepositoryException {
-	return actions;
+        return actions;
     }
 
     protected void saveOnThreshold(InstallContext ctx, long count) throws RepositoryException {
-	if (saveThreshold > 0 && count % saveThreshold == 0) {
-	    LOG.info(ctx, "saving [{}]", count);
-	    ctx.getSession().save();
-	}
+        if (saveThreshold > 0 && count % saveThreshold == 0) {
+            LOG.info(ctx, "saving [{}]", count);
+            ctx.getSession().save();
+        }
     }
 
     public boolean isRelevant() {
-	if (runMode == UpgradeInfo.RunMode.ALWAYS) {
-	    return true;
-	}
-	if (skipOnInitial && status.isInitial()) {
-	    return false; // don't spool all upgrades on a new installation
-	}
-	return status.getLastExecution().compareTo(getTargetVersion()) <= 0;
+        if (runMode == UpgradeInfo.RunMode.ALWAYS) {
+            return true;
+        }
+        if (skipOnInitial && status.isInitial()) {
+            return false; // don't spool all upgrades on a new installation
+        }
+        return status.getLastExecution().compareTo(getTargetVersion()) <= 0;
     }
 
     public enum RunMode {
-	/**
-	 * Run if current version >= version of the last execution and run each
-	 * action exactly once.
-	 */
-	INCREMENTAL,
+        /**
+         * Run if current version >= version of the last execution and run each
+         * action exactly once.
+         */
+        INCREMENTAL,
 
-	/**
-	 * Completely disregarding previous executions.
-	 */
-	ALWAYS
+        /**
+         * Completely disregarding previous executions.
+         */
+        ALWAYS
     }
 
     @Override
     public int compareTo(UpgradeInfo other) {
-	// first sorting criterion: version
-	int versionCompare = targetVersion.compareTo(other.targetVersion);
-	if (versionCompare == 0) {
-	    // second sorting criterion: priority
-	    return (priority < other.priority) ? -1 : ((priority == other.priority) ? 0 : 1);
-	} else {
-	    return versionCompare;
-	}
+        // first sorting criterion: version
+        int versionCompare = targetVersion.compareTo(other.targetVersion);
+        if (versionCompare == 0) {
+            // second sorting criterion: priority
+            return (priority < other.priority) ? -1 : ((priority == other.priority) ? 0 : 1);
+        } else {
+            return versionCompare;
+        }
     }
 
     @Override
     public int hashCode() {
-	final int prime = 31;
-	int result = 1;
-	result = prime * result + ((node == null) ? 0 : node.hashCode());
-	return result;
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((node == null) ? 0 : node.hashCode());
+        return result;
     }
 
     @Override
     public boolean equals(Object obj) {
-	if (this == obj)
-	    return true;
-	if (obj == null)
-	    return false;
-	if (getClass() != obj.getClass())
-	    return false;
-	UpgradeInfo other = (UpgradeInfo) obj;
-	if (node == null) {
-	    if (other.node != null)
-		return false;
-	} else if (!node.equals(other.node))
-	    return false;
-	return true;
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        UpgradeInfo other = (UpgradeInfo) obj;
+        if (node == null) {
+            if (other.node != null)
+                return false;
+        } else if (!node.equals(other.node))
+            return false;
+        return true;
     }
 
     @Override
     public String toString() {
-	return super.toString() + " [node=" + node + ", status=" + status + ", priority=" + priority
-		+ ", saveThreshold=" + saveThreshold + ", version=" + targetVersion + ", runMode=" + runMode
-		+ ", skipOnInitial=" + skipOnInitial + ", defaultPhase=" + defaultPhase + ", handler=" + handler
-		+ ", executedActions=" + executedActions + ", actions=" + actions + ", counter=" + counter + "]";
+        return super.toString() + " [node=" + node + ", status=" + status + ", priority=" + priority
+                + ", saveThreshold=" + saveThreshold + ", version=" + targetVersion + ", runMode=" + runMode
+                + ", skipOnInitial=" + skipOnInitial + ", defaultPhase=" + defaultPhase + ", handler=" + handler
+                + ", executedActions=" + executedActions + ", actions=" + actions + ", counter=" + counter + "]";
     }
 
     public List<String> getExecutedActions() {
-	return executedActions;
+        return executedActions;
     }
 
     public long getCounter() {
-	return counter;
+        return counter;
     }
 
     public UpgradeStatus getStatus() {
-	return status;
+        return status;
     }
 
     public long getPriority() {
-	return priority;
+        return priority;
     }
 
     public long getSaveThreshold() {
-	return saveThreshold;
+        return saveThreshold;
     }
 
     public Version getTargetVersion() {
-	return targetVersion;
+        return targetVersion;
     }
 
     public RunMode getRunMode() {
-	return runMode;
+        return runMode;
     }
 
     public Phase getDefaultPhase() {
-	return defaultPhase;
+        return defaultPhase;
     }
 
     public UpgradeHandler getHandler() {
-	return handler;
+        return handler;
     }
 
     public Node getNode() {
-	return node;
+        return node;
     }
 
     public boolean isSkipOnInitial() {
-	return skipOnInitial;
+        return skipOnInitial;
     }
 
 }

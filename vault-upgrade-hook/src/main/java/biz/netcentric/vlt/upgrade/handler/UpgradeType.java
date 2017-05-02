@@ -23,35 +23,35 @@ public enum UpgradeType {
     private final Class<? extends UpgradeHandler> clazz;
 
     private UpgradeType(Class<? extends UpgradeHandler> clazz) {
-	this.clazz = clazz;
+        this.clazz = clazz;
     }
 
     public static UpgradeHandler create(String key) {
-	UpgradeHandler handler = null;
-	for (UpgradeType type : values()) {
-	    if (type.name().equalsIgnoreCase(key)) {
-		handler = create(type.clazz);
-	    }
-	}
-	if (handler == null) {
-	    try {
-		handler = create(Class.forName(key));
-	    } catch (ClassNotFoundException e) {
-		throw new IllegalArgumentException("Cannot find custom handler: " + key, e);
-	    }
-	}
-	if (!handler.isAvailable()) {
-	    throw new IllegalArgumentException("Handler not available: " + handler);
-	}
-	return handler;
+        UpgradeHandler handler = null;
+        for (UpgradeType type : values()) {
+            if (type.name().equalsIgnoreCase(key)) {
+                handler = create(type.clazz);
+            }
+        }
+        if (handler == null) {
+            try {
+                handler = create(Class.forName(key));
+            } catch (ClassNotFoundException e) {
+                throw new IllegalArgumentException("Cannot find custom handler: " + key, e);
+            }
+        }
+        if (!handler.isAvailable()) {
+            throw new IllegalArgumentException("Handler not available: " + handler);
+        }
+        return handler;
     }
 
     private static UpgradeHandler create(Class<?> clazz) {
-	try {
-	    return (UpgradeHandler) clazz.newInstance();
-	} catch (InstantiationException | IllegalAccessException | ClassCastException e) {
-	    throw new IllegalArgumentException("Cannot instantiate class: " + clazz, e);
-	}
+        try {
+            return (UpgradeHandler) clazz.newInstance();
+        } catch (InstantiationException | IllegalAccessException | ClassCastException e) {
+            throw new IllegalArgumentException("Cannot instantiate class: " + clazz, e);
+        }
     }
 
 }

@@ -32,30 +32,30 @@ public class SlingPipesHandler implements UpgradeHandler {
 
     @Override
     public boolean isAvailable() {
-	return getService() != null;
+        return getService() != null;
     }
 
     @Override
     public Iterable<UpgradeAction> create(UpgradeInfo info) throws RepositoryException {
-	Collection<UpgradeAction> pipes = new ArrayList<>();
-	for (Resource child : sling.getResourceResolver(info.getNode().getSession())
-		.getResource(info.getNode().getPath()).getChildren()) {
-	    if (child.getResourceType().startsWith("slingPipes/")) {
-		pipes.add(new SlingPipe(getService(), child, info.getDefaultPhase()));
-	    }
-	}
-	return pipes;
+        Collection<UpgradeAction> pipes = new ArrayList<>();
+        for (Resource child : sling.getResourceResolver(info.getNode().getSession())
+                .getResource(info.getNode().getPath()).getChildren()) {
+            if (child.getResourceType().startsWith("slingPipes/")) {
+                pipes.add(new SlingPipe(getService(), child, info.getDefaultPhase()));
+            }
+        }
+        return pipes;
     }
 
     protected Plumber getService() {
-	if (service == null) {
-	    try {
-		service = sling.getService(Plumber.class);
-	    } catch (NoClassDefFoundError e) {
-		LOG.warn("Could not load Plumber.", e);
-	    }
-	}
-	return service;
+        if (service == null) {
+            try {
+                service = sling.getService(Plumber.class);
+            } catch (NoClassDefFoundError e) {
+                LOG.warn("Could not load Plumber.", e);
+            }
+        }
+        return service;
     }
 
 }

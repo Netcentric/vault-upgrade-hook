@@ -56,85 +56,85 @@ public class UpgradeProcessor implements InstallHook {
 
     @Override
     public void execute(InstallContext ctx) throws PackageException {
-	LOG.info(ctx, "starting [{}]", ctx.getPhase());
+        LOG.info(ctx, "starting [{}]", ctx.getPhase());
 
-	try {
-	    switch (ctx.getPhase()) {
-	    case PREPARE:
-		loadStatus(ctx);
-		loadInfos(ctx);
-		executeInfos(ctx);
-		break;
-	    case INSTALLED:
-	    case PREPARE_FAILED:
-	    case INSTALL_FAILED:
-		executeInfos(ctx);
-		break;
-	    case END:
-		executeInfos(ctx);
-		status.update(ctx);
-		updateActions(ctx);
-		ctx.getSession().save();
-		break;
-	    }
-	} catch (Exception e) {
-	    LOG.error(ctx, "Error during content upgrade", e);
-	    throw new PackageException(e);
-	} finally {
-	    LOG.debug(ctx, "finished [{}]", ctx.getPhase());
-	}
+        try {
+            switch (ctx.getPhase()) {
+            case PREPARE:
+                loadStatus(ctx);
+                loadInfos(ctx);
+                executeInfos(ctx);
+                break;
+            case INSTALLED:
+            case PREPARE_FAILED:
+            case INSTALL_FAILED:
+                executeInfos(ctx);
+                break;
+            case END:
+                executeInfos(ctx);
+                status.update(ctx);
+                updateActions(ctx);
+                ctx.getSession().save();
+                break;
+            }
+        } catch (Exception e) {
+            LOG.error(ctx, "Error during content upgrade", e);
+            throw new PackageException(e);
+        } finally {
+            LOG.debug(ctx, "finished [{}]", ctx.getPhase());
+        }
     }
 
     protected void updateActions(InstallContext ctx) throws RepositoryException {
-	LOG.debug(ctx, "updating actions [{}]", infos);
-	for (UpgradeInfo info : infos) {
-	    status.updateActions(ctx, info);
-	}
+        LOG.debug(ctx, "updating actions [{}]", infos);
+        for (UpgradeInfo info : infos) {
+            status.updateActions(ctx, info);
+        }
     }
 
     protected void executeInfos(InstallContext ctx) throws RepositoryException {
-	LOG.debug(ctx, "starting package execution [{}]", infos);
-	for (UpgradeInfo info : infos) {
-	    info.execute(ctx);
-	}
+        LOG.debug(ctx, "starting package execution [{}]", infos);
+        for (UpgradeInfo info : infos) {
+            info.execute(ctx);
+        }
     }
 
     protected void loadInfos(InstallContext ctx) throws RepositoryException {
 
-	String upgradeInfoPath = ctx.getPackage().getId().getInstallationPath() + UPGRADER_PATH_IN_PACKAGE;
-	Node upgradeInfoNode = ctx.getSession().getNode(upgradeInfoPath);
-	LOG.debug(ctx, "loading packages [{}]: [{}]", upgradeInfoPath, upgradeInfoNode);
+        String upgradeInfoPath = ctx.getPackage().getId().getInstallationPath() + UPGRADER_PATH_IN_PACKAGE;
+        Node upgradeInfoNode = ctx.getSession().getNode(upgradeInfoPath);
+        LOG.debug(ctx, "loading packages [{}]: [{}]", upgradeInfoPath, upgradeInfoNode);
 
-	infos = new ArrayList<>();
+        infos = new ArrayList<>();
 
-	if (upgradeInfoNode != null) {
+        if (upgradeInfoNode != null) {
 
-	    NodeIterator nodes = upgradeInfoNode.getNodes();
-	    while (nodes.hasNext()) {
-		Node child = nodes.nextNode();
-		final UpgradeInfo info = new UpgradeInfo(status, child, ctx.getPackage().getId().getVersionString());
-		LOG.debug(ctx, "info [{}]", info);
-		if (info.isRelevant()) {
-		    infos.add(info);
-		} else {
-		    LOG.debug(ctx, "package not relevant: [{}]", child);
-		}
-	    }
+            NodeIterator nodes = upgradeInfoNode.getNodes();
+            while (nodes.hasNext()) {
+                Node child = nodes.nextNode();
+                final UpgradeInfo info = new UpgradeInfo(status, child, ctx.getPackage().getId().getVersionString());
+                LOG.debug(ctx, "info [{}]", info);
+                if (info.isRelevant()) {
+                    infos.add(info);
+                } else {
+                    LOG.debug(ctx, "package not relevant: [{}]", child);
+                }
+            }
 
-	    // sort upgrade infos according to their version and priority
-	    Collections.sort(infos);
-	} else {
-	    LOG.warn(ctx, "Could not load upgrade info [{}]", upgradeInfoPath);
-	}
+            // sort upgrade infos according to their version and priority
+            Collections.sort(infos);
+        } else {
+            LOG.warn(ctx, "Could not load upgrade info [{}]", upgradeInfoPath);
+        }
     }
 
     protected void loadStatus(InstallContext ctx) throws RepositoryException {
-	String statusPath = getStatusPath(ctx.getPackage().getId());
-	status = new UpgradeStatus(ctx, statusPath);
+        String statusPath = getStatusPath(ctx.getPackage().getId());
+        status = new UpgradeStatus(ctx, statusPath);
     }
 
     protected String getStatusPath(PackageId packageId) {
-	return STATUS_PATH + "/" + packageId.getGroup() + "/" + packageId.getName();
+        return STATUS_PATH + "/" + packageId.getGroup() + "/" + packageId.getName();
     }
 
 }

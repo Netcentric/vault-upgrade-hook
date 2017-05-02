@@ -40,37 +40,37 @@ public class GroovyConsoleHandler implements UpgradeHandler {
 
     @Override
     public boolean isAvailable() {
-	return getService() != null;
+        return getService() != null;
     }
 
     @Override
     public List<UpgradeAction> create(UpgradeInfo info) throws RepositoryException {
-	List<UpgradeAction> scripts = new ArrayList<>();
+        List<UpgradeAction> scripts = new ArrayList<>();
 
-	NodeIterator nodes = info.getNode().getNodes();
-	while (nodes.hasNext()) {
-	    Node child = nodes.nextNode();
-	    if (child.getName().endsWith(".groovy") && child.isNodeType("nt:file")) {
-		scripts.add(new GroovyScript(getService(), child, info.getDefaultPhase()));
-	    }
-	}
+        NodeIterator nodes = info.getNode().getNodes();
+        while (nodes.hasNext()) {
+            Node child = nodes.nextNode();
+            if (child.getName().endsWith(".groovy") && child.isNodeType("nt:file")) {
+                scripts.add(new GroovyScript(getService(), child, info.getDefaultPhase()));
+            }
+        }
 
-	return scripts;
+        return scripts;
     }
 
     protected GroovyConsoleService getService() {
-	if (service == null) {
-	    try {
-		service = osgi.getService(GroovyConsoleService.class);
-	    } catch (NoClassDefFoundError e) {
-		LOG.warn("Could not load GroovyConsoleService.", e);
-	    }
-	}
-	return service;
+        if (service == null) {
+            try {
+                service = osgi.getService(GroovyConsoleService.class);
+            } catch (NoClassDefFoundError e) {
+                LOG.warn("Could not load GroovyConsoleService.", e);
+            }
+        }
+        return service;
     }
 
     public static void setOsgi(OsgiUtil osgi) {
-	GroovyConsoleHandler.osgi = osgi;
+        GroovyConsoleHandler.osgi = osgi;
     }
 
 }

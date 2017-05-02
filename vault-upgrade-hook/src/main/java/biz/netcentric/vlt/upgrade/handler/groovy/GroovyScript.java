@@ -36,33 +36,33 @@ public class GroovyScript extends UpgradeAction {
     private final GroovyConsoleService service;
 
     public GroovyScript(GroovyConsoleService service, Node script, Phase defaultPhase)
-	    throws RepositoryException {
-	super(script.getName(), UpgradeAction.getPhaseFromPrefix(defaultPhase, script.getName()));
-	this.service = service;
-	this.script = script;
+            throws RepositoryException {
+        super(script.getName(), UpgradeAction.getPhaseFromPrefix(defaultPhase, script.getName()));
+        this.service = service;
+        this.script = script;
     }
 
     @Override
     public void execute(InstallContext ctx) throws RepositoryException {
-	SlingHttpServletRequest request = getRequestForScript();
-	if (request != null) {
-	    LOG.debug(ctx, "Executing [{}]", script.getName());
-	    RunScriptResponse scriptResponse = service.runScript(request);
-	    LOG.info(ctx, "Executed [{}]: [{}]\n{}\n---\n", script.getName(), scriptResponse.getRunningTime(),
-		    scriptResponse.getOutput().trim());
-	}
+        SlingHttpServletRequest request = getRequestForScript();
+        if (request != null) {
+            LOG.debug(ctx, "Executing [{}]", script.getName());
+            RunScriptResponse scriptResponse = service.runScript(request);
+            LOG.info(ctx, "Executed [{}]: [{}]\n{}\n---\n", script.getName(), scriptResponse.getRunningTime(),
+                    scriptResponse.getOutput().trim());
+        }
     }
 
     protected SlingHttpServletRequest getRequestForScript() throws RepositoryException {
-	String dataPath = JcrConstants.JCR_CONTENT + "/" + JcrConstants.JCR_DATA;
-	if (script.hasProperty(dataPath)) {
-	    Map<String, Object> parameters = new HashMap<>();
-	    parameters.put("script", JcrUtils.getStringProperty(script, dataPath, ""));
-	    parameters.put("scriptPath", script.getPath());
-	    return new FakeRequest(sling.getResourceResolver(script.getSession()), "GET",
-		    "/bin/groovyconsole/post.json", parameters);
-	}
-	return null;
+        String dataPath = JcrConstants.JCR_CONTENT + "/" + JcrConstants.JCR_DATA;
+        if (script.hasProperty(dataPath)) {
+            Map<String, Object> parameters = new HashMap<>();
+            parameters.put("script", JcrUtils.getStringProperty(script, dataPath, ""));
+            parameters.put("scriptPath", script.getPath());
+            return new FakeRequest(sling.getResourceResolver(script.getSession()), "GET",
+                    "/bin/groovyconsole/post.json", parameters);
+        }
+        return null;
     }
 
 }

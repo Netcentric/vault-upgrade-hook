@@ -23,13 +23,13 @@ import org.apache.sling.api.resource.ResourceResolverFactory;
 public class SlingUtils extends OsgiUtil {
 
     public ResourceResolver getResourceResolver(Session session) {
-	ResourceResolverFactory resourceResolverFactory = getService(ResourceResolverFactory.class);
-	try {
-	    return resourceResolverFactory
-		    .getResourceResolver(Collections.<String, Object>singletonMap("user.jcr.session", session));
-	} catch (LoginException e) {
-	    throw new IllegalStateException("Cannot get ResourceResolver from session.", e);
-	}
+        ResourceResolverFactory resourceResolverFactory = getService(ResourceResolverFactory.class);
+        try {
+            return resourceResolverFactory
+                    .getResourceResolver(Collections.<String, Object>singletonMap("user.jcr.session", session));
+        } catch (LoginException e) {
+            throw new IllegalStateException("Cannot get ResourceResolver from session.", e);
+        }
     }
 
 }

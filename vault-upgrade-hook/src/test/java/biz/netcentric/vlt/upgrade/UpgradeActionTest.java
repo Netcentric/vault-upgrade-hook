@@ -33,26 +33,26 @@ public class UpgradeActionTest {
 
     @Test
     public void testIsRelevant() throws Exception {
-	TestAction action = new TestAction("test", null);
+        TestAction action = new TestAction("test", null);
 
-	Mockito.when(info.getStatus()).thenReturn(status);
+        Mockito.when(info.getStatus()).thenReturn(status);
 
-	Mockito.when(status.notExecuted(ctx, info, action)).thenReturn(true);
-	Assert.assertTrue(action.isRelevant(ctx, info));
+        Mockito.when(status.notExecuted(ctx, info, action)).thenReturn(true);
+        Assert.assertTrue(action.isRelevant(ctx, info));
 
-	Mockito.when(status.notExecuted(ctx, info, action)).thenReturn(false);
-	Assert.assertFalse(action.isRelevant(ctx, info));
+        Mockito.when(status.notExecuted(ctx, info, action)).thenReturn(false);
+        Assert.assertFalse(action.isRelevant(ctx, info));
     }
 
     private static class TestAction extends UpgradeAction {
 
-	public TestAction(String name, Phase phase) {
-	    super(name, phase);
-	}
+        public TestAction(String name, Phase phase) {
+            super(name, phase);
+        }
 
-	@Override
-	public void execute(InstallContext ctx) throws RepositoryException {
-	}
+        @Override
+        public void execute(InstallContext ctx) throws RepositoryException {
+        }
 
     }
 

@@ -26,23 +26,23 @@ public class SlingPipe extends UpgradeAction {
     private final Plumber service;
 
     public SlingPipe(Plumber service, Resource resource, Phase defaultPhase) {
-	super(resource.getName(), UpgradeAction.getPhaseFromPrefix(defaultPhase, resource.getName()));
-	this.service = service;
-	this.resource = resource;
+        super(resource.getName(), UpgradeAction.getPhaseFromPrefix(defaultPhase, resource.getName()));
+        this.service = service;
+        this.resource = resource;
     }
 
     @Override
     public void execute(InstallContext ctx) {
-	Pipe pipe = service.getPipe(resource);
-	if (pipe == null) {
-	    throw new IllegalArgumentException("No valid pipe at " + resource);
-	}
-	LOG.debug(ctx, "Executing [{}]: [{}]", resource.getName(), pipe);
+        Pipe pipe = service.getPipe(resource);
+        if (pipe == null) {
+            throw new IllegalArgumentException("No valid pipe at " + resource);
+        }
+        LOG.debug(ctx, "Executing [{}]: [{}]", resource.getName(), pipe);
 
-	for (Resource r : JcrUtils.in(pipe.getOutput())) {
-	    // output affected resource path for information
-	    LOG.info(ctx, r.getPath());
-	}
+        for (Resource r : JcrUtils.in(pipe.getOutput())) {
+            // output affected resource path for information
+            LOG.info(ctx, r.getPath());
+        }
     }
 
 }

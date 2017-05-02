@@ -20,10 +20,10 @@ public class OsgiUtil {
 
     @SuppressWarnings("unchecked")
     public <T> T getService(Class<T> clazz) {
-	Bundle bundle = FrameworkUtil.getBundle(clazz);
-	BundleContext context = bundle.getBundleContext();
-	ServiceReference<?> serviceReference = context.getServiceReference(clazz.getName());
-	return (T) context.getService(serviceReference);
+        Bundle bundle = FrameworkUtil.getBundle(clazz);
+        BundleContext context = bundle.getBundleContext();
+        ServiceReference<?> serviceReference = context.getServiceReference(clazz.getName());
+        return (T) context.getService(serviceReference);
     }
 
 }
