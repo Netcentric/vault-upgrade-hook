@@ -46,7 +46,7 @@ public class UpgradeProcessorTest {
     private VaultPackage vaultPackage;
 
     @Mock
-    private UpgradeInfo gorup;
+    private UpgradeInfo group;
 
     @Mock
     private static UpgradeAction action;
@@ -57,11 +57,12 @@ public class UpgradeProcessorTest {
     private UpgradeProcessor processor;
 
     @Before
-    public void setup() {
+    public void setup() throws Exception {
         Mockito.reset(action);
         processor = new UpgradeProcessor();
         Mockito.when(ctx.getOptions()).thenReturn(Mockito.mock(ImportOptions.class));
         Mockito.when(ctx.getSession()).thenReturn(sling.resourceResolver().adaptTo(Session.class));
+	Mockito.when(group.isRelevant(ctx)).thenReturn(true);
     }
 
     @Test
@@ -83,28 +84,28 @@ public class UpgradeProcessorTest {
 
         processor.execute(ctx);
 
-        Assert.assertEquals("1.0.0", processor.status.getLastExecution().toString());
         Assert.assertEquals(1, processor.infos.size());
         Assert.assertEquals("1.0.1-SNAPSHOT", processor.infos.get(0).getTargetVersion().toString());
-        Assert.assertTrue(processor.infos.get(0).isRelevant());
+	Assert.assertTrue(processor.infos.get(0).isRelevant(ctx));
+	Assert.assertEquals("1.0.0", processor.status.getLastExecution(ctx, processor.infos.get(0)).toString());
         Mockito.verify(action).execute(ctx);
     }
 
     @Test
     public void testExecuteInstalled() throws Exception {
-        processor.infos = Arrays.asList(gorup);
+        processor.infos = Arrays.asList(group);
 
         Mockito.when(ctx.getPhase()).thenReturn(Phase.INSTALLED);
 
         processor.execute(ctx);
 
-        Mockito.verify(gorup).execute(ctx);
+        Mockito.verify(group).execute(ctx);
     }
 
     @Test
     public void testExecuteEnd() throws Exception {
         processor.status = status;
-        processor.infos = Arrays.asList(gorup);
+        processor.infos = Arrays.asList(group);
 
         Mockito.when(ctx.getPhase()).thenReturn(Phase.END);
 
@@ -114,34 +115,35 @@ public class UpgradeProcessorTest {
 
         processor.execute(ctx);
 
-        Mockito.verify(gorup).execute(ctx);
+        Mockito.verify(group).execute(ctx);
         Assert.assertFalse(ctx.getSession().hasPendingChanges());
         Mockito.verify(status).update(ctx);
-        Mockito.verify(status).updateActions(ctx, gorup);
+        Mockito.verify(status).update(ctx, group);
     }
 
     @Test
     public void testExecuteFailed() throws Exception {
         processor.status = status;
-        processor.infos = Arrays.asList(gorup);
+        processor.infos = Arrays.asList(group);
 
         Mockito.when(ctx.getPhase()).thenReturn(Phase.PREPARE_FAILED);
         processor.execute(ctx);
-        Mockito.verify(gorup).execute(ctx);
+        Mockito.verify(group).execute(ctx);
 
-        Mockito.reset(gorup);
+        Mockito.reset(group);
+	Mockito.when(group.isRelevant(ctx)).thenReturn(true);
 
         Mockito.when(ctx.getPhase()).thenReturn(Phase.INSTALL_FAILED);
         processor.execute(ctx);
-        Mockito.verify(gorup).execute(ctx);
+        Mockito.verify(group).execute(ctx);
     }
 
     @Test(expected = PackageException.class)
     public void testExecuteException() throws Exception {
-        processor.infos = Arrays.asList(gorup);
+        processor.infos = Arrays.asList(group);
 
         Mockito.when(ctx.getPhase()).thenReturn(Phase.INSTALLED);
-        Mockito.doThrow(new IllegalArgumentException("testException")).when(gorup).execute(ctx);
+        Mockito.doThrow(new IllegalArgumentException("testException")).when(group).execute(ctx);
 
         processor.execute(ctx);
     }

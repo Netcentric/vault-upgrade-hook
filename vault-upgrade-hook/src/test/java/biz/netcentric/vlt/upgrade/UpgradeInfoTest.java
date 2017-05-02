@@ -25,6 +25,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -48,7 +49,7 @@ public class UpgradeInfoTest {
     @Mock
     private OsgiUtil osgi;
 
-    @Mock
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private InstallContext ctx;
 
     @Mock
@@ -78,7 +79,6 @@ public class UpgradeInfoTest {
         Assert.assertEquals(UpgradeInfo.DEFAULT_SKIP_ON_INITIAL, info.isSkipOnInitial());
         Assert.assertEquals(UpgradeInfo.DEFAULT_PHASE, info.getDefaultPhase().toString());
         Assert.assertTrue(info.getHandler() instanceof GroovyConsoleHandler);
-        Assert.assertTrue(info.getExecutedActions().isEmpty());
         Assert.assertEquals(Phase.values().length, info.getActions().size());
         Assert.assertEquals("test.groovy", info.getActions().get(info.getDefaultPhase()).get(0).getName());
         Assert.assertEquals(0, info.getCounter());
@@ -156,36 +156,36 @@ public class UpgradeInfoTest {
         UpgradeInfo info = new UpgradeInfo(status, session.getNode("/testAlways"), "0");
         Assert.assertEquals(RunMode.ALWAYS, info.getRunMode());
 
-        Assert.assertTrue(info.isRelevant());
+	Assert.assertTrue(info.isRelevant(ctx));
 
         sling.build().resource("/test", JcrConstants.JCR_PRIMARYTYPE, JcrConstants.NT_FILE);
         info = new UpgradeInfo(status, session.getNode("/test"), "1");
-        Mockito.when(status.getLastExecution()).thenReturn(Version.create("0"));
+	Mockito.when(status.getLastExecution(ctx, info)).thenReturn(Version.create("0"));
 
-        Assert.assertTrue(info.isRelevant());
+	Assert.assertTrue(info.isRelevant(ctx));
 
         Mockito.when(status.isInitial()).thenReturn(true);
-        Assert.assertFalse(info.isRelevant());
+	Assert.assertFalse(info.isRelevant(ctx));
         Mockito.when(status.isInitial()).thenReturn(false);
 
-        Mockito.when(status.getLastExecution()).thenReturn(Version.create("1"));
-        Assert.assertTrue(info.isRelevant());
+	Mockito.when(status.getLastExecution(ctx, info)).thenReturn(Version.create("1"));
+	Assert.assertTrue(info.isRelevant(ctx));
 
-        Mockito.when(status.getLastExecution()).thenReturn(Version.create("2"));
-        Assert.assertFalse(info.isRelevant());
+	Mockito.when(status.getLastExecution(ctx, info)).thenReturn(Version.create("2"));
+	Assert.assertFalse(info.isRelevant(ctx));
 
         sling.build().resource("/testNotSkipOnInitial", JcrConstants.JCR_PRIMARYTYPE, JcrConstants.NT_FILE, //
                 UpgradeInfo.PN_SKIP_ON_INITIAL, false);
         info = new UpgradeInfo(status, session.getNode("/testNotSkipOnInitial"), "1");
-        Mockito.when(status.getLastExecution()).thenReturn(Version.create("0"));
+	Mockito.when(status.getLastExecution(ctx, info)).thenReturn(Version.create("0"));
 
-        Assert.assertTrue(info.isRelevant());
+	Assert.assertTrue(info.isRelevant(ctx));
 
         Mockito.when(status.isInitial()).thenReturn(true);
-        Assert.assertTrue(info.isRelevant());
+	Assert.assertTrue(info.isRelevant(ctx));
 
-        Mockito.when(status.getLastExecution()).thenReturn(Version.create("2"));
-        Assert.assertFalse(info.isRelevant());
+	Mockito.when(status.getLastExecution(ctx, info)).thenReturn(Version.create("2"));
+	Assert.assertFalse(info.isRelevant(ctx));
     }
 
     public static class TestHandler implements UpgradeHandler {

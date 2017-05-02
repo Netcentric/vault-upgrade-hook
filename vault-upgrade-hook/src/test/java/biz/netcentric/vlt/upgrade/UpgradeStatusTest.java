@@ -9,6 +9,9 @@
 package biz.netcentric.vlt.upgrade;
 
 import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.jcr.Session;
 import javax.jcr.Value;
@@ -16,6 +19,7 @@ import javax.jcr.Value;
 import org.apache.jackrabbit.JcrConstants;
 import org.apache.jackrabbit.commons.JcrUtils;
 import org.apache.jackrabbit.vault.packaging.InstallContext;
+import org.apache.jackrabbit.vault.packaging.InstallContext.Phase;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.apache.sling.testing.mock.sling.junit.SlingContext;
 import org.junit.Assert;
@@ -60,7 +64,7 @@ public class UpgradeStatusTest {
     @Test
     public void testConstructor() throws Exception {
         Assert.assertFalse(status.isInitial());
-        Assert.assertEquals("1", status.getLastExecution().toString());
+	Assert.assertEquals("1", status.getLastExecution(ctx, info).toString());
 
         status = new UpgradeStatus(ctx, "/create-test");
         Assert.assertTrue(session.nodeExists("/create-test"));
@@ -83,7 +87,7 @@ public class UpgradeStatusTest {
     }
 
     @Test
-    public void testUpdate() throws Exception {
+    public void testGeneralUpdate() throws Exception {
         Mockito.when(ctx.getPackage().getId().getVersionString()).thenReturn("2.1.0");
         status.update(ctx);
         Assert.assertEquals("2.1.0",
@@ -92,10 +96,17 @@ public class UpgradeStatusTest {
     }
 
     @Test
-    public void testUpdateAction() throws Exception {
-        Mockito.when(info.getExecutedActions()).thenReturn(Arrays.asList("test1", "test2"));
+    public void testInfoUpdate() throws Exception {
+	UpgradeAction action1 = Mockito.mock(UpgradeAction.class);
+	Mockito.when(action1.getName()).thenReturn("test1");
+	UpgradeAction action2 = Mockito.mock(UpgradeAction.class);
+	Mockito.when(action2.getName()).thenReturn("test2");
+	Map<Phase, List<UpgradeAction>> actions = new LinkedHashMap<>();
+	actions.put(Phase.INSTALL_FAILED, Arrays.asList(action1));
+	actions.put(Phase.END, Arrays.asList(action2));
+	Mockito.when(info.getActions()).thenReturn(actions);
         Mockito.when(info.getNode().getName()).thenReturn("testInfo");
-        status.updateActions(ctx, info);
+        status.update(ctx, info);
         Assert.assertArrayEquals(new String[] { "test1", "test2" },
                 toStringArray(session.getProperty("/test/testInfo/" + UpgradeStatus.PN_ACTIONS).getValues()));
     }

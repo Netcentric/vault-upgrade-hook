@@ -72,7 +72,6 @@ public class UpgradeInfo implements Comparable<UpgradeInfo> {
     private final boolean skipOnInitial;
     private final Phase defaultPhase;
     private final UpgradeHandler handler;
-    private final List<String> executedActions = new ArrayList<>();
     private final Map<Phase, List<UpgradeAction>> actions = new HashMap<>();
     private long counter = 0;
 
@@ -104,16 +103,15 @@ public class UpgradeInfo implements Comparable<UpgradeInfo> {
     }
 
     public void execute(InstallContext ctx) throws RepositoryException {
-        List<UpgradeAction> actionsOfPhase = getActions().get(ctx.getPhase());
-        LOG.debug(ctx, "executing [{}]: [{}]", this, actionsOfPhase);
+	List<UpgradeAction> actionsOfPhase = getActions().get(ctx.getPhase());
+	LOG.debug(ctx, "executing [{}]: [{}]", this, actionsOfPhase);
         boolean reinstall = false;
         for (UpgradeAction action : actionsOfPhase) {
-            if (reinstall || getRunMode() == RunMode.ALWAYS || action.isRelevant(ctx, this)) {
+	    if (reinstall || getRunMode() == RunMode.ALWAYS || action.isRelevant(ctx, this)) {
                 reinstall = true; // if the one action was regarded relevant all
                                   // following actions are also executed no
                                   // matter what their status is
                 action.execute(ctx);
-                executedActions.add(action.getName());
                 saveOnThreshold(ctx, ++counter);
             }
         }
@@ -130,14 +128,21 @@ public class UpgradeInfo implements Comparable<UpgradeInfo> {
         }
     }
 
-    public boolean isRelevant() {
+    public boolean isRelevant(InstallContext ctx) throws RepositoryException {
         if (runMode == UpgradeInfo.RunMode.ALWAYS) {
             return true;
         }
         if (skipOnInitial && status.isInitial()) {
+	    LOG.info(ctx, "Skip initial: [{}]", this);
             return false; // don't spool all upgrades on a new installation
         }
-        return status.getLastExecution().compareTo(getTargetVersion()) <= 0;
+	Version lastExecution = status.getLastExecution(ctx, this);
+	boolean result = lastExecution.compareTo(getTargetVersion()) <= 0;
+	if (!result) {
+	    LOG.info(ctx, "Skip because of older target version: [{}] <=> [{}]", lastExecution,
+		    getTargetVersion());
+	}
+	return result;
     }
 
     public enum RunMode {
@@ -195,11 +200,7 @@ public class UpgradeInfo implements Comparable<UpgradeInfo> {
         return super.toString() + " [node=" + node + ", status=" + status + ", priority=" + priority
                 + ", saveThreshold=" + saveThreshold + ", version=" + targetVersion + ", runMode=" + runMode
                 + ", skipOnInitial=" + skipOnInitial + ", defaultPhase=" + defaultPhase + ", handler=" + handler
-                + ", executedActions=" + executedActions + ", actions=" + actions + ", counter=" + counter + "]";
-    }
-
-    public List<String> getExecutedActions() {
-        return executedActions;
+		+ ", actions=" + actions + ", counter=" + counter + "]";
     }
 
     public long getCounter() {

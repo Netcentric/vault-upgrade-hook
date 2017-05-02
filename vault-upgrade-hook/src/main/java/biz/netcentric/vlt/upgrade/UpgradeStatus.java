@@ -8,7 +8,9 @@
  */
 package biz.netcentric.vlt.upgrade;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
@@ -75,6 +77,12 @@ public class UpgradeStatus {
         return JcrUtils.getNodeIfExists(packagePath, node.getSession());
     }
 
+    /**
+     * Stores the general status.
+     * 
+     * @param ctx
+     * @throws RepositoryException
+     */
     public void update(InstallContext ctx) throws RepositoryException {
         node.setProperty(PN_UPGRADE_TIME, Calendar.getInstance());
         String versionString = ctx.getPackage().getId().getVersionString();
@@ -82,16 +90,41 @@ public class UpgradeStatus {
         LOG.info(ctx, "stored new status [{}]: [{}]", node, versionString);
     }
 
-    public void updateActions(InstallContext ctx, UpgradeInfo info) throws RepositoryException {
+    /**
+     * Stores the info specific status.
+     * 
+     * @param ctx
+     * @param info
+     * @throws RepositoryException
+     */
+    public void update(InstallContext ctx, UpgradeInfo info) throws RepositoryException {
         Node infoStatus = getInfoStatus(info);
-        String[] executedActions = info.getExecutedActions().toArray(new String[info.getExecutedActions().size()]);
-        infoStatus.setProperty(PN_ACTIONS, executedActions);
-        LOG.info(ctx, "stored executed actions [{}]: [{}]", infoStatus, executedActions);
+	String infoVersion = info.getTargetVersion().toString();
+	infoStatus.setProperty(PN_VERSION, infoVersion);
+	String[] actions = getActionStringArray(info);
+	infoStatus.setProperty(PN_ACTIONS, actions);
+	LOG.info(ctx, "stored info status [{}] to [{}] actions [{}]: [{}]", infoVersion, infoStatus, actions);
     }
 
-    public Version getLastExecution() {
+    protected String[] getActionStringArray(UpgradeInfo info) throws RepositoryException {
+	List<String> actions = new ArrayList<>();
+	for (List<UpgradeAction> phaseActions : info.getActions().values()) {
+	    for (UpgradeAction action : phaseActions) {
+		actions.add(action.getName());
+	    }
+	}
+	return actions.toArray(new String[actions.size()]);
+    }
+
+    public Version getLastExecution(InstallContext ctx, UpgradeInfo info) throws RepositoryException {
         checkStatus();
-        return version;
+	String infoVersion = JcrUtils.getStringProperty(getInfoStatus(info), PN_VERSION, null);
+	if (infoVersion != null) {
+	    return Version.create(infoVersion);
+	} else {
+	    LOG.info(ctx, "info not yet executed, using fallback version [{}]: [{}]", version, this);
+	    return version;
+	}
     }
 
     protected void checkStatus() {
