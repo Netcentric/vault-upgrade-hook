@@ -6,7 +6,7 @@ InstallHooks are executed for each install phase: `PREPARE`, `INSTALLED` and `EN
 
 The *Vault-Upgrade-Hook* is an easy way to add additional logic to the installation of content packages instead of implementing and creating new Jars for every job. For example it can be used to upgrade existing user generated content.
 
-The Hook runs so called `UpgradeAction`s embedded in `UpgradeInfo`s. Out-of-the-box Groovy script and Sling Pipe actions are supported.
+The Hook runs so called `UpgradeAction`s embedded in `UpgradeInfo`s. Out-of-the-box GroovyConsole scripts and SlingPipes are supported.
 
 ## Feature Overview
 
@@ -56,21 +56,23 @@ Two general ways of how to use it:
         </execution>
     </executions>
 </plugin>```
-- create an upgrade info directory (like `samples/groovy-package/src/main/upgrader/test-groovy`) and place it in your content package under `META-INF/vault/definition/upgrader`
+- create an `UpgradeInfo` directory (like `samples/groovy-package/src/main/upgrader/test-groovy`) and place it in your content package under `META-INF/vault/definition/upgrader`.
+
+Note that the general structure of the package is always the same. There is a node `META-INF/vault/definition/upgrader/<upgrade-info>` in the content package which contains the configuration for its child nodes. Depending on the used handler the child nodes are e.g. Groovy scripts or SlingPipes.   
 
 ## More information
 
 ### Upgrade Process
 
-On installation of the content package `biz.netcentric.vlt.upgrade.UpgradeProcessor.execute(InstallContext)` will be called for each of the phases ([https://jackrabbit.apache.org/filevault/apidocs/org/apache/jackrabbit/vault/packaging/InstallContext.Phase.html]). On `PREPARED` the processor will read the status of previous executions from `/var/upgrade` and loads the `biz.netcentric.vlt.upgrade.UpgradePackage` child nodes from the current content package under `<package-path>/jcr:content/vlt:definition/upgrader`. On `END` will save the new status and the list of all actions to `/var/upgrade` and save the session.
+On installation of the content package `biz.netcentric.vlt.upgrade.UpgradeProcessor.execute(InstallContext)` will be called for each of the phases ([https://jackrabbit.apache.org/filevault/apidocs/org/apache/jackrabbit/vault/packaging/InstallContext.Phase.html]). On `PREPARED` the processor will read the status of previous executions from `/var/upgrade` and loads the `biz.netcentric.vlt.upgrade.UpgradeInfo` child nodes from the current content package under `<package-path>/jcr:content/vlt:definition/upgrader`. On `END` the the list of all actions is stored to `/var/upgrade` and the session is saved.
 
-An `UpgradeInfo` loads a `biz.netcentric.vlt.upgrade.handler.UpgradeActionFactory` implementation to create `biz.netcentric.vlt.upgrade.handler.UpgradeAction`s which are executed during the upgrade.
+An `UpgradeInfo` loads a `biz.netcentric.vlt.upgrade.handler.UpgradeHandler` implementation to create `biz.netcentric.vlt.upgrade.handler.UpgradeAction`s which are executed during the upgrade.
 
 Whether an `UpgradeInfo` and an `UpgradeAction` is executed depends on some attributes:
 
 - an UpgradeInfo is relevant if
 ```
-info was executed before
+it is not the first upgrade with this content package
   AND
 current info version is higher or equals to the last execution
 ```
@@ -80,11 +82,11 @@ This behaviour can be changed by configuration options
 - `runMode="always"` - actions of this info will always be executed disregarding of previous upgrades
 - `skipOnInitial="false"` - actions will also be executed if it is the first execution of the upgrade
 
-`UpgradeAction`s are bound to a specific execution phase. The default Phase is `INSTALLED`. Means an arbitrary action is executed after the content got installed. This can be overridden by starting the groovy script name with the name of another phase e.g. "prepare_failed-myscript.groovy".
+`UpgradeAction`s are bound to a specific execution phase. The default Phase is `INSTALLED`. This means an arbitrary action is executed after the content got installed. This can be overridden by prefixing the groovy script name with the name of another phase e.g. "prepare_failed-myscript.groovy".
 
 ### Groovy
 
-Groovy scripts are executed using the Groovy Console, see [https://github.com/Citytechinc/cq-groovy-console] for a complete list of features.
+For usage and details please see the sample package `samples/groovy-package`.
 
 ### Sling Pipes
 

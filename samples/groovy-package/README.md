@@ -1,50 +1,22 @@
+# Groovy Console Sample Package
 
+## Features
 
+- executing Groovy scripts within an AEM environment
+- the provided context includes many helper methods, Groovy extension methods and a DSL to create content
+- see [https://github.com/Citytechinc/cq-groovy-console] for a complete list of features
 
-# Sample Package
+## Dependencies
 
-## create package with hook
+This execution uses one of the following dependencies in any version greater or equals then 7 
 
-Copy `vault-upgrade-hook-0.0.1-SNAPSHOT.jar` to `META-INF/vault/hooks`
-Place your scripts to `META-INF/vault/definition/upgrader/foo`
-Package to a zip like this:
-    
-    $ cd groovy-sample-package
-    $ zip --filesync -r ../groovy-sample-package.zip *
+- `com.citytechinc.aem.groovy.console:aem-groovy-console`
+- `com.icfolson.aem.groovy.console:aem-groovy-console`
 
-Upload to AEM and install. Notice the scripts placed to `META-INF/vault/definition/upgrader/foo` are executed.
+Make sure the bundle is installed and activated correctly and the `GroovyConsoleService` is available.
 
-The sample package has scripts for PREPARE, INSTALLED and END phase as samples in `META-INF/vault/definition/upgrader/test-groovy` 
+## Usage
 
-## upload and install package - with output sample
+To execute a Groovy script place it under `META-INF/vault/definition/upgrader/<upgrade-info>/[<phase-prefix>]<script-name>.groovy`. The optional `<phase-prefix>` (`PREPARE`, `INSTALLED`, `END`) is not case sensitive and configures the phase of execution. If no phase prefix is there `INSTALLED` is the default. 
 
-For a quick turnaround you can install via cUrl like this
-
-    $ curl -X POST -F"file=@../groovy-sample-package.zip" -F"install=true" -uadmin:admin localhost:4502/crx/packmgr/service.jsp
-
-Notice output:
-
-    ...
-    Installing content...
-    Executing content upgrade in phase PREPARE
-    Content version: 0.0.1-SNAPSHOT
-    Package version: 0.0.1-SNAPSHOT
-    H Executing upgrade: Update via Groovy Script. - version 0.0.1-SNAPSHOT
-    I Executing prepare_a.groovy
-    I Executing prepare_something_step2.groovy
-    I Executing prepare_something_step3.groovy
-    ...
-    saving approx 0 nodes...
-    Package imported.
-    Executing content upgrade in phase INSTALLED
-    Package version: 0.0.1-SNAPSHOT
-    I Executing installed-foo.groovy
-    I Executing somename.groovy
-    Executing content upgrade in phase END
-    Package version: 0.0.1-SNAPSHOT
-    I Executing end-all-good.groovy
-    Package installed in 178ms.
-
-## package versions and run
-
-The sample package has a settings as `run=always` but can also run as `run=once` or `run=snapshot` where the version check would prevent the scripts from being executed multiple times
+Note that the scripts will be sorted and executed by name.
