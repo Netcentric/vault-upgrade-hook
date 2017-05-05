@@ -16,7 +16,7 @@ import biz.netcentric.vlt.upgrade.handler.slingpipes.SlingPipesHandler;
  */
 public enum UpgradeType {
 
-    GROOVY(GroovyConsoleHandler.class),
+    GROOVYCONSOLE(GroovyConsoleHandler.class),
 
     SLINGPIPES(SlingPipesHandler.class);
 

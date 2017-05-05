@@ -52,7 +52,7 @@ public class UpgradeInfo implements Comparable<UpgradeInfo> {
     public static final long DEFAULT_PRIORITY = Long.MAX_VALUE;
 
     public static final String PN_HANDLER = "handler";
-    public static final String DEFAULT_HANDLER = UpgradeType.GROOVY.toString();
+    public static final String DEFAULT_HANDLER = UpgradeType.GROOVYCONSOLE.toString();
 
     public static final String PN_DEFAULT_PHASE = "defaultPhase";
     public static final String DEFAULT_PHASE = Phase.INSTALLED.toString();
