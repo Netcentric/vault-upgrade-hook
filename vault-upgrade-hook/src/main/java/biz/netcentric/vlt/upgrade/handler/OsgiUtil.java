@@ -18,12 +18,54 @@ import org.osgi.framework.ServiceReference;
  */
 public class OsgiUtil {
 
-    @SuppressWarnings("unchecked")
-    public <T> T getService(Class<T> clazz) {
+    public <T> ServiceWrapper<T> getService(Class<T> clazz) {
         Bundle bundle = FrameworkUtil.getBundle(clazz);
+	if (bundle == null) {
+	    return null;
+	}
         BundleContext context = bundle.getBundleContext();
-        ServiceReference<?> serviceReference = context.getServiceReference(clazz.getName());
-        return (T) context.getService(serviceReference);
+	if (context == null) {
+	    return null;
+	}
+	ServiceReference<T> serviceReference = context.getServiceReference(clazz);
+	if (serviceReference == null) {
+	    return null;
+	}
+	ServiceWrapper<T> serviceWrapper = new ServiceWrapper<>(context, serviceReference);
+	if (serviceWrapper.getService() == null) {
+	    serviceWrapper.close();
+	    return null;
+	}
+	return serviceWrapper;
+    }
+
+    public void close(ServiceWrapper<?> serviceWrapper) {
+	if (serviceWrapper != null) {
+	    serviceWrapper.close();
+	}
+    }
+
+    public static class ServiceWrapper<T> implements AutoCloseable {
+
+	private final BundleContext context;
+	private final ServiceReference<T> serviceReference;
+	private final T service;
+
+	public ServiceWrapper(BundleContext context, ServiceReference<T> serviceReference) {
+	    this.context = context;
+	    this.serviceReference = serviceReference;
+	    this.service = context.getService(serviceReference);
+	}
+
+	public T getService() {
+	    return service;
+	}
+
+	@Override
+	public void close() {
+	    context.ungetService(serviceReference);
+	}
+
     }
 
 }

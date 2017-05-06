@@ -24,6 +24,7 @@ import com.citytechinc.aem.groovy.console.GroovyConsoleService;
 import com.citytechinc.aem.groovy.console.response.RunScriptResponse;
 
 import biz.netcentric.vlt.upgrade.UpgradeAction;
+import biz.netcentric.vlt.upgrade.handler.OsgiUtil.ServiceWrapper;
 import biz.netcentric.vlt.upgrade.handler.SlingUtils;
 import biz.netcentric.vlt.upgrade.util.PackageInstallLogger;
 
@@ -33,12 +34,10 @@ public class GroovyScript extends UpgradeAction {
 
     SlingUtils sling = new SlingUtils();
     private final Node script;
-    private final GroovyConsoleService service;
 
-    public GroovyScript(GroovyConsoleService service, Node script, Phase defaultPhase)
+    public GroovyScript(Node script, Phase defaultPhase)
             throws RepositoryException {
         super(script.getName(), UpgradeAction.getPhaseFromPrefix(defaultPhase, script.getName()));
-        this.service = service;
         this.script = script;
     }
 
@@ -47,10 +46,20 @@ public class GroovyScript extends UpgradeAction {
         SlingHttpServletRequest request = getRequestForScript();
         if (request != null) {
             LOG.debug(ctx, "Executing [{}]", script.getName());
-            RunScriptResponse scriptResponse = service.runScript(request);
+	    RunScriptResponse scriptResponse = run(request);
             LOG.info(ctx, "Executed [{}]: [{}]\n{}\n---\n", script.getName(), scriptResponse.getRunningTime(),
                     scriptResponse.getOutput().trim());
         }
+    }
+
+    protected RunScriptResponse run(SlingHttpServletRequest request) {
+	ServiceWrapper<GroovyConsoleService> serviceWrapper = null;
+	try {
+	    serviceWrapper = sling.getService(GroovyConsoleService.class);
+	    return serviceWrapper.getService().runScript(request);
+	} finally {
+	    sling.close(serviceWrapper);
+	}
     }
 
     protected SlingHttpServletRequest getRequestForScript() throws RepositoryException {

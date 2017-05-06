@@ -8,13 +8,12 @@
  */
 package biz.netcentric.vlt.upgrade;
 
-import java.util.Collections;
+import java.util.Arrays;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
-import org.apache.jackrabbit.JcrConstants;
 import org.apache.jackrabbit.vault.packaging.InstallContext;
 import org.apache.jackrabbit.vault.packaging.InstallContext.Phase;
 import org.apache.jackrabbit.vault.packaging.Version;
@@ -28,17 +27,17 @@ import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.internal.util.MockUtil;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.citytechinc.aem.groovy.console.GroovyConsoleService;
-
 import biz.netcentric.vlt.upgrade.UpgradeInfo.RunMode;
-import biz.netcentric.vlt.upgrade.handler.OsgiUtil;
 import biz.netcentric.vlt.upgrade.handler.UpgradeHandler;
-import biz.netcentric.vlt.upgrade.handler.groovy.GroovyConsoleHandler;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UpgradeInfoTest {
+
+    private static final Object TEST_HANDLER = UpgradeInfoTest.class.getName() + "$"
+	    + TestHandler.class.getSimpleName();
 
     @Rule
     public final SlingContext sling = new SlingContext(ResourceResolverType.JCR_MOCK);
@@ -46,30 +45,31 @@ public class UpgradeInfoTest {
     @Mock
     private UpgradeStatus status;
 
-    @Mock
-    private OsgiUtil osgi;
-
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private InstallContext ctx;
-
-    @Mock
-    private GroovyConsoleService groovyService;
 
     private Session session;
 
     @Before
     public void setup() {
-        GroovyConsoleHandler.setOsgi(osgi);
-        Mockito.when(osgi.getService(GroovyConsoleService.class)).thenReturn(groovyService);
         session = sling.resourceResolver().adaptTo(Session.class);
     }
 
     @Test
     public void testConstructorDefaults() throws Exception {
-        sling.build().resource("/test/test.groovy", JcrConstants.JCR_PRIMARYTYPE, JcrConstants.NT_FILE);
-        Node node = session.getNode("/test");
-        UpgradeInfo info = new UpgradeInfo(status, node, "1.0.0");
+	try {
+	    sling.build().resource("/test");
+	    Node node = session.getNode("/test");
+	    new UpgradeInfo(status, node, "1.0.0");
+	    Assert.fail("Exception expected");
+	} catch (IllegalArgumentException e) {
+	    Assert.assertNotNull(e);
+	}
 
+	sling.build().resource("/test", //
+		UpgradeInfo.PN_HANDLER, TEST_HANDLER);
+	Node node = session.getNode("/test");
+	UpgradeInfo info = new UpgradeInfo(status, node, "1.0.0");
         Assert.assertSame(node, info.getNode());
         Assert.assertSame(status, info.getStatus());
         Assert.assertEquals(UpgradeInfo.DEFAULT_PRIORITY, info.getPriority());
@@ -78,9 +78,11 @@ public class UpgradeInfoTest {
         Assert.assertEquals(UpgradeInfo.DEFAULT_RUN_MODE, info.getRunMode().toString());
         Assert.assertEquals(UpgradeInfo.DEFAULT_SKIP_ON_INITIAL, info.isSkipOnInitial());
         Assert.assertEquals(UpgradeInfo.DEFAULT_PHASE, info.getDefaultPhase().toString());
-        Assert.assertTrue(info.getHandler() instanceof GroovyConsoleHandler);
+	Assert.assertTrue(info.getHandler() instanceof TestHandler);
         Assert.assertEquals(Phase.values().length, info.getActions().size());
-        Assert.assertEquals("test.groovy", info.getActions().get(info.getDefaultPhase()).get(0).getName());
+	UpgradeAction action = info.getActions().get(TestHandler.PHASE).get(0);
+	Assert.assertTrue(action instanceof UpgradeAction);
+	Assert.assertTrue(new MockUtil().isMock(action));
         Assert.assertEquals(0, info.getCounter());
     }
 
@@ -93,8 +95,7 @@ public class UpgradeInfoTest {
                 UpgradeInfo.PN_RUN_MODE, "always", //
                 UpgradeInfo.PN_SKIP_ON_INITIAL, !UpgradeInfo.DEFAULT_SKIP_ON_INITIAL, //
                 UpgradeInfo.PN_DEFAULT_PHASE, "prepare", //
-                UpgradeInfo.PN_HANDLER, getClass().getName() + "$" + TestHandler.class.getSimpleName() //
-        );
+		UpgradeInfo.PN_HANDLER, TEST_HANDLER);
         Node node = session.getNode("/test");
         UpgradeInfo info = new UpgradeInfo(status, node, "1.0.0");
 
@@ -111,7 +112,8 @@ public class UpgradeInfoTest {
     public void testExecute() throws Exception {
         Mockito.when(ctx.getPhase()).thenReturn(Phase.INSTALLED);
 
-        sling.build().resource("/testIncremental", JcrConstants.JCR_PRIMARYTYPE, JcrConstants.NT_FILE);
+	sling.build().resource("/testIncremental", //
+		UpgradeInfo.PN_HANDLER, TEST_HANDLER);
         UpgradeInfo info = new UpgradeInfo(status, session.getNode("/testIncremental"), "0");
         Assert.assertEquals(RunMode.INCREMENTAL, info.getRunMode());
 
@@ -134,8 +136,9 @@ public class UpgradeInfoTest {
         Mockito.verify(action3).execute(ctx);
 
         Mockito.reset(action1, action2, action3);
-        sling.build().resource("/testAlways", JcrConstants.JCR_PRIMARYTYPE, JcrConstants.NT_FILE, //
-                UpgradeInfo.PN_RUN_MODE, RunMode.ALWAYS.toString());
+	sling.build().resource("/testAlways", //
+		UpgradeInfo.PN_RUN_MODE, RunMode.ALWAYS.toString(), //
+		UpgradeInfo.PN_HANDLER, TEST_HANDLER);
         info = new UpgradeInfo(status, session.getNode("/testAlways"), "0");
         Assert.assertEquals(RunMode.ALWAYS, info.getRunMode());
         info.getActions().get(Phase.INSTALLED).add(action1);
@@ -151,14 +154,16 @@ public class UpgradeInfoTest {
 
     @Test
     public void testIsRelevant() throws Exception {
-        sling.build().resource("/testAlways", JcrConstants.JCR_PRIMARYTYPE, JcrConstants.NT_FILE, //
-                UpgradeInfo.PN_RUN_MODE, RunMode.ALWAYS.toString());
+	sling.build().resource("/testAlways", //
+		UpgradeInfo.PN_RUN_MODE, RunMode.ALWAYS.toString(), //
+		UpgradeInfo.PN_HANDLER, TEST_HANDLER);
         UpgradeInfo info = new UpgradeInfo(status, session.getNode("/testAlways"), "0");
         Assert.assertEquals(RunMode.ALWAYS, info.getRunMode());
 
 	Assert.assertTrue(info.isRelevant(ctx));
 
-        sling.build().resource("/test", JcrConstants.JCR_PRIMARYTYPE, JcrConstants.NT_FILE);
+	sling.build().resource("/test", //
+		UpgradeInfo.PN_HANDLER, TEST_HANDLER);
         info = new UpgradeInfo(status, session.getNode("/test"), "1");
 	Mockito.when(status.getLastExecution(ctx, info)).thenReturn(Version.create("0"));
 
@@ -174,8 +179,9 @@ public class UpgradeInfoTest {
 	Mockito.when(status.getLastExecution(ctx, info)).thenReturn(Version.create("2"));
 	Assert.assertFalse(info.isRelevant(ctx));
 
-        sling.build().resource("/testNotSkipOnInitial", JcrConstants.JCR_PRIMARYTYPE, JcrConstants.NT_FILE, //
-                UpgradeInfo.PN_SKIP_ON_INITIAL, false);
+	sling.build().resource("/testNotSkipOnInitial", //
+		UpgradeInfo.PN_SKIP_ON_INITIAL, false, //
+		UpgradeInfo.PN_HANDLER, TEST_HANDLER);
         info = new UpgradeInfo(status, session.getNode("/testNotSkipOnInitial"), "1");
 	Mockito.when(status.getLastExecution(ctx, info)).thenReturn(Version.create("0"));
 
@@ -190,14 +196,18 @@ public class UpgradeInfoTest {
 
     public static class TestHandler implements UpgradeHandler {
 
-        @Override
+	private static final Phase PHASE = Phase.INSTALL_FAILED;
+
+	@Override
         public boolean isAvailable() {
             return true;
         }
 
         @Override
         public Iterable<UpgradeAction> create(UpgradeInfo info) throws RepositoryException {
-            return Collections.emptyList();
+	    UpgradeAction action = Mockito.mock(UpgradeAction.class);
+	    Mockito.when(action.getPhase()).thenReturn(PHASE);
+	    return Arrays.asList(action);
         }
 
     }

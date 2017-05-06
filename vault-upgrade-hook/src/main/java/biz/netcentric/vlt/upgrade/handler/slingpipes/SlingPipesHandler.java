@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import biz.netcentric.vlt.upgrade.UpgradeAction;
 import biz.netcentric.vlt.upgrade.UpgradeInfo;
+import biz.netcentric.vlt.upgrade.handler.OsgiUtil.ServiceWrapper;
 import biz.netcentric.vlt.upgrade.handler.SlingUtils;
 import biz.netcentric.vlt.upgrade.handler.UpgradeHandler;
 
@@ -28,11 +29,19 @@ public class SlingPipesHandler implements UpgradeHandler {
     private static final Logger LOG = LoggerFactory.getLogger(SlingPipesHandler.class);
 
     SlingUtils sling = new SlingUtils();
-    private Plumber service;
 
     @Override
     public boolean isAvailable() {
-        return getService() != null;
+	ServiceWrapper<Plumber> serviceWrapper = null;
+	try {
+	    serviceWrapper = sling.getService(Plumber.class);
+	    return serviceWrapper != null;
+	} catch (NoClassDefFoundError e) {
+	    LOG.warn("Could not load Plumber.", e);
+	    return false;
+	} finally {
+	    sling.close(serviceWrapper);
+	}
     }
 
     @Override
@@ -41,21 +50,10 @@ public class SlingPipesHandler implements UpgradeHandler {
         for (Resource child : sling.getResourceResolver(info.getNode().getSession())
                 .getResource(info.getNode().getPath()).getChildren()) {
             if (child.getResourceType().startsWith("slingPipes/")) {
-                pipes.add(new SlingPipe(getService(), child, info.getDefaultPhase()));
+		pipes.add(new SlingPipe(child, info.getDefaultPhase()));
             }
         }
         return pipes;
-    }
-
-    protected Plumber getService() {
-        if (service == null) {
-            try {
-                service = sling.getService(Plumber.class);
-            } catch (NoClassDefFoundError e) {
-                LOG.warn("Could not load Plumber.", e);
-            }
-        }
-        return service;
     }
 
 }

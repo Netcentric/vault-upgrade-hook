@@ -23,6 +23,7 @@ import com.citytechinc.aem.groovy.console.GroovyConsoleService;
 import biz.netcentric.vlt.upgrade.UpgradeAction;
 import biz.netcentric.vlt.upgrade.UpgradeInfo;
 import biz.netcentric.vlt.upgrade.handler.OsgiUtil;
+import biz.netcentric.vlt.upgrade.handler.OsgiUtil.ServiceWrapper;
 import biz.netcentric.vlt.upgrade.handler.UpgradeHandler;
 
 /**
@@ -35,12 +36,20 @@ public class GroovyConsoleHandler implements UpgradeHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(GroovyConsoleHandler.class);
 
-    private static OsgiUtil osgi = new OsgiUtil();
-    private GroovyConsoleService service;
+    OsgiUtil osgi = new OsgiUtil();
 
     @Override
     public boolean isAvailable() {
-        return getService() != null;
+	ServiceWrapper<GroovyConsoleService> serviceWrapper = null;
+	try {
+	    serviceWrapper = osgi.getService(GroovyConsoleService.class);
+	    return serviceWrapper != null;
+	} catch (NoClassDefFoundError e) {
+	    LOG.warn("Could not load GroovyConsoleService.", e);
+	    return false;
+	} finally {
+	    osgi.close(serviceWrapper);
+	}
     }
 
     @Override
@@ -48,29 +57,14 @@ public class GroovyConsoleHandler implements UpgradeHandler {
         List<UpgradeAction> scripts = new ArrayList<>();
 
         NodeIterator nodes = info.getNode().getNodes();
-        while (nodes.hasNext()) {
-            Node child = nodes.nextNode();
-            if (child.getName().endsWith(".groovy") && child.isNodeType("nt:file")) {
-                scripts.add(new GroovyScript(getService(), child, info.getDefaultPhase()));
-            }
-        }
+	while (nodes.hasNext()) {
+	    Node child = nodes.nextNode();
+	    if (child.getName().endsWith(".groovy") && child.isNodeType("nt:file")) {
+		scripts.add(new GroovyScript(child, info.getDefaultPhase()));
+	    }
+	}
 
         return scripts;
-    }
-
-    protected GroovyConsoleService getService() {
-        if (service == null) {
-            try {
-                service = osgi.getService(GroovyConsoleService.class);
-            } catch (NoClassDefFoundError e) {
-                LOG.warn("Could not load GroovyConsoleService.", e);
-            }
-        }
-        return service;
-    }
-
-    public static void setOsgi(OsgiUtil osgi) {
-        GroovyConsoleHandler.osgi = osgi;
     }
 
 }
