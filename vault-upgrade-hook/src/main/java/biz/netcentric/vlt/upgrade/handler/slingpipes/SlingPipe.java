@@ -35,9 +35,7 @@ public class SlingPipe extends UpgradeAction {
 
     @Override
     public void execute(InstallContext ctx) {
-	ServiceWrapper<Plumber> serviceWrapper = null;
-	try {
-	    serviceWrapper = osgi.getService(Plumber.class);
+	try (ServiceWrapper<Plumber> serviceWrapper = osgi.getService(Plumber.class)) {
 	    Pipe pipe = serviceWrapper.getService().getPipe(resource);
 	    if (pipe == null) {
 		throw new IllegalArgumentException("No valid pipe at " + resource);
@@ -48,8 +46,6 @@ public class SlingPipe extends UpgradeAction {
 		// output affected resource path for information
 		LOG.info(ctx, r.getPath());
 	    }
-	} finally {
-	    osgi.close(serviceWrapper);
 	}
     }
 

@@ -39,12 +39,6 @@ public class OsgiUtil {
 	return serviceWrapper;
     }
 
-    public void close(ServiceWrapper<?> serviceWrapper) {
-	if (serviceWrapper != null) {
-	    serviceWrapper.close();
-	}
-    }
-
     public static class ServiceWrapper<T> implements AutoCloseable {
 
 	private final BundleContext context;

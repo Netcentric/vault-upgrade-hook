@@ -32,15 +32,11 @@ public class SlingPipesHandler implements UpgradeHandler {
 
     @Override
     public boolean isAvailable() {
-	ServiceWrapper<Plumber> serviceWrapper = null;
-	try {
-	    serviceWrapper = sling.getService(Plumber.class);
+	try (ServiceWrapper<Plumber> serviceWrapper = sling.getService(Plumber.class)) {
 	    return serviceWrapper != null;
 	} catch (NoClassDefFoundError e) {
 	    LOG.warn("Could not load Plumber.", e);
 	    return false;
-	} finally {
-	    sling.close(serviceWrapper);
 	}
     }
 

@@ -40,15 +40,11 @@ public class GroovyConsoleHandler implements UpgradeHandler {
 
     @Override
     public boolean isAvailable() {
-	ServiceWrapper<GroovyConsoleService> serviceWrapper = null;
-	try {
-	    serviceWrapper = osgi.getService(GroovyConsoleService.class);
+	try (ServiceWrapper<GroovyConsoleService> serviceWrapper = osgi.getService(GroovyConsoleService.class)) {
 	    return serviceWrapper != null;
 	} catch (NoClassDefFoundError e) {
 	    LOG.warn("Could not load GroovyConsoleService.", e);
 	    return false;
-	} finally {
-	    osgi.close(serviceWrapper);
 	}
     }
 

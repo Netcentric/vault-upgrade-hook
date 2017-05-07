@@ -53,12 +53,8 @@ public class GroovyScript extends UpgradeAction {
     }
 
     protected RunScriptResponse run(SlingHttpServletRequest request) {
-	ServiceWrapper<GroovyConsoleService> serviceWrapper = null;
-	try {
-	    serviceWrapper = sling.getService(GroovyConsoleService.class);
+	try (ServiceWrapper<GroovyConsoleService> serviceWrapper = sling.getService(GroovyConsoleService.class)) {
 	    return serviceWrapper.getService().runScript(request);
-	} finally {
-	    sling.close(serviceWrapper);
 	}
     }
 
