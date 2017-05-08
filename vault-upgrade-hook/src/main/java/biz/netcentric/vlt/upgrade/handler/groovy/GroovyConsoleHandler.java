@@ -15,16 +15,15 @@ import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.jackrabbit.vault.packaging.InstallContext;
 
 import com.citytechinc.aem.groovy.console.GroovyConsoleService;
 
 import biz.netcentric.vlt.upgrade.UpgradeAction;
 import biz.netcentric.vlt.upgrade.UpgradeInfo;
 import biz.netcentric.vlt.upgrade.handler.OsgiUtil;
-import biz.netcentric.vlt.upgrade.handler.OsgiUtil.ServiceWrapper;
 import biz.netcentric.vlt.upgrade.handler.UpgradeHandler;
+import biz.netcentric.vlt.upgrade.util.PackageInstallLogger;
 
 /**
  * This handler creates {@link GroovyScript} instances which are executed via
@@ -34,22 +33,22 @@ import biz.netcentric.vlt.upgrade.handler.UpgradeHandler;
  */
 public class GroovyConsoleHandler implements UpgradeHandler {
 
-    private static final Logger LOG = LoggerFactory.getLogger(GroovyConsoleHandler.class);
+    private static final PackageInstallLogger LOG  = PackageInstallLogger.create(GroovyConsoleHandler.class);
 
     OsgiUtil osgi = new OsgiUtil();
 
     @Override
-    public boolean isAvailable() {
-	try (ServiceWrapper<GroovyConsoleService> serviceWrapper = osgi.getService(GroovyConsoleService.class)) {
-	    return serviceWrapper != null;
-	} catch (NoClassDefFoundError e) {
-	    LOG.warn("Could not load GroovyConsoleService.", e);
-	    return false;
-	}
+    public boolean isAvailable(InstallContext ctx) {
+        boolean available = osgi.hasService(GroovyConsoleService.class);
+        if (!available) {
+            LOG.warn(ctx, "Could not load GroovyConsoleService.");
+        }
+        return available;
+
     }
 
     @Override
-    public List<UpgradeAction> create(UpgradeInfo info) throws RepositoryException {
+    public List<UpgradeAction> create(InstallContext ctx, UpgradeInfo info) throws RepositoryException {
         List<UpgradeAction> scripts = new ArrayList<>();
 
         NodeIterator nodes = info.getNode().getNodes();

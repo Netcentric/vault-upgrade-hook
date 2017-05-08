@@ -8,6 +8,8 @@
  */
 package biz.netcentric.vlt.upgrade.handler;
 
+import org.apache.jackrabbit.vault.packaging.InstallContext;
+
 import biz.netcentric.vlt.upgrade.handler.groovy.GroovyConsoleHandler;
 import biz.netcentric.vlt.upgrade.handler.slingpipes.SlingPipesHandler;
 
@@ -26,7 +28,7 @@ public enum UpgradeType {
         this.clazz = clazz;
     }
 
-    public static UpgradeHandler create(String key) {
+    public static UpgradeHandler create(InstallContext ctx, String key) {
         UpgradeHandler handler = null;
         for (UpgradeType type : values()) {
             if (type.name().equalsIgnoreCase(key)) {
@@ -40,7 +42,7 @@ public enum UpgradeType {
                 throw new IllegalArgumentException("Cannot find custom handler: " + key, e);
             }
         }
-        if (!handler.isAvailable()) {
+        if (!handler.isAvailable(ctx)) {
             throw new IllegalArgumentException("Handler not available: " + handler);
         }
         return handler;

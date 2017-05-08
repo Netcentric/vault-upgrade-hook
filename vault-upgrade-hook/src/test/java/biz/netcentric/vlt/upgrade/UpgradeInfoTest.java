@@ -11,7 +11,6 @@ package biz.netcentric.vlt.upgrade;
 import java.util.Arrays;
 
 import javax.jcr.Node;
-import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.apache.jackrabbit.vault.packaging.InstallContext;
@@ -60,16 +59,17 @@ public class UpgradeInfoTest {
 	try {
 	    sling.build().resource("/test");
 	    Node node = session.getNode("/test");
-	    new UpgradeInfo(status, node, "1.0.0");
+            new UpgradeInfo(ctx, status, node);
 	    Assert.fail("Exception expected");
-	} catch (IllegalArgumentException e) {
+        } catch (IllegalStateException e) {
 	    Assert.assertNotNull(e);
 	}
 
 	sling.build().resource("/test", //
 		UpgradeInfo.PN_HANDLER, TEST_HANDLER);
 	Node node = session.getNode("/test");
-	UpgradeInfo info = new UpgradeInfo(status, node, "1.0.0");
+        Mockito.when(ctx.getPackage().getId().getVersionString()).thenReturn("1.0.0");
+        UpgradeInfo info = new UpgradeInfo(ctx, status, node);
         Assert.assertSame(node, info.getNode());
         Assert.assertSame(status, info.getStatus());
         Assert.assertEquals(UpgradeInfo.DEFAULT_PRIORITY, info.getPriority());
@@ -97,7 +97,7 @@ public class UpgradeInfoTest {
                 UpgradeInfo.PN_DEFAULT_PHASE, "prepare", //
 		UpgradeInfo.PN_HANDLER, TEST_HANDLER);
         Node node = session.getNode("/test");
-        UpgradeInfo info = new UpgradeInfo(status, node, "1.0.0");
+        UpgradeInfo info = new UpgradeInfo(ctx, status, node);
 
         Assert.assertEquals(47l, info.getPriority());
         Assert.assertEquals(48l, info.getSaveThreshold());
@@ -114,7 +114,7 @@ public class UpgradeInfoTest {
 
 	sling.build().resource("/testIncremental", //
 		UpgradeInfo.PN_HANDLER, TEST_HANDLER);
-        UpgradeInfo info = new UpgradeInfo(status, session.getNode("/testIncremental"), "0");
+        UpgradeInfo info = new UpgradeInfo(ctx, status, session.getNode("/testIncremental"));
         Assert.assertEquals(RunMode.INCREMENTAL, info.getRunMode());
 
         UpgradeAction action1 = Mockito.mock(UpgradeAction.class);
@@ -139,7 +139,7 @@ public class UpgradeInfoTest {
 	sling.build().resource("/testAlways", //
 		UpgradeInfo.PN_RUN_MODE, RunMode.ALWAYS.toString(), //
 		UpgradeInfo.PN_HANDLER, TEST_HANDLER);
-        info = new UpgradeInfo(status, session.getNode("/testAlways"), "0");
+        info = new UpgradeInfo(ctx, status, session.getNode("/testAlways"));
         Assert.assertEquals(RunMode.ALWAYS, info.getRunMode());
         info.getActions().get(Phase.INSTALLED).add(action1);
         info.getActions().get(Phase.INSTALLED).add(action2);
@@ -157,15 +157,16 @@ public class UpgradeInfoTest {
 	sling.build().resource("/testAlways", //
 		UpgradeInfo.PN_RUN_MODE, RunMode.ALWAYS.toString(), //
 		UpgradeInfo.PN_HANDLER, TEST_HANDLER);
-        UpgradeInfo info = new UpgradeInfo(status, session.getNode("/testAlways"), "0");
+        UpgradeInfo info = new UpgradeInfo(ctx, status, session.getNode("/testAlways"));
         Assert.assertEquals(RunMode.ALWAYS, info.getRunMode());
 
 	Assert.assertTrue(info.isRelevant(ctx));
 
 	sling.build().resource("/test", //
 		UpgradeInfo.PN_HANDLER, TEST_HANDLER);
-        info = new UpgradeInfo(status, session.getNode("/test"), "1");
-	Mockito.when(status.getLastExecution(ctx, info)).thenReturn(Version.create("0"));
+        Mockito.when(ctx.getPackage().getId().getVersionString()).thenReturn("1");
+        info = new UpgradeInfo(ctx, status, session.getNode("/test"));
+        Mockito.when(status.getLastExecution(ctx, info)).thenReturn(Version.create("0"));
 
 	Assert.assertTrue(info.isRelevant(ctx));
 
@@ -182,8 +183,8 @@ public class UpgradeInfoTest {
 	sling.build().resource("/testNotSkipOnInitial", //
 		UpgradeInfo.PN_SKIP_ON_INITIAL, false, //
 		UpgradeInfo.PN_HANDLER, TEST_HANDLER);
-        info = new UpgradeInfo(status, session.getNode("/testNotSkipOnInitial"), "1");
-	Mockito.when(status.getLastExecution(ctx, info)).thenReturn(Version.create("0"));
+        info = new UpgradeInfo(ctx, status, session.getNode("/testNotSkipOnInitial"));
+        Mockito.when(status.getLastExecution(ctx, info)).thenReturn(Version.create("0"));
 
 	Assert.assertTrue(info.isRelevant(ctx));
 
@@ -198,13 +199,13 @@ public class UpgradeInfoTest {
 
 	private static final Phase PHASE = Phase.INSTALL_FAILED;
 
-	@Override
-        public boolean isAvailable() {
+        @Override
+        public boolean isAvailable(InstallContext ctx) {
             return true;
         }
 
         @Override
-        public Iterable<UpgradeAction> create(UpgradeInfo info) throws RepositoryException {
+        public Iterable<UpgradeAction> create(InstallContext ctx, UpgradeInfo info) {
 	    UpgradeAction action = Mockito.mock(UpgradeAction.class);
 	    Mockito.when(action.getPhase()).thenReturn(PHASE);
 	    return Arrays.asList(action);

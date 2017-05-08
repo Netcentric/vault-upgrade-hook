@@ -151,12 +151,12 @@ public class UpgradeProcessorTest {
     public static class TestHandler implements UpgradeHandler {
 
         @Override
-        public boolean isAvailable() {
+        public boolean isAvailable(InstallContext ctx) {
             return true;
         }
 
         @Override
-        public Iterable<UpgradeAction> create(UpgradeInfo info) {
+        public Iterable<UpgradeAction> create(InstallContext ctx, UpgradeInfo info) {
             return Arrays.asList(action);
         }
 

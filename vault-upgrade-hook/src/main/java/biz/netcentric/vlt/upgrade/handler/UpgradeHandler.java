@@ -10,6 +10,8 @@ package biz.netcentric.vlt.upgrade.handler;
 
 import javax.jcr.RepositoryException;
 
+import org.apache.jackrabbit.vault.packaging.InstallContext;
+
 import biz.netcentric.vlt.upgrade.UpgradeAction;
 import biz.netcentric.vlt.upgrade.UpgradeInfo;
 
@@ -26,16 +28,17 @@ public interface UpgradeHandler {
      * 
      * @return
      */
-    boolean isAvailable();
+    boolean isAvailable(InstallContext ctx);
 
     /**
      * Called by {@link UpgradeInfo} to get the {@link UpgradeAction}s which are
      * configured in the content package.
      * 
+     * @param ctx
      * @param info
      * @return
      * @throws RepositoryException
      */
-    Iterable<UpgradeAction> create(UpgradeInfo info) throws RepositoryException;
+    Iterable<UpgradeAction> create(InstallContext ctx, UpgradeInfo info) throws RepositoryException;
 
 }

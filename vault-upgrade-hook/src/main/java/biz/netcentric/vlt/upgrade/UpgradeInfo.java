@@ -75,24 +75,25 @@ public class UpgradeInfo implements Comparable<UpgradeInfo> {
     private final Map<Phase, List<UpgradeAction>> actions = new HashMap<>();
     private long counter = 0;
 
-    public UpgradeInfo(UpgradeStatus status, Node node, String packageVersion) throws RepositoryException {
+    public UpgradeInfo(InstallContext ctx, UpgradeStatus status, Node node) throws RepositoryException {
         this.status = status;
         this.node = node;
         priority = JcrUtils.getLongProperty(node, PN_PRIORITY, DEFAULT_PRIORITY);
         saveThreshold = JcrUtils.getLongProperty(node, PN_SAVE_THRESHOLD, DEFAULT_SAVE_THRESHOLD);
-        targetVersion = Version.create(JcrUtils.getStringProperty(node, PN_TARGET_VERSION, packageVersion));
+        targetVersion = Version.create(
+                JcrUtils.getStringProperty(node, PN_TARGET_VERSION, ctx.getPackage().getId().getVersionString()));
         runMode = RunMode.valueOf(JcrUtils.getStringProperty(node, PN_RUN_MODE, DEFAULT_RUN_MODE).toUpperCase());
         skipOnInitial = JcrUtils.getBooleanProperty(node, PN_SKIP_ON_INITIAL, DEFAULT_SKIP_ON_INITIAL);
         defaultPhase = Phase.valueOf(JcrUtils.getStringProperty(node, PN_DEFAULT_PHASE, DEFAULT_PHASE).toUpperCase());
-        handler = UpgradeType.create(JcrUtils.getStringProperty(node, PN_HANDLER, DEFAULT_HANDLER));
-        loadActions();
+        handler = UpgradeType.create(ctx, JcrUtils.getStringProperty(node, PN_HANDLER, DEFAULT_HANDLER));
+        loadActions(ctx);
     }
 
-    private void loadActions() throws RepositoryException {
+    private void loadActions(InstallContext ctx) throws RepositoryException {
         for (Phase availablePhase : Phase.values()) {
             actions.put(availablePhase, new ArrayList<UpgradeAction>());
         }
-        for (UpgradeAction action : handler.create(this)) {
+        for (UpgradeAction action : handler.create(ctx, this)) {
             actions.get(action.getPhase()).add(action);
         }
         for (Phase availablePhase : Phase.values()) {
