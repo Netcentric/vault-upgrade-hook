@@ -104,11 +104,11 @@ public class UpgradeInfo implements Comparable<UpgradeInfo> {
     }
 
     public void execute(InstallContext ctx) throws RepositoryException {
-	List<UpgradeAction> actionsOfPhase = getActions().get(ctx.getPhase());
-	LOG.debug(ctx, "executing [{}]: [{}]", this, actionsOfPhase);
+        List<UpgradeAction> actionsOfPhase = getActions().get(ctx.getPhase());
+        LOG.debug(ctx, "executing [{}]: [{}]", this, actionsOfPhase);
         boolean reinstall = false;
         for (UpgradeAction action : actionsOfPhase) {
-	    if (reinstall || getRunMode() == RunMode.ALWAYS || action.isRelevant(ctx, this)) {
+            if (reinstall || getRunMode() == RunMode.ALWAYS || action.isRelevant(ctx, this)) {
                 reinstall = true; // if the one action was regarded relevant all
                                   // following actions are also executed no
                                   // matter what their status is
@@ -134,16 +134,15 @@ public class UpgradeInfo implements Comparable<UpgradeInfo> {
             return true;
         }
         if (skipOnInitial && status.isInitial()) {
-	    LOG.info(ctx, "Skip initial: [{}]", this);
+            LOG.info(ctx, "Skip initial: [{}]", this);
             return false; // don't spool all upgrades on a new installation
         }
-	Version lastExecution = status.getLastExecution(ctx, this);
-	boolean result = lastExecution.compareTo(getTargetVersion()) <= 0;
-	if (!result) {
-	    LOG.info(ctx, "Skip because of older target version: [{}] <=> [{}]", lastExecution,
-		    getTargetVersion());
-	}
-	return result;
+        Version lastExecution = status.getLastExecution(ctx, this);
+        boolean result = lastExecution.compareTo(getTargetVersion()) <= 0;
+        if (!result) {
+            LOG.info(ctx, "Skip because of older target version: [{}] <=> [{}]", lastExecution, getTargetVersion());
+        }
+        return result;
     }
 
     public enum RunMode {
@@ -201,7 +200,7 @@ public class UpgradeInfo implements Comparable<UpgradeInfo> {
         return super.toString() + " [node=" + node + ", status=" + status + ", priority=" + priority
                 + ", saveThreshold=" + saveThreshold + ", version=" + targetVersion + ", runMode=" + runMode
                 + ", skipOnInitial=" + skipOnInitial + ", defaultPhase=" + defaultPhase + ", handler=" + handler
-		+ ", actions=" + actions + ", counter=" + counter + "]";
+                + ", actions=" + actions + ", counter=" + counter + "]";
     }
 
     public long getCounter() {

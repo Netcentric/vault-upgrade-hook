@@ -64,7 +64,7 @@ public class UpgradeStatusTest {
     @Test
     public void testConstructor() throws Exception {
         Assert.assertFalse(status.isInitial());
-	Assert.assertEquals("1", status.getLastExecution(ctx, info).toString());
+        Assert.assertEquals("1", status.getLastExecution(ctx, info).toString());
 
         status = new UpgradeStatus(ctx, "/create-test");
         Assert.assertTrue(session.nodeExists("/create-test"));
@@ -97,14 +97,14 @@ public class UpgradeStatusTest {
 
     @Test
     public void testInfoUpdate() throws Exception {
-	UpgradeAction action1 = Mockito.mock(UpgradeAction.class);
-	Mockito.when(action1.getName()).thenReturn("test1");
-	UpgradeAction action2 = Mockito.mock(UpgradeAction.class);
-	Mockito.when(action2.getName()).thenReturn("test2");
-	Map<Phase, List<UpgradeAction>> actions = new LinkedHashMap<>();
-	actions.put(Phase.INSTALL_FAILED, Arrays.asList(action1));
-	actions.put(Phase.END, Arrays.asList(action2));
-	Mockito.when(info.getActions()).thenReturn(actions);
+        UpgradeAction action1 = Mockito.mock(UpgradeAction.class);
+        Mockito.when(action1.getName()).thenReturn("test1");
+        UpgradeAction action2 = Mockito.mock(UpgradeAction.class);
+        Mockito.when(action2.getName()).thenReturn("test2");
+        Map<Phase, List<UpgradeAction>> actions = new LinkedHashMap<>();
+        actions.put(Phase.INSTALL_FAILED, Arrays.asList(action1));
+        actions.put(Phase.END, Arrays.asList(action2));
+        Mockito.when(info.getActions()).thenReturn(actions);
         Mockito.when(info.getNode().getName()).thenReturn("testInfo");
         status.update(ctx, info);
         Assert.assertArrayEquals(new String[] { "test1", "test2" },

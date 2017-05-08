@@ -25,7 +25,7 @@ import biz.netcentric.vlt.upgrade.util.PackageInstallLogger;
 
 public class SlingPipesHandler implements UpgradeHandler {
 
-    private static final PackageInstallLogger LOG   = PackageInstallLogger.create(SlingPipesHandler.class);
+    private static final PackageInstallLogger LOG = PackageInstallLogger.create(SlingPipesHandler.class);
 
     SlingUtils sling = new SlingUtils();
 
@@ -44,7 +44,7 @@ public class SlingPipesHandler implements UpgradeHandler {
         for (Resource child : sling.getResourceResolver(info.getNode().getSession())
                 .getResource(info.getNode().getPath()).getChildren()) {
             if (child.getResourceType().startsWith("slingPipes/")) {
-		pipes.add(new SlingPipe(child, info.getDefaultPhase()));
+                pipes.add(new SlingPipe(child, info.getDefaultPhase()));
             }
         }
         return pipes;

@@ -33,7 +33,7 @@ import biz.netcentric.vlt.upgrade.util.PackageInstallLogger;
  */
 public class GroovyConsoleHandler implements UpgradeHandler {
 
-    private static final PackageInstallLogger LOG  = PackageInstallLogger.create(GroovyConsoleHandler.class);
+    private static final PackageInstallLogger LOG = PackageInstallLogger.create(GroovyConsoleHandler.class);
 
     OsgiUtil osgi = new OsgiUtil();
 
@@ -52,12 +52,12 @@ public class GroovyConsoleHandler implements UpgradeHandler {
         List<UpgradeAction> scripts = new ArrayList<>();
 
         NodeIterator nodes = info.getNode().getNodes();
-	while (nodes.hasNext()) {
-	    Node child = nodes.nextNode();
-	    if (child.getName().endsWith(".groovy") && child.isNodeType("nt:file")) {
-		scripts.add(new GroovyScript(child, info.getDefaultPhase()));
-	    }
-	}
+        while (nodes.hasNext()) {
+            Node child = nodes.nextNode();
+            if (child.getName().endsWith(".groovy") && child.isNodeType("nt:file")) {
+                scripts.add(new GroovyScript(child, info.getDefaultPhase()));
+            }
+        }
 
         return scripts;
     }

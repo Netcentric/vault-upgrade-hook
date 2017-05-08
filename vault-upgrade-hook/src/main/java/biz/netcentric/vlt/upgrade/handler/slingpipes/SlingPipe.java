@@ -35,18 +35,18 @@ public class SlingPipe extends UpgradeAction {
 
     @Override
     public void execute(InstallContext ctx) {
-	try (ServiceWrapper<Plumber> serviceWrapper = osgi.getService(Plumber.class)) {
-	    Pipe pipe = serviceWrapper.getService().getPipe(resource);
-	    if (pipe == null) {
-		throw new IllegalArgumentException("No valid pipe at " + resource);
-	    }
-	    LOG.debug(ctx, "Executing [{}]: [{}]", resource.getName(), pipe);
+        try (ServiceWrapper<Plumber> serviceWrapper = osgi.getService(Plumber.class)) {
+            Pipe pipe = serviceWrapper.getService().getPipe(resource);
+            if (pipe == null) {
+                throw new IllegalArgumentException("No valid pipe at " + resource);
+            }
+            LOG.debug(ctx, "Executing [{}]: [{}]", resource.getName(), pipe);
 
-	    for (Resource r : JcrUtils.in(pipe.getOutput())) {
-		// output affected resource path for information
-		LOG.info(ctx, r.getPath());
-	    }
-	}
+            for (Resource r : JcrUtils.in(pipe.getOutput())) {
+                // output affected resource path for information
+                LOG.info(ctx, r.getPath());
+            }
+        }
     }
 
 }

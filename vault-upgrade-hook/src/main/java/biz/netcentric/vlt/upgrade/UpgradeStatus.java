@@ -99,32 +99,32 @@ public class UpgradeStatus {
      */
     public void update(InstallContext ctx, UpgradeInfo info) throws RepositoryException {
         Node infoStatus = getInfoStatus(info);
-	String infoVersion = info.getTargetVersion().toString();
-	infoStatus.setProperty(PN_VERSION, infoVersion);
-	String[] actions = getActionStringArray(info);
-	infoStatus.setProperty(PN_ACTIONS, actions);
-	LOG.info(ctx, "stored info status [{}] to [{}] actions [{}]: [{}]", infoVersion, infoStatus, actions);
+        String infoVersion = info.getTargetVersion().toString();
+        infoStatus.setProperty(PN_VERSION, infoVersion);
+        String[] actions = getActionStringArray(info);
+        infoStatus.setProperty(PN_ACTIONS, actions);
+        LOG.info(ctx, "stored info status [{}] to [{}] actions [{}]: [{}]", infoVersion, infoStatus, actions);
     }
 
     protected String[] getActionStringArray(UpgradeInfo info) throws RepositoryException {
-	List<String> actions = new ArrayList<>();
-	for (List<UpgradeAction> phaseActions : info.getActions().values()) {
-	    for (UpgradeAction action : phaseActions) {
-		actions.add(action.getName());
-	    }
-	}
-	return actions.toArray(new String[actions.size()]);
+        List<String> actions = new ArrayList<>();
+        for (List<UpgradeAction> phaseActions : info.getActions().values()) {
+            for (UpgradeAction action : phaseActions) {
+                actions.add(action.getName());
+            }
+        }
+        return actions.toArray(new String[actions.size()]);
     }
 
     public Version getLastExecution(InstallContext ctx, UpgradeInfo info) throws RepositoryException {
         checkStatus();
-	String infoVersion = JcrUtils.getStringProperty(getInfoStatus(info), PN_VERSION, null);
-	if (infoVersion != null) {
-	    return Version.create(infoVersion);
-	} else {
-	    LOG.info(ctx, "info not yet executed, using fallback version [{}]: [{}]", version, this);
-	    return version;
-	}
+        String infoVersion = JcrUtils.getStringProperty(getInfoStatus(info), PN_VERSION, null);
+        if (infoVersion != null) {
+            return Version.create(infoVersion);
+        } else {
+            LOG.info(ctx, "info not yet executed, using fallback version [{}]: [{}]", version, this);
+            return version;
+        }
     }
 
     protected void checkStatus() {

@@ -62,7 +62,7 @@ public class UpgradeProcessorTest {
         processor = new UpgradeProcessor();
         Mockito.when(ctx.getOptions()).thenReturn(Mockito.mock(ImportOptions.class));
         Mockito.when(ctx.getSession()).thenReturn(sling.resourceResolver().adaptTo(Session.class));
-	Mockito.when(group.isRelevant(ctx)).thenReturn(true);
+        Mockito.when(group.isRelevant(ctx)).thenReturn(true);
     }
 
     @Test
@@ -86,8 +86,8 @@ public class UpgradeProcessorTest {
 
         Assert.assertEquals(1, processor.infos.size());
         Assert.assertEquals("1.0.1-SNAPSHOT", processor.infos.get(0).getTargetVersion().toString());
-	Assert.assertTrue(processor.infos.get(0).isRelevant(ctx));
-	Assert.assertEquals("1.0.0", processor.status.getLastExecution(ctx, processor.infos.get(0)).toString());
+        Assert.assertTrue(processor.infos.get(0).isRelevant(ctx));
+        Assert.assertEquals("1.0.0", processor.status.getLastExecution(ctx, processor.infos.get(0)).toString());
         Mockito.verify(action).execute(ctx);
     }
 
@@ -131,7 +131,7 @@ public class UpgradeProcessorTest {
         Mockito.verify(group).execute(ctx);
 
         Mockito.reset(group);
-	Mockito.when(group.isRelevant(ctx)).thenReturn(true);
+        Mockito.when(group.isRelevant(ctx)).thenReturn(true);
 
         Mockito.when(ctx.getPhase()).thenReturn(Phase.INSTALL_FAILED);
         processor.execute(ctx);

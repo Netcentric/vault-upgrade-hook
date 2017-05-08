@@ -86,7 +86,7 @@ public class UpgradeProcessor implements InstallHook {
     }
 
     protected void updateInfoStatus(InstallContext ctx) throws RepositoryException {
-	LOG.debug(ctx, "updating info status [{}]", infos);
+        LOG.debug(ctx, "updating info status [{}]", infos);
         for (UpgradeInfo info : infos) {
             status.update(ctx, info);
         }
@@ -95,11 +95,11 @@ public class UpgradeProcessor implements InstallHook {
     protected void executeInfos(InstallContext ctx) throws RepositoryException {
         LOG.debug(ctx, "starting package execution [{}]", infos);
         for (UpgradeInfo info : infos) {
-	    if (info.isRelevant(ctx)) {
-		info.execute(ctx);
-	    } else {
-		LOG.info(ctx, "info not relevant: [{}]", this);
-	    }
+            if (info.isRelevant(ctx)) {
+                info.execute(ctx);
+            } else {
+                LOG.info(ctx, "info not relevant: [{}]", this);
+            }
         }
     }
 
@@ -118,7 +118,7 @@ public class UpgradeProcessor implements InstallHook {
                 Node child = nodes.nextNode();
                 final UpgradeInfo info = new UpgradeInfo(ctx, status, child);
                 LOG.debug(ctx, "info [{}]", info);
-		infos.add(info);
+                infos.add(info);
             }
 
             // sort upgrade infos according to their version and priority

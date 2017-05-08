@@ -35,8 +35,7 @@ public class GroovyScript extends UpgradeAction {
     SlingUtils sling = new SlingUtils();
     private final Node script;
 
-    public GroovyScript(Node script, Phase defaultPhase)
-            throws RepositoryException {
+    public GroovyScript(Node script, Phase defaultPhase) throws RepositoryException {
         super(script.getName(), UpgradeAction.getPhaseFromPrefix(defaultPhase, script.getName()));
         this.script = script;
     }
@@ -46,16 +45,16 @@ public class GroovyScript extends UpgradeAction {
         SlingHttpServletRequest request = getRequestForScript();
         if (request != null) {
             LOG.debug(ctx, "Executing [{}]", script.getName());
-	    RunScriptResponse scriptResponse = run(request);
+            RunScriptResponse scriptResponse = run(request);
             LOG.info(ctx, "Executed [{}]: [{}]\n{}\n---\n", script.getName(), scriptResponse.getRunningTime(),
                     scriptResponse.getOutput().trim());
         }
     }
 
     protected RunScriptResponse run(SlingHttpServletRequest request) {
-	try (ServiceWrapper<GroovyConsoleService> serviceWrapper = sling.getService(GroovyConsoleService.class)) {
-	    return serviceWrapper.getService().runScript(request);
-	}
+        try (ServiceWrapper<GroovyConsoleService> serviceWrapper = sling.getService(GroovyConsoleService.class)) {
+            return serviceWrapper.getService().runScript(request);
+        }
     }
 
     protected SlingHttpServletRequest getRequestForScript() throws RepositoryException {

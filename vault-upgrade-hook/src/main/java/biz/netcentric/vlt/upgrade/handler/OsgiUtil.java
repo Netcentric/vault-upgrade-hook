@@ -54,24 +54,24 @@ public class OsgiUtil {
 
     public static class ServiceWrapper<T> implements AutoCloseable {
 
-	private final BundleContext context;
-	private final ServiceReference<T> serviceReference;
-	private final T service;
+        private final BundleContext context;
+        private final ServiceReference<T> serviceReference;
+        private final T service;
 
-	public ServiceWrapper(BundleContext context, ServiceReference<T> serviceReference) {
-	    this.context = context;
-	    this.serviceReference = serviceReference;
-	    this.service = context.getService(serviceReference);
-	}
+        public ServiceWrapper(BundleContext context, ServiceReference<T> serviceReference) {
+            this.context = context;
+            this.serviceReference = serviceReference;
+            this.service = context.getService(serviceReference);
+        }
 
-	public T getService() {
-	    return service;
-	}
+        public T getService() {
+            return service;
+        }
 
-	@Override
-	public void close() {
-	    context.ungetService(serviceReference);
-	}
+        @Override
+        public void close() {
+            context.ungetService(serviceReference);
+        }
 
     }
 
