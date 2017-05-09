@@ -1,0 +1,6 @@
+{
+	"jcr:primaryType": "vlt:PackageDefinition",
+	"test": {
+        "handler":"biz.netcentric.vlt.upgrade.UpgradeProcessorTest$TestHandler"
+	}
+}
