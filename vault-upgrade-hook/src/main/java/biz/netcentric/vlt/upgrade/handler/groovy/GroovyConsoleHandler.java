@@ -47,6 +47,7 @@ public class GroovyConsoleHandler implements UpgradeHandler {
 
     }
 
+
     @Override
     public List<UpgradeAction> create(InstallContext ctx, UpgradeInfo info) throws RepositoryException {
         List<UpgradeAction> scripts = new ArrayList<>();

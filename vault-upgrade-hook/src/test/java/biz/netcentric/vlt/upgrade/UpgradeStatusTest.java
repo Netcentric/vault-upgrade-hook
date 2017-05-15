@@ -63,27 +63,27 @@ public class UpgradeStatusTest {
 
     @Test
     public void testConstructor() throws Exception {
-        Assert.assertFalse(status.isInitial());
-        Assert.assertEquals("1", status.getLastExecution(ctx, info).toString());
+        Assert.assertEquals("test", status.getNode().getName());
+        Assert.assertEquals("1", status.getVersion().toString());
 
         status = new UpgradeStatus(ctx, "/create-test");
         Assert.assertTrue(session.nodeExists("/create-test"));
-        Assert.assertTrue(status.isInitial());
+        Assert.assertEquals("create-test", status.getNode().getName());
+        Assert.assertNull(status.getVersion());
     }
 
     @Test
-    public void testNotExecuted() throws Exception {
+    public void testIsExecuted() throws Exception {
         Mockito.when(info.getNode().getName()).thenReturn("testInfo");
-        Assert.assertTrue(status.notExecuted(ctx, info, action));
+
+        Assert.assertFalse(status.isExecuted(ctx, info, "test"));
 
         sling.build().resource("/test/testInfo");
-        Assert.assertTrue(status.notExecuted(ctx, info, action));
+        Assert.assertFalse(status.isExecuted(ctx, info, "test"));
 
         sling.build().resource("/test/testInfo", UpgradeStatus.PN_ACTIONS, new String[] { "test1", "test2" });
-        Assert.assertTrue(status.notExecuted(ctx, info, action));
-
-        Mockito.when(action.getName()).thenReturn("test1");
-        Assert.assertFalse(status.notExecuted(ctx, info, action));
+        Assert.assertFalse(status.isExecuted(ctx, info, "test"));
+        Assert.assertTrue(status.isExecuted(ctx, info, "test1"));
     }
 
     @Test

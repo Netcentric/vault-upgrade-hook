@@ -9,7 +9,9 @@
 package biz.netcentric.vlt.upgrade;
 
 import java.util.Arrays;
+import java.util.Collections;
 
+import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.apache.jackrabbit.JcrConstants;
@@ -31,6 +33,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import biz.netcentric.vlt.upgrade.UpgradeInfo.RunMode;
 import biz.netcentric.vlt.upgrade.handler.UpgradeHandler;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -46,13 +49,13 @@ public class UpgradeProcessorTest {
     private VaultPackage vaultPackage;
 
     @Mock
-    private UpgradeInfo group;
+    private UpgradeInfo info;
 
     @Mock
-    private static UpgradeAction action;
+    private UpgradeAction action;
 
     @Mock
-    private static UpgradeStatus status;
+    private UpgradeStatus status;
 
     private UpgradeProcessor processor;
 
@@ -62,7 +65,6 @@ public class UpgradeProcessorTest {
         processor = new UpgradeProcessor();
         Mockito.when(ctx.getOptions()).thenReturn(Mockito.mock(ImportOptions.class));
         Mockito.when(ctx.getSession()).thenReturn(sling.resourceResolver().adaptTo(Session.class));
-        Mockito.when(group.isRelevant(ctx)).thenReturn(true);
     }
 
     @Test
@@ -73,41 +75,47 @@ public class UpgradeProcessorTest {
         Mockito.when(ctx.getPackage().getId().getInstallationPath()).thenReturn("/test/installation/path");
         Mockito.when(ctx.getPackage().getId().getVersionString()).thenReturn("1.0.1-SNAPSHOT");
 
-        sling.load().json("/biz/netcentric/vlt/upgrade/testStatus.json",
-                "/var/upgrade/testVaultGroup/testVaultPackage");
-        sling.load().json("/biz/netcentric/vlt/upgrade/testUpgrade.json",
-                "/test/installation/path.zip/jcr:content/vlt:definition/upgrader");
-
-        Mockito.when(action.getName()).thenReturn("testAction");
-        Mockito.when(action.getPhase()).thenReturn(Phase.PREPARE);
-        Mockito.when(action.isRelevant(Mockito.eq(ctx), Mockito.any(UpgradeInfo.class))).thenReturn(true);
+        sling.build().resource("/test/installation/path.zip/jcr:content/vlt:definition/upgrader/test", //
+                "handler", "biz.netcentric.vlt.upgrade.UpgradeProcessorTest$TestHandler" //
+        );
 
         processor.execute(ctx);
 
         Assert.assertEquals(1, processor.infos.size());
-        Assert.assertEquals("1.0.1-SNAPSHOT", processor.infos.get(0).getTargetVersion().toString());
-        Assert.assertTrue(processor.infos.get(0).isRelevant(ctx));
-        Assert.assertEquals("1.0.0", processor.status.getLastExecution(ctx, processor.infos.get(0)).toString());
-        Mockito.verify(action).execute(ctx);
+        Assert.assertTrue(processor.infos.get(0).getHandler() instanceof TestHandler);
+        TestHandler handler = (TestHandler) processor.infos.get(0).getHandler();
+        Mockito.verify(handler.action).execute(ctx);
     }
 
     @Test
     public void testExecuteInstalled() throws Exception {
-        processor.infos = Arrays.asList(group);
-
         Mockito.when(ctx.getPhase()).thenReturn(Phase.INSTALLED);
 
-        processor.execute(ctx);
+        processor.infos = Arrays.asList(info);
+        Mockito.when(info.getActions()).thenReturn(Collections.singletonMap(Phase.INSTALLED, Arrays.asList(action)));
 
-        Mockito.verify(group).execute(ctx);
+        Mockito.when(info.getRunMode()).thenReturn(RunMode.ALWAYS);
+        processor.execute(ctx);
+        Mockito.verify(action).execute(ctx);
+
+        Mockito.reset(action);
+        Mockito.when(info.getRunMode()).thenReturn(RunMode.ON_CHANGE);
+        processor.execute(ctx);
+        Mockito.verify(action, Mockito.never()).execute(ctx);
+
+        Mockito.reset(action);
+        Mockito.when(action.isRelevant(ctx, info)).thenReturn(true);
+        processor.execute(ctx);
+        Mockito.verify(action).execute(ctx);
     }
 
     @Test
     public void testExecuteEnd() throws Exception {
         processor.status = status;
-        processor.infos = Arrays.asList(group);
+        processor.infos = Arrays.asList(info);
 
         Mockito.when(ctx.getPhase()).thenReturn(Phase.END);
+        Mockito.when(info.getActions()).thenReturn(Collections.singletonMap(Phase.END, Arrays.asList(action)));
 
         JcrUtils.getOrCreateByPath("/test", JcrConstants.NT_UNSTRUCTURED, ctx.getSession());
         Assert.assertTrue("Make sure the session has changed to verify save after execution.",
@@ -115,40 +123,32 @@ public class UpgradeProcessorTest {
 
         processor.execute(ctx);
 
-        Mockito.verify(group).execute(ctx);
         Assert.assertFalse(ctx.getSession().hasPendingChanges());
         Mockito.verify(status).update(ctx);
-        Mockito.verify(status).update(ctx, group);
-    }
-
-    @Test
-    public void testExecuteFailed() throws Exception {
-        processor.status = status;
-        processor.infos = Arrays.asList(group);
-
-        Mockito.when(ctx.getPhase()).thenReturn(Phase.PREPARE_FAILED);
-        processor.execute(ctx);
-        Mockito.verify(group).execute(ctx);
-
-        Mockito.reset(group);
-        Mockito.when(group.isRelevant(ctx)).thenReturn(true);
-
-        Mockito.when(ctx.getPhase()).thenReturn(Phase.INSTALL_FAILED);
-        processor.execute(ctx);
-        Mockito.verify(group).execute(ctx);
+        Mockito.verify(status).update(ctx, info);
     }
 
     @Test(expected = PackageException.class)
-    public void testExecuteException() throws Exception {
-        processor.infos = Arrays.asList(group);
+    public void testException() throws Exception {
+        processor.infos = Arrays.asList(info);
 
         Mockito.when(ctx.getPhase()).thenReturn(Phase.INSTALLED);
-        Mockito.doThrow(new IllegalArgumentException("testException")).when(group).execute(ctx);
+        Mockito.doThrow(new IllegalArgumentException("testException")).when(info).getActions();
 
         processor.execute(ctx);
     }
 
     public static class TestHandler implements UpgradeHandler {
+
+        private final UpgradeAction action;
+
+        public TestHandler() throws RepositoryException {
+            action = Mockito.mock(UpgradeAction.class);
+            Mockito.when(action.getName()).thenReturn("testAction");
+            Mockito.when(action.getPhase()).thenReturn(Phase.PREPARE);
+            Mockito.when(action.isRelevant(Mockito.any(InstallContext.class), Mockito.any(UpgradeInfo.class)))
+                    .thenReturn(true);
+        }
 
         @Override
         public boolean isAvailable(InstallContext ctx) {

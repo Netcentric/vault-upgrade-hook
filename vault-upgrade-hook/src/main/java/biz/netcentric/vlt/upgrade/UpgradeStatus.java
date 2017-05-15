@@ -41,7 +41,7 @@ public class UpgradeStatus {
     public UpgradeStatus(InstallContext ctx, String path) throws RepositoryException {
         LOG.debug(ctx, "loading status [{}]", path);
         node = JcrUtils.getOrCreateByPath(path, JcrConstants.NT_UNSTRUCTURED, ctx.getSession());
-        version = createVersion(node);
+        version = createVersion(getNode());
         LOG.info(ctx, "loaded status [{}]", this);
     }
 
@@ -53,28 +53,25 @@ public class UpgradeStatus {
         }
     }
 
-    public boolean isInitial() {
-        return version == null;
-    }
-
-    public boolean notExecuted(InstallContext ctx, UpgradeInfo info, UpgradeAction action) throws RepositoryException {
+    public boolean isExecuted(InstallContext ctx, UpgradeInfo info, String actionId)
+            throws RepositoryException {
         Node infoStatus = getInfoStatus(info);
         if (infoStatus != null && infoStatus.hasProperty(PN_ACTIONS)) {
             for (Value executedAction : infoStatus.getProperty(PN_ACTIONS).getValues()) {
-                if (executedAction.getString().equals(action.getName())) {
-                    LOG.debug(ctx, "action [{}] already exected: [{}]", action, infoStatus);
-                    return false;
+                if (executedAction.getString().equals(actionId)) {
+                    LOG.debug(ctx, "action [{}] already exected: [{}]", actionId, infoStatus);
+                    return true;
                 }
             }
         }
-        LOG.debug(ctx, "action [{}] not exected yet: [{}]", action, infoStatus);
-        return true;
+        LOG.debug(ctx, "action [{}] not exected yet: [{}]", actionId, infoStatus);
+        return false;
     }
 
     protected Node getInfoStatus(UpgradeInfo info) throws RepositoryException {
-        String packagePath = node.getPath() + "/" + info.getNode().getName();
-        JcrUtils.getOrCreateByPath(packagePath, JcrConstants.NT_UNSTRUCTURED, node.getSession());
-        return JcrUtils.getNodeIfExists(packagePath, node.getSession());
+        String packagePath = getNode().getPath() + "/" + info.getNode().getName();
+        JcrUtils.getOrCreateByPath(packagePath, JcrConstants.NT_UNSTRUCTURED, getNode().getSession());
+        return JcrUtils.getNodeIfExists(packagePath, getNode().getSession());
     }
 
     /**
@@ -84,10 +81,10 @@ public class UpgradeStatus {
      * @throws RepositoryException
      */
     public void update(InstallContext ctx) throws RepositoryException {
-        node.setProperty(PN_UPGRADE_TIME, Calendar.getInstance());
+        getNode().setProperty(PN_UPGRADE_TIME, Calendar.getInstance());
         String versionString = ctx.getPackage().getId().getVersionString();
-        node.setProperty(PN_VERSION, versionString);
-        LOG.info(ctx, "stored new status [{}]: [{}]", node, versionString);
+        getNode().setProperty(PN_VERSION, versionString);
+        LOG.info(ctx, "stored new status [{}]: [{}]", getNode(), versionString);
     }
 
     /**
@@ -99,11 +96,9 @@ public class UpgradeStatus {
      */
     public void update(InstallContext ctx, UpgradeInfo info) throws RepositoryException {
         Node infoStatus = getInfoStatus(info);
-        String infoVersion = info.getTargetVersion().toString();
-        infoStatus.setProperty(PN_VERSION, infoVersion);
         String[] actions = getActionStringArray(info);
         infoStatus.setProperty(PN_ACTIONS, actions);
-        LOG.info(ctx, "stored info status [{}] to [{}] actions [{}]: [{}]", infoVersion, infoStatus, actions);
+        LOG.info(ctx, "stored status to [{}] actions: [{}]", infoStatus, actions);
     }
 
     protected String[] getActionStringArray(UpgradeInfo info) throws RepositoryException {
@@ -116,26 +111,17 @@ public class UpgradeStatus {
         return actions.toArray(new String[actions.size()]);
     }
 
-    public Version getLastExecution(InstallContext ctx, UpgradeInfo info) throws RepositoryException {
-        checkStatus();
-        String infoVersion = JcrUtils.getStringProperty(getInfoStatus(info), PN_VERSION, null);
-        if (infoVersion != null) {
-            return Version.create(infoVersion);
-        } else {
-            LOG.info(ctx, "info not yet executed, using fallback version [{}]: [{}]", version, this);
-            return version;
-        }
-    }
-
-    protected void checkStatus() {
-        if (isInitial()) {
-            throw new IllegalStateException("Cannot check values of an initial status.");
-        }
-    }
-
     @Override
     public String toString() {
-        return super.toString() + " [node=" + node + ", version=" + version + "]";
+        return super.toString() + " [node=" + getNode() + ", version=" + getVersion() + "]";
+    }
+
+    public Node getNode() {
+        return node;
+    }
+
+    public Version getVersion() {
+        return version;
     }
 
 }

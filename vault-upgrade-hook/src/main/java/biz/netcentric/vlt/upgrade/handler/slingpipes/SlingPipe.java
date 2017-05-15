@@ -29,7 +29,7 @@ public class SlingPipe extends UpgradeAction {
     private final Resource resource;
 
     public SlingPipe(Resource resource, Phase defaultPhase) {
-        super(resource.getName(), UpgradeAction.getPhaseFromPrefix(defaultPhase, resource.getName()));
+        super(resource.getName(), UpgradeAction.getPhaseFromPrefix(defaultPhase, resource.getName()), "");
         this.resource = resource;
     }
 

@@ -20,9 +20,6 @@ import javax.jcr.RepositoryException;
 import org.apache.jackrabbit.commons.JcrUtils;
 import org.apache.jackrabbit.vault.packaging.InstallContext;
 import org.apache.jackrabbit.vault.packaging.InstallContext.Phase;
-import org.apache.jackrabbit.vault.packaging.PackageId;
-import org.apache.jackrabbit.vault.packaging.VaultPackage;
-import org.apache.jackrabbit.vault.packaging.Version;
 
 import biz.netcentric.vlt.upgrade.handler.UpgradeHandler;
 import biz.netcentric.vlt.upgrade.handler.UpgradeType;
@@ -32,61 +29,52 @@ import biz.netcentric.vlt.upgrade.util.PackageInstallLogger;
  * This class represents the wrapper to execute {@link UpgradeAction}s. It loads
  * and holds the configuration.
  */
-public class UpgradeInfo implements Comparable<UpgradeInfo> {
+public class UpgradeInfo {
 
     private static final PackageInstallLogger LOG = PackageInstallLogger.create(UpgradeInfo.class);
 
     /**
-     * <i>Optional configuration property.</i> If not set the content package
-     * version is the default:
-     * {@link InstallContext#getPackage()}->{@link VaultPackage#getId()}->{@link PackageId#getVersionString()}<br>
+     * This property configures the handler to execute this {@link UpgradeInfo}s
+     * {@link UpgradeAction}s.<br>
      * <br>
-     * The target version of the upgrade.
+     * This configuration is optional and defaults to {@link #DEFAULT_HANDLER}.
      */
-    public static final String PN_TARGET_VERSION = "targetVersion";
-
-    public static final String PN_SAVE_THRESHOLD = "saveThreshold";
-    public static final long DEFAULT_SAVE_THRESHOLD = 1000l;
-
-    public static final String PN_PRIORITY = "priority";
-    public static final long DEFAULT_PRIORITY = Long.MAX_VALUE;
-
     public static final String PN_HANDLER = "handler";
     public static final String DEFAULT_HANDLER = UpgradeType.GROOVYCONSOLE.toString();
 
+    /**
+     * {@link UpgradeAction}s are executed in one of the installation
+     * {@link Phase}s. The phase configured via this property will be used if
+     * the {@link UpgradeAction} is not prefixed by a specific phase, see
+     * {@link UpgradeAction#getPhase()} and
+     * {@link UpgradeAction#getPhaseFromPrefix(Phase, String)}.<br>
+     * <br>
+     * This configuration is optional and defaults to {@link #DEFAULT_PHASE}.
+     */
     public static final String PN_DEFAULT_PHASE = "defaultPhase";
     public static final String DEFAULT_PHASE = Phase.INSTALLED.toString();
 
+    /**
+     * @see RunMode
+     */
     public static final String PN_RUN_MODE = "runMode";
-    public static final String DEFAULT_RUN_MODE = RunMode.INCREMENTAL.toString();
-
-    public static final String PN_SKIP_ON_INITIAL = "skipOnInitial";
-    public static final boolean DEFAULT_SKIP_ON_INITIAL = true;
+    public static final String DEFAULT_RUN_MODE = RunMode.ON_CHANGE.toString();
 
     private final Node node;
     private final UpgradeStatus status;
-    private final long priority;
-    private final long saveThreshold;
-    private final Version targetVersion;
     private final RunMode runMode;
-    private final boolean skipOnInitial;
     private final Phase defaultPhase;
     private final UpgradeHandler handler;
     private final Map<Phase, List<UpgradeAction>> actions = new HashMap<>();
-    private long counter = 0;
 
     public UpgradeInfo(InstallContext ctx, UpgradeStatus status, Node node) throws RepositoryException {
         this.status = status;
         this.node = node;
-        priority = JcrUtils.getLongProperty(node, PN_PRIORITY, DEFAULT_PRIORITY);
-        saveThreshold = JcrUtils.getLongProperty(node, PN_SAVE_THRESHOLD, DEFAULT_SAVE_THRESHOLD);
-        targetVersion = Version.create(
-                JcrUtils.getStringProperty(node, PN_TARGET_VERSION, ctx.getPackage().getId().getVersionString()));
         runMode = RunMode.valueOf(JcrUtils.getStringProperty(node, PN_RUN_MODE, DEFAULT_RUN_MODE).toUpperCase());
-        skipOnInitial = JcrUtils.getBooleanProperty(node, PN_SKIP_ON_INITIAL, DEFAULT_SKIP_ON_INITIAL);
         defaultPhase = Phase.valueOf(JcrUtils.getStringProperty(node, PN_DEFAULT_PHASE, DEFAULT_PHASE).toUpperCase());
         handler = UpgradeType.create(ctx, JcrUtils.getStringProperty(node, PN_HANDLER, DEFAULT_HANDLER));
         loadActions(ctx);
+        LOG.debug(ctx, "UpgradeInfo loaded [{}]", this);
     }
 
     private void loadActions(InstallContext ctx) throws RepositoryException {
@@ -103,54 +91,20 @@ public class UpgradeInfo implements Comparable<UpgradeInfo> {
         }
     }
 
-    public void execute(InstallContext ctx) throws RepositoryException {
-        List<UpgradeAction> actionsOfPhase = getActions().get(ctx.getPhase());
-        LOG.debug(ctx, "executing [{}]: [{}]", this, actionsOfPhase);
-        boolean reinstall = false;
-        for (UpgradeAction action : actionsOfPhase) {
-            if (reinstall || getRunMode() == RunMode.ALWAYS || action.isRelevant(ctx, this)) {
-                reinstall = true; // if the one action was regarded relevant all
-                                  // following actions are also executed no
-                                  // matter what their status is
-                action.execute(ctx);
-                saveOnThreshold(ctx, ++counter);
-            }
-        }
-    }
-
-    public Map<Phase, List<UpgradeAction>> getActions() throws RepositoryException {
-        return actions;
-    }
-
-    protected void saveOnThreshold(InstallContext ctx, long count) throws RepositoryException {
-        if (saveThreshold > 0 && count % saveThreshold == 0) {
-            LOG.info(ctx, "saving [{}]", count);
-            ctx.getSession().save();
-        }
-    }
-
-    public boolean isRelevant(InstallContext ctx) throws RepositoryException {
-        if (runMode == UpgradeInfo.RunMode.ALWAYS) {
-            return true;
-        }
-        if (skipOnInitial && status.isInitial()) {
-            LOG.info(ctx, "Skip initial: [{}]", this);
-            return false; // don't spool all upgrades on a new installation
-        }
-        Version lastExecution = status.getLastExecution(ctx, this);
-        boolean result = lastExecution.compareTo(getTargetVersion()) <= 0;
-        if (!result) {
-            LOG.info(ctx, "Skip because of older target version: [{}] <=> [{}]", lastExecution, getTargetVersion());
-        }
-        return result;
-    }
-
+    /**
+     * This configuration affects the installation behavior of
+     * {@link UpgradeAction}s, see
+     * 
+     * <ul>
+     * <li>{@link #ON_CHANGE} - actions will be executed once.</li>
+     * <li>{@link #ALWAYS} - actions will be executed on every intallation.</li>
+     * </ul>
+     */
     public enum RunMode {
         /**
-         * Run if current version >= version of the last execution and run each
-         * action exactly once.
+         * Run all new or changed actions.
          */
-        INCREMENTAL,
+        ON_CHANGE,
 
         /**
          * Completely disregarding previous executions.
@@ -159,68 +113,17 @@ public class UpgradeInfo implements Comparable<UpgradeInfo> {
     }
 
     @Override
-    public int compareTo(UpgradeInfo other) {
-        // first sorting criterion: version
-        int versionCompare = targetVersion.compareTo(other.targetVersion);
-        if (versionCompare == 0) {
-            // second sorting criterion: priority
-            return (priority < other.priority) ? -1 : ((priority == other.priority) ? 0 : 1);
-        } else {
-            return versionCompare;
-        }
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((node == null) ? 0 : node.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        UpgradeInfo other = (UpgradeInfo) obj;
-        if (node == null) {
-            if (other.node != null)
-                return false;
-        } else if (!node.equals(other.node))
-            return false;
-        return true;
-    }
-
-    @Override
     public String toString() {
-        return super.toString() + " [node=" + node + ", status=" + status + ", priority=" + priority
-                + ", saveThreshold=" + saveThreshold + ", version=" + targetVersion + ", runMode=" + runMode
-                + ", skipOnInitial=" + skipOnInitial + ", defaultPhase=" + defaultPhase + ", handler=" + handler
-                + ", actions=" + actions + ", counter=" + counter + "]";
+        return super.toString() + " [node=" + node + ", status=" + status + ", runMode=" + runMode + ", defaultPhase="
+                + defaultPhase + ", handler=" + handler + ", actions=" + actions + "]";
     }
 
-    public long getCounter() {
-        return counter;
+    public Map<Phase, List<UpgradeAction>> getActions() throws RepositoryException {
+        return actions;
     }
 
     public UpgradeStatus getStatus() {
         return status;
-    }
-
-    public long getPriority() {
-        return priority;
-    }
-
-    public long getSaveThreshold() {
-        return saveThreshold;
-    }
-
-    public Version getTargetVersion() {
-        return targetVersion;
     }
 
     public RunMode getRunMode() {
@@ -238,9 +141,4 @@ public class UpgradeInfo implements Comparable<UpgradeInfo> {
     public Node getNode() {
         return node;
     }
-
-    public boolean isSkipOnInitial() {
-        return skipOnInitial;
-    }
-
 }

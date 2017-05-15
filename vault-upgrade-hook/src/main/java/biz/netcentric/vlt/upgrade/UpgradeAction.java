@@ -8,8 +8,14 @@
  */
 package biz.netcentric.vlt.upgrade;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 import javax.jcr.RepositoryException;
 
+import org.apache.jackrabbit.util.Base64;
 import org.apache.jackrabbit.vault.packaging.InstallContext;
 import org.apache.jackrabbit.vault.packaging.InstallContext.Phase;
 
@@ -21,10 +27,12 @@ public abstract class UpgradeAction implements Comparable<UpgradeAction> {
 
     private final String name;
     private final Phase phase;
+    private final String contentHash;
 
-    public UpgradeAction(String name, Phase phase) {
+    public UpgradeAction(String name, Phase phase, String contentHash) {
         this.name = name;
         this.phase = phase;
+        this.contentHash = contentHash;
     }
 
     /**
@@ -47,7 +55,7 @@ public abstract class UpgradeAction implements Comparable<UpgradeAction> {
     }
 
     public boolean isRelevant(InstallContext ctx, UpgradeInfo info) throws RepositoryException {
-        return info.getStatus().notExecuted(ctx, info, this);
+        return !info.getStatus().isExecuted(ctx, info, this.getName() + "_" + getContentHash());
     }
 
     /**
@@ -62,7 +70,23 @@ public abstract class UpgradeAction implements Comparable<UpgradeAction> {
         return phase;
     }
 
+    public String getContentHash() {
+        return contentHash;
+    }
+
     public abstract void execute(InstallContext ctx) throws RepositoryException;
+
+    protected static String getMd5(String content, String encoding) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] md5 = md.digest(content.getBytes(encoding));
+            StringWriter md5Base64 = new StringWriter();
+            Base64.encode(md5, 0, md5.length, md5Base64);
+            return md5Base64.toString();
+        } catch (NoSuchAlgorithmException | IOException e) {
+            throw new IllegalStateException("Error while encoding script content.", e);
+        }
+    }
 
     @Override
     public int compareTo(UpgradeAction o) {
@@ -73,7 +97,7 @@ public abstract class UpgradeAction implements Comparable<UpgradeAction> {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        result = prime * result + ((getName() == null) ? 0 : getName().hashCode());
         return result;
     }
 

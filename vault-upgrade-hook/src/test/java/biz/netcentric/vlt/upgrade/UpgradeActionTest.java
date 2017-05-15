@@ -8,6 +8,8 @@
  */
 package biz.netcentric.vlt.upgrade;
 
+import java.nio.charset.Charset;
+
 import javax.jcr.RepositoryException;
 
 import org.apache.jackrabbit.vault.packaging.InstallContext;
@@ -33,21 +35,27 @@ public class UpgradeActionTest {
 
     @Test
     public void testIsRelevant() throws Exception {
-        TestAction action = new TestAction("test", null);
+        TestAction action = new TestAction("testName", null, "testHash");
 
         Mockito.when(info.getStatus()).thenReturn(status);
 
-        Mockito.when(status.notExecuted(ctx, info, action)).thenReturn(true);
+        Mockito.when(status.isExecuted(ctx, info, "testName_testHash")).thenReturn(false);
         Assert.assertTrue(action.isRelevant(ctx, info));
 
-        Mockito.when(status.notExecuted(ctx, info, action)).thenReturn(false);
+        Mockito.when(status.isExecuted(ctx, info, "testName_testHash")).thenReturn(true);
         Assert.assertFalse(action.isRelevant(ctx, info));
     }
 
+    @Test
+    public void testGetMd5() throws Exception {
+        Assert.assertEquals("CY9rzUYh03PK3k6DJie09g==", TestAction.getMd5("test", Charset.defaultCharset().name()));
+    }
+
+
     private static class TestAction extends UpgradeAction {
 
-        public TestAction(String name, Phase phase) {
-            super(name, phase);
+        public TestAction(String name, Phase phase, String hash) {
+            super(name, phase, hash);
         }
 
         @Override

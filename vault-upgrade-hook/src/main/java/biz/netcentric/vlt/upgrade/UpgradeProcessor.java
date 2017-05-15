@@ -10,6 +10,7 @@ package biz.netcentric.vlt.upgrade;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.jcr.Node;
@@ -23,6 +24,7 @@ import org.apache.jackrabbit.vault.packaging.InstallHook;
 import org.apache.jackrabbit.vault.packaging.PackageException;
 import org.apache.jackrabbit.vault.packaging.PackageId;
 
+import biz.netcentric.vlt.upgrade.UpgradeInfo.RunMode;
 import biz.netcentric.vlt.upgrade.util.PackageInstallLogger;
 
 /**
@@ -63,15 +65,15 @@ public class UpgradeProcessor implements InstallHook {
             case PREPARE:
                 loadStatus(ctx);
                 loadInfos(ctx);
-                executeInfos(ctx);
+                executeActions(ctx);
                 break;
             case INSTALLED:
             case PREPARE_FAILED:
             case INSTALL_FAILED:
-                executeInfos(ctx);
+                executeActions(ctx);
                 break;
             case END:
-                executeInfos(ctx);
+                executeActions(ctx);
                 status.update(ctx);
                 updateInfoStatus(ctx);
                 ctx.getSession().save();
@@ -92,18 +94,23 @@ public class UpgradeProcessor implements InstallHook {
         }
     }
 
-    protected void executeInfos(InstallContext ctx) throws RepositoryException {
-        LOG.debug(ctx, "starting package execution [{}]", infos);
+    protected void executeActions(InstallContext ctx) throws RepositoryException {
+        LOG.debug(ctx, "starting execution [{}]", infos);
         for (UpgradeInfo info : infos) {
-            if (info.isRelevant(ctx)) {
-                info.execute(ctx);
-            } else {
-                LOG.info(ctx, "info not relevant: [{}]", this);
+            List<UpgradeAction> actionsOfPhase = info.getActions().get(ctx.getPhase());
+            LOG.info(ctx, "executing [{}]: [{}]", info, actionsOfPhase);
+            for (UpgradeAction action : actionsOfPhase) {
+                if (info.getRunMode() == RunMode.ALWAYS || action.isRelevant(ctx, info)) {
+                    LOG.debug(ctx, "executing action [{}]", action);
+                    action.execute(ctx);
+                } else {
+                    LOG.debug(ctx, "action not executed because it did not change since last execution [{}]", action);
+                }
             }
         }
     }
 
-    protected void loadInfos(InstallContext ctx) throws RepositoryException {
+    protected void loadInfos(final InstallContext ctx) throws RepositoryException {
 
         String upgradeInfoPath = ctx.getPackage().getId().getInstallationPath() + UPGRADER_PATH_IN_PACKAGE;
         Node upgradeInfoNode = ctx.getSession().getNode(upgradeInfoPath);
@@ -122,7 +129,18 @@ public class UpgradeProcessor implements InstallHook {
             }
 
             // sort upgrade infos according to their version and priority
-            Collections.sort(infos);
+            Collections.sort(infos, new Comparator<UpgradeInfo>() {
+
+                @Override
+                public int compare(UpgradeInfo info1, UpgradeInfo info2) {
+                    try {
+                        return info1.getNode().getName().compareTo(info1.getNode().getName());
+                    } catch (RepositoryException e) {
+                        LOG.warn(ctx, "Could not compare upgrade infos [{}/{}]", info1.getNode(), info2.getNode(), e);
+                        return 0;
+                    }
+                }
+            });
         } else {
             LOG.warn(ctx, "Could not load upgrade info [{}]", upgradeInfoPath);
         }

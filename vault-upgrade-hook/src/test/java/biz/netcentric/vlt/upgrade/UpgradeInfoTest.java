@@ -15,7 +15,6 @@ import javax.jcr.Session;
 
 import org.apache.jackrabbit.vault.packaging.InstallContext;
 import org.apache.jackrabbit.vault.packaging.InstallContext.Phase;
-import org.apache.jackrabbit.vault.packaging.Version;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.apache.sling.testing.mock.sling.junit.SlingContext;
 import org.junit.Assert;
@@ -72,127 +71,27 @@ public class UpgradeInfoTest {
         UpgradeInfo info = new UpgradeInfo(ctx, status, node);
         Assert.assertSame(node, info.getNode());
         Assert.assertSame(status, info.getStatus());
-        Assert.assertEquals(UpgradeInfo.DEFAULT_PRIORITY, info.getPriority());
-        Assert.assertEquals(UpgradeInfo.DEFAULT_SAVE_THRESHOLD, info.getSaveThreshold());
-        Assert.assertEquals("1.0.0", info.getTargetVersion().toString());
         Assert.assertEquals(UpgradeInfo.DEFAULT_RUN_MODE, info.getRunMode().toString());
-        Assert.assertEquals(UpgradeInfo.DEFAULT_SKIP_ON_INITIAL, info.isSkipOnInitial());
         Assert.assertEquals(UpgradeInfo.DEFAULT_PHASE, info.getDefaultPhase().toString());
         Assert.assertTrue(info.getHandler() instanceof TestHandler);
         Assert.assertEquals(Phase.values().length, info.getActions().size());
         UpgradeAction action = info.getActions().get(TestHandler.PHASE).get(0);
         Assert.assertTrue(action instanceof UpgradeAction);
         Assert.assertTrue(new MockUtil().isMock(action));
-        Assert.assertEquals(0, info.getCounter());
     }
 
     @Test
     public void testConstructor() throws Exception {
         sling.build().resource("/test", //
-                UpgradeInfo.PN_PRIORITY, 47l, //
-                UpgradeInfo.PN_SAVE_THRESHOLD, 48l, //
-                UpgradeInfo.PN_TARGET_VERSION, "2.0.0", //
                 UpgradeInfo.PN_RUN_MODE, "always", //
-                UpgradeInfo.PN_SKIP_ON_INITIAL, !UpgradeInfo.DEFAULT_SKIP_ON_INITIAL, //
                 UpgradeInfo.PN_DEFAULT_PHASE, "prepare", //
                 UpgradeInfo.PN_HANDLER, TEST_HANDLER);
         Node node = session.getNode("/test");
         UpgradeInfo info = new UpgradeInfo(ctx, status, node);
 
-        Assert.assertEquals(47l, info.getPriority());
-        Assert.assertEquals(48l, info.getSaveThreshold());
-        Assert.assertEquals("2.0.0", info.getTargetVersion().toString());
         Assert.assertEquals(RunMode.ALWAYS, info.getRunMode());
-        Assert.assertEquals(!UpgradeInfo.DEFAULT_SKIP_ON_INITIAL, info.isSkipOnInitial());
         Assert.assertEquals(Phase.PREPARE, info.getDefaultPhase());
         Assert.assertTrue(info.getHandler() instanceof TestHandler);
-    }
-
-    @Test
-    public void testExecute() throws Exception {
-        Mockito.when(ctx.getPhase()).thenReturn(Phase.INSTALLED);
-
-        sling.build().resource("/testIncremental", //
-                UpgradeInfo.PN_HANDLER, TEST_HANDLER);
-        UpgradeInfo info = new UpgradeInfo(ctx, status, session.getNode("/testIncremental"));
-        Assert.assertEquals(RunMode.INCREMENTAL, info.getRunMode());
-
-        UpgradeAction action1 = Mockito.mock(UpgradeAction.class);
-        Mockito.when(action1.isRelevant(ctx, info)).thenReturn(false);
-        info.getActions().get(Phase.INSTALLED).add(action1);
-
-        UpgradeAction action2 = Mockito.mock(UpgradeAction.class);
-        Mockito.when(action2.isRelevant(ctx, info)).thenReturn(true);
-        info.getActions().get(Phase.INSTALLED).add(action2);
-
-        UpgradeAction action3 = Mockito.mock(UpgradeAction.class);
-        Mockito.when(action3.isRelevant(ctx, info)).thenReturn(false);
-        info.getActions().get(Phase.INSTALLED).add(action3);
-
-        info.execute(ctx);
-
-        Mockito.verify(action1, Mockito.never()).execute(ctx);
-        Mockito.verify(action2).execute(ctx);
-        Mockito.verify(action3).execute(ctx);
-
-        Mockito.reset(action1, action2, action3);
-        sling.build().resource("/testAlways", //
-                UpgradeInfo.PN_RUN_MODE, RunMode.ALWAYS.toString(), //
-                UpgradeInfo.PN_HANDLER, TEST_HANDLER);
-        info = new UpgradeInfo(ctx, status, session.getNode("/testAlways"));
-        Assert.assertEquals(RunMode.ALWAYS, info.getRunMode());
-        info.getActions().get(Phase.INSTALLED).add(action1);
-        info.getActions().get(Phase.INSTALLED).add(action2);
-        info.getActions().get(Phase.INSTALLED).add(action3);
-
-        info.execute(ctx);
-
-        Mockito.verify(action1).execute(ctx);
-        Mockito.verify(action2).execute(ctx);
-        Mockito.verify(action3).execute(ctx);
-    }
-
-    @Test
-    public void testIsRelevant() throws Exception {
-        sling.build().resource("/testAlways", //
-                UpgradeInfo.PN_RUN_MODE, RunMode.ALWAYS.toString(), //
-                UpgradeInfo.PN_HANDLER, TEST_HANDLER);
-        UpgradeInfo info = new UpgradeInfo(ctx, status, session.getNode("/testAlways"));
-        Assert.assertEquals(RunMode.ALWAYS, info.getRunMode());
-
-        Assert.assertTrue(info.isRelevant(ctx));
-
-        sling.build().resource("/test", //
-                UpgradeInfo.PN_HANDLER, TEST_HANDLER);
-        Mockito.when(ctx.getPackage().getId().getVersionString()).thenReturn("1");
-        info = new UpgradeInfo(ctx, status, session.getNode("/test"));
-        Mockito.when(status.getLastExecution(ctx, info)).thenReturn(Version.create("0"));
-
-        Assert.assertTrue(info.isRelevant(ctx));
-
-        Mockito.when(status.isInitial()).thenReturn(true);
-        Assert.assertFalse(info.isRelevant(ctx));
-        Mockito.when(status.isInitial()).thenReturn(false);
-
-        Mockito.when(status.getLastExecution(ctx, info)).thenReturn(Version.create("1"));
-        Assert.assertTrue(info.isRelevant(ctx));
-
-        Mockito.when(status.getLastExecution(ctx, info)).thenReturn(Version.create("2"));
-        Assert.assertFalse(info.isRelevant(ctx));
-
-        sling.build().resource("/testNotSkipOnInitial", //
-                UpgradeInfo.PN_SKIP_ON_INITIAL, false, //
-                UpgradeInfo.PN_HANDLER, TEST_HANDLER);
-        info = new UpgradeInfo(ctx, status, session.getNode("/testNotSkipOnInitial"));
-        Mockito.when(status.getLastExecution(ctx, info)).thenReturn(Version.create("0"));
-
-        Assert.assertTrue(info.isRelevant(ctx));
-
-        Mockito.when(status.isInitial()).thenReturn(true);
-        Assert.assertTrue(info.isRelevant(ctx));
-
-        Mockito.when(status.getLastExecution(ctx, info)).thenReturn(Version.create("2"));
-        Assert.assertFalse(info.isRelevant(ctx));
     }
 
     public static class TestHandler implements UpgradeHandler {
