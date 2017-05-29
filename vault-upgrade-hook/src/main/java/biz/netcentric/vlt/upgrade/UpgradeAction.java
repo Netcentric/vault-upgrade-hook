@@ -13,8 +13,11 @@ import java.io.StringWriter;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
+import org.apache.jackrabbit.JcrConstants;
+import org.apache.jackrabbit.commons.JcrUtils;
 import org.apache.jackrabbit.util.Base64;
 import org.apache.jackrabbit.vault.packaging.InstallContext;
 import org.apache.jackrabbit.vault.packaging.InstallContext.Phase;
@@ -29,7 +32,7 @@ public abstract class UpgradeAction implements Comparable<UpgradeAction> {
     private final Phase phase;
     private final String contentHash;
 
-    public UpgradeAction(String name, Phase phase, String contentHash) {
+    public UpgradeAction(final String name, final Phase phase, final String contentHash) {
         this.name = name;
         this.phase = phase;
         this.contentHash = contentHash;
@@ -43,7 +46,7 @@ public abstract class UpgradeAction implements Comparable<UpgradeAction> {
      * @return related phase, {@code defaultPhase} if no {@code name} is not
      *         prefixed by a phase.
      */
-    protected static Phase getPhaseFromPrefix(Phase defaultPhase, String name) {
+    protected static Phase getPhaseFromPrefix(final Phase defaultPhase, final String name) {
         // need to loop from the end to avoid conflicts of "PREPARE" and
         // "PREPARE_FAILED"
         for (int i = Phase.values().length - 1; i >= 0; i--) {
@@ -54,8 +57,8 @@ public abstract class UpgradeAction implements Comparable<UpgradeAction> {
         return defaultPhase;
     }
 
-    public boolean isRelevant(InstallContext ctx, UpgradeInfo info) throws RepositoryException {
-        return !info.getStatus().isExecuted(ctx, info, this.getName() + "_" + getContentHash());
+    public boolean isRelevant(final InstallContext ctx, final UpgradeInfo info) throws RepositoryException {
+        return !info.getStatus().isExecuted(ctx, info, getName() + "_" + getContentHash());
     }
 
     /**
@@ -76,11 +79,25 @@ public abstract class UpgradeAction implements Comparable<UpgradeAction> {
 
     public abstract void execute(InstallContext ctx) throws RepositoryException;
 
-    protected static String getMd5(String content, String encoding) {
+    protected static String getDataMd5(final Node script) throws RepositoryException {
+        final String encoding = JcrUtils.getStringProperty(script, JcrConstants.JCR_CONTENT + "/" + JcrConstants.JCR_ENCODING, "utf-8");
+        return getMd5(getData(script), encoding);
+    }
+
+    protected static String getData(final Node script) throws RepositoryException {
+        final String dataPath = JcrConstants.JCR_CONTENT + "/" + JcrConstants.JCR_DATA;
+        if (script.hasProperty(dataPath)) {
+            return JcrUtils.getStringProperty(script, dataPath, "");
+        } else {
+            throw new RepositoryException("Cannot load script content from " + script);
+        }
+    }
+
+    protected static String getMd5(final String content, final String encoding) {
         try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            byte[] md5 = md.digest(content.getBytes(encoding));
-            StringWriter md5Base64 = new StringWriter();
+            final MessageDigest md = MessageDigest.getInstance("MD5");
+            final byte[] md5 = md.digest(content.getBytes(encoding));
+            final StringWriter md5Base64 = new StringWriter();
             Base64.encode(md5, 0, md5.length, md5Base64);
             return md5Base64.toString();
         } catch (NoSuchAlgorithmException | IOException e) {
@@ -89,7 +106,7 @@ public abstract class UpgradeAction implements Comparable<UpgradeAction> {
     }
 
     @Override
-    public int compareTo(UpgradeAction o) {
+    public int compareTo(final UpgradeAction o) {
         return getName().compareTo(o.getName());
     }
 
@@ -102,7 +119,7 @@ public abstract class UpgradeAction implements Comparable<UpgradeAction> {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (obj instanceof UpgradeAction) {
             return getName().equals(((UpgradeAction) obj).getName());
         } else {

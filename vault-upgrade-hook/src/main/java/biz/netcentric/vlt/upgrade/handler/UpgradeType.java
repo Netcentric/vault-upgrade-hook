@@ -11,6 +11,7 @@ package biz.netcentric.vlt.upgrade.handler;
 import org.apache.jackrabbit.vault.packaging.InstallContext;
 
 import biz.netcentric.vlt.upgrade.handler.groovy.GroovyConsoleHandler;
+import biz.netcentric.vlt.upgrade.handler.script.ScriptHandler;
 import biz.netcentric.vlt.upgrade.handler.slingpipes.SlingPipesHandler;
 
 /**
@@ -18,19 +19,21 @@ import biz.netcentric.vlt.upgrade.handler.slingpipes.SlingPipesHandler;
  */
 public enum UpgradeType {
 
+    SCRIPT(ScriptHandler.class),
+
     GROOVYCONSOLE(GroovyConsoleHandler.class),
 
     SLINGPIPES(SlingPipesHandler.class);
 
     private final Class<? extends UpgradeHandler> clazz;
 
-    private UpgradeType(Class<? extends UpgradeHandler> clazz) {
+    private UpgradeType(final Class<? extends UpgradeHandler> clazz) {
         this.clazz = clazz;
     }
 
-    public static UpgradeHandler create(InstallContext ctx, String key) {
+    public static UpgradeHandler create(final InstallContext ctx, final String key) {
         UpgradeHandler handler = null;
-        for (UpgradeType type : values()) {
+        for (final UpgradeType type : values()) {
             if (type.name().equalsIgnoreCase(key)) {
                 handler = create(type.clazz);
             }
@@ -38,7 +41,7 @@ public enum UpgradeType {
         if (handler == null) {
             try {
                 handler = create(Class.forName(key));
-            } catch (ClassNotFoundException e) {
+            } catch (final ClassNotFoundException e) {
                 throw new IllegalArgumentException("Cannot find custom handler: " + key, e);
             }
         }
@@ -48,7 +51,7 @@ public enum UpgradeType {
         return handler;
     }
 
-    private static UpgradeHandler create(Class<?> clazz) {
+    private static UpgradeHandler create(final Class<?> clazz) {
         try {
             return (UpgradeHandler) clazz.newInstance();
         } catch (InstantiationException | IllegalAccessException | ClassCastException e) {

@@ -14,8 +14,6 @@ import java.util.Map;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
-import org.apache.jackrabbit.JcrConstants;
-import org.apache.jackrabbit.commons.JcrUtils;
 import org.apache.jackrabbit.vault.packaging.InstallContext;
 import org.apache.jackrabbit.vault.packaging.InstallContext.Phase;
 import org.apache.sling.api.SlingHttpServletRequest;
@@ -32,50 +30,34 @@ public class GroovyScript extends UpgradeAction {
 
     private static final PackageInstallLogger LOG = PackageInstallLogger.create(GroovyScript.class);
 
-    protected static String getContentHash(Node script) throws RepositoryException {
-        String encoding = JcrUtils.getStringProperty(script, JcrConstants.JCR_CONTENT + "/" + JcrConstants.JCR_ENCODING,
-                "utf-8");
-        return getMd5(getScriptContent(script), encoding);
-    }
-
-    protected static String getScriptContent(Node script) throws RepositoryException {
-        String dataPath = JcrConstants.JCR_CONTENT + "/" + JcrConstants.JCR_DATA;
-        if (script.hasProperty(dataPath)) {
-            return JcrUtils.getStringProperty(script, dataPath, "");
-        } else {
-            throw new RepositoryException("Cannot load script content from " + script);
-        }
-    }
-
     SlingUtils sling = new SlingUtils();
     private final Node script;
 
-    public GroovyScript(Node script, Phase defaultPhase) throws RepositoryException {
-        super(script.getName(), UpgradeAction.getPhaseFromPrefix(defaultPhase, script.getName()),
-                getContentHash(script));
+    public GroovyScript(final Node script, final Phase defaultPhase) throws RepositoryException {
+        super(script.getName(), UpgradeAction.getPhaseFromPrefix(defaultPhase, script.getName()), getDataMd5(script));
         this.script = script;
     }
 
     @Override
-    public void execute(InstallContext ctx) throws RepositoryException {
-        SlingHttpServletRequest request = getRequestForScript();
+    public void execute(final InstallContext ctx) throws RepositoryException {
+        final SlingHttpServletRequest request = getRequestForScript();
         if (request != null) {
             LOG.debug(ctx, "Executing [{}]", getName());
-            RunScriptResponse scriptResponse = run(request);
+            final RunScriptResponse scriptResponse = run(request);
             LOG.info(ctx, "Executed [{}]: [{}]\n{}\n---\n", getName(), scriptResponse.getRunningTime(),
                     scriptResponse.getOutput().trim());
         }
     }
 
-    protected RunScriptResponse run(SlingHttpServletRequest request) {
+    protected RunScriptResponse run(final SlingHttpServletRequest request) {
         try (ServiceWrapper<GroovyConsoleService> serviceWrapper = sling.getService(GroovyConsoleService.class)) {
             return serviceWrapper.getService().runScript(request);
         }
     }
 
     protected SlingHttpServletRequest getRequestForScript() throws RepositoryException {
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put("script", getScriptContent(script));
+        final Map<String, Object> parameters = new HashMap<>();
+        parameters.put("script", getData(script));
         parameters.put("scriptPath", script.getPath());
         return new FakeRequest(sling.getResourceResolver(script.getSession()), "GET", "/bin/groovyconsole/post.json",
                 parameters);

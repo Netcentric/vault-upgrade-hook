@@ -40,7 +40,7 @@ public class UpgradeInfo {
      * This configuration is optional and defaults to {@link #DEFAULT_HANDLER}.
      */
     public static final String PN_HANDLER = "handler";
-    public static final String DEFAULT_HANDLER = UpgradeType.GROOVYCONSOLE.toString();
+    public static final String DEFAULT_HANDLER = UpgradeType.SCRIPT.toString();
 
     /**
      * {@link UpgradeAction}s are executed in one of the installation

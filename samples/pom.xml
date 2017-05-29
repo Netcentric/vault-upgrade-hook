@@ -18,6 +18,7 @@
     <name>Vault Upgrade Hook :: Samples</name>
 
     <modules>
+        <module>script-package</module>
         <module>groovy-package</module>
         <module>sling-pipes-package</module>
     </modules>
