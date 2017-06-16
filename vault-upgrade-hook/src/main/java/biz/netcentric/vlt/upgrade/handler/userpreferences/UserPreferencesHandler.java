@@ -11,32 +11,32 @@ import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.jackrabbit.vault.packaging.InstallContext;
 
 import biz.netcentric.vlt.upgrade.UpgradeAction;
 import biz.netcentric.vlt.upgrade.UpgradeInfo;
 import biz.netcentric.vlt.upgrade.handler.UpgradeHandler;
+import biz.netcentric.vlt.upgrade.util.PackageInstallLogger;
 
 public class UserPreferencesHandler implements UpgradeHandler {
 
     private static final String PN_USER_IDS = "handler.userIds";
     private static final String NAME_SUFFIX_USER_PREFERENCES = "user.preferences";
-    private static final Logger LOG = LoggerFactory.getLogger(UserPreferencesHandler.class);
+    private static final PackageInstallLogger LOG = PackageInstallLogger.create(UserPreferencesHandler.class);
 
     @Override
-    public boolean isAvailable() {
+    public boolean isAvailable(InstallContext ctx) {
         // this handler does not depend on any optional dependencies
         return true;
     }
 
     @Override
-    public Iterable<UpgradeAction> create(UpgradeInfo info) throws RepositoryException {
+    public Iterable<UpgradeAction> create(InstallContext ctx, UpgradeInfo info) throws RepositoryException {
         List<UpgradeAction> actions = new ArrayList<>();
 
         // extract user id from upgrade info node
         if (!info.getNode().hasProperty(PN_USER_IDS)) {
-            LOG.debug("No property '{}' found on upgrade info {}, not creating any UserPreferencesUpgradeActions!", PN_USER_IDS, info);
+            LOG.debug(ctx, "No property '{}' found on upgrade info {}, not creating any UserPreferencesUpgradeActions!", PN_USER_IDS, info);
             return actions;
         }
         Set<String> userIds = new HashSet<>();
@@ -52,10 +52,10 @@ public class UserPreferencesHandler implements UpgradeHandler {
         while (children.hasNext()) {
             Node child = children.nextNode();
             if (NAME_SUFFIX_USER_PREFERENCES.equals(child.getName())) {
-                LOG.debug("Found user preferences node '{}' below upgrade info {}", child.getPath(), info);
+                LOG.debug(ctx, "Found user preferences node '{}' below upgrade info {}", child.getPath(), info);
                 for (String userId : userIds) {
                     actions.add(new UserPreferencesUpgradeAction(userId, child));
-                    LOG.debug("Added UserPreferencesUpgradeAction for userId '{}'.", userId);
+                    LOG.debug(ctx, "Added UserPreferencesUpgradeAction for userId '{}'.", userId);
                 }
             }
         }

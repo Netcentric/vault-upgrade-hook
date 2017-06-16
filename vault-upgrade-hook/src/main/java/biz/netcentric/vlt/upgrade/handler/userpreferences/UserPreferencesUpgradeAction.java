@@ -20,7 +20,7 @@ public class UserPreferencesUpgradeAction extends UpgradeAction {
     private final String userId;
     
     public UserPreferencesUpgradeAction(String userId, Node xmlFileNode) throws RepositoryException {
-        super(xmlFileNode.getName()+"/"+userId, Phase.PREPARE);
+        super(xmlFileNode.getName() + "/" + userId, Phase.PREPARE, "");
         this.xmlFileNode = xmlFileNode;
         this.userId = userId;
     }

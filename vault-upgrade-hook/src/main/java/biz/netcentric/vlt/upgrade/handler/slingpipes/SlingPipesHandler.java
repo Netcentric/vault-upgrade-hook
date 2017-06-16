@@ -13,40 +13,38 @@ import java.util.Collection;
 
 import javax.jcr.RepositoryException;
 
+import org.apache.jackrabbit.vault.packaging.InstallContext;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.pipes.Plumber;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import biz.netcentric.vlt.upgrade.UpgradeAction;
 import biz.netcentric.vlt.upgrade.UpgradeInfo;
-import biz.netcentric.vlt.upgrade.handler.OsgiUtil.ServiceWrapper;
 import biz.netcentric.vlt.upgrade.handler.SlingUtils;
 import biz.netcentric.vlt.upgrade.handler.UpgradeHandler;
+import biz.netcentric.vlt.upgrade.util.PackageInstallLogger;
 
 public class SlingPipesHandler implements UpgradeHandler {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SlingPipesHandler.class);
+    private static final PackageInstallLogger LOG = PackageInstallLogger.create(SlingPipesHandler.class);
 
     SlingUtils sling = new SlingUtils();
 
     @Override
-    public boolean isAvailable() {
-	try (ServiceWrapper<Plumber> serviceWrapper = sling.getService(Plumber.class)) {
-	    return serviceWrapper != null;
-	} catch (NoClassDefFoundError e) {
-	    LOG.warn("Could not load Plumber.", e);
-	    return false;
-	}
+    public boolean isAvailable(InstallContext ctx) {
+        boolean available = sling.hasService(Plumber.class);
+        if (!available) {
+            LOG.warn(ctx, "Could not load Plumber.");
+        }
+        return available;
     }
 
     @Override
-    public Iterable<UpgradeAction> create(UpgradeInfo info) throws RepositoryException {
+    public Iterable<UpgradeAction> create(InstallContext ctx, UpgradeInfo info) throws RepositoryException {
         Collection<UpgradeAction> pipes = new ArrayList<>();
         for (Resource child : sling.getResourceResolver(info.getNode().getSession())
                 .getResource(info.getNode().getPath()).getChildren()) {
             if (child.getResourceType().startsWith("slingPipes/")) {
-		pipes.add(new SlingPipe(child, info.getDefaultPhase()));
+                pipes.add(new SlingPipe(child, info.getDefaultPhase()));
             }
         }
         return pipes;
