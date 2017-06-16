@@ -21,6 +21,7 @@
         <module>script-package</module>
         <module>groovy-package</module>
         <module>sling-pipes-package</module>
+        <module>userpreferences-package</module>
     </modules>
 
     <build>

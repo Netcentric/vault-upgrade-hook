@@ -79,6 +79,7 @@
                     <configuration>
                         <verbose>true</verbose>
                         <filterSource>META-INF/vault/filter.xml</filterSource>
+                        
                     </configuration>
                 </plugin>
             </plugins>
