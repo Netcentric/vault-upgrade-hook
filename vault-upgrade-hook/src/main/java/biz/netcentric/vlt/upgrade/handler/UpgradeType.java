@@ -12,6 +12,7 @@ import org.apache.jackrabbit.vault.packaging.InstallContext;
 
 import biz.netcentric.vlt.upgrade.handler.groovy.GroovyConsoleHandler;
 import biz.netcentric.vlt.upgrade.handler.slingpipes.SlingPipesHandler;
+import biz.netcentric.vlt.upgrade.handler.userpreferences.UserPreferencesHandler;
 
 /**
  * This class creates instances of {@link UpgradeHandler} via reflection.
@@ -19,8 +20,8 @@ import biz.netcentric.vlt.upgrade.handler.slingpipes.SlingPipesHandler;
 public enum UpgradeType {
 
     GROOVYCONSOLE(GroovyConsoleHandler.class),
-
-    SLINGPIPES(SlingPipesHandler.class);
+    SLINGPIPES(SlingPipesHandler.class),
+    USERPREFERENCES(UserPreferencesHandler.class);
 
     private final Class<? extends UpgradeHandler> clazz;
 

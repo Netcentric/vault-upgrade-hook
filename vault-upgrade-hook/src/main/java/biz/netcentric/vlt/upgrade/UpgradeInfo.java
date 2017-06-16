@@ -137,12 +137,17 @@ public class UpgradeInfo implements Comparable<UpgradeInfo> {
             LOG.info(ctx, "Skip initial: [{}]", this);
             return false; // don't spool all upgrades on a new installation
         }
-        Version lastExecution = status.getLastExecution(ctx, this);
-        boolean result = lastExecution.compareTo(getTargetVersion()) <= 0;
-        if (!result) {
-            LOG.info(ctx, "Skip because of older target version: [{}] <=> [{}]", lastExecution, getTargetVersion());
+        if (!status.isInitial()) {
+            Version lastExecution = status.getLastExecution(ctx, this);
+            boolean result = lastExecution.compareTo(getTargetVersion()) <= 0;
+        	if (!result) {
+        	    LOG.info(ctx, "Skip because of older target version: [{}] <=> [{}]", lastExecution,
+        		    getTargetVersion());
+        	}
+        	return result;
+        } else {
+            return true;
         }
-        return result;
     }
 
     public enum RunMode {

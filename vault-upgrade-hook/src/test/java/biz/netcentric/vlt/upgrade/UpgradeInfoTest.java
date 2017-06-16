@@ -192,7 +192,7 @@ public class UpgradeInfoTest {
         Assert.assertTrue(info.isRelevant(ctx));
 
         Mockito.when(status.getLastExecution(ctx, info)).thenReturn(Version.create("2"));
-        Assert.assertFalse(info.isRelevant(ctx));
+        Assert.assertTrue(info.isRelevant(ctx));
     }
 
     public static class TestHandler implements UpgradeHandler {
