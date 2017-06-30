@@ -26,23 +26,24 @@ The Hook runs so called `UpgradeAction`s embedded in `UpgradeInfo`s. Out-of-the-
 Two general ways of how to use it: 
 
 1. ad-hoc admin style:
-- take a copy of one of the prepared projects under `samples/...`, 
-- update scripts under `src/main/upgrader` (e.g. test-groovy - replace all scripts with yours),
-- build and install: `mvn -Pinstall`, target server and credentials can be set via `-Dcrx....`
+    1. take a copy of one of the prepared projects under `samples/...`, 
+    1. update scripts under `src/main/upgrader` (e.g. test-groovy - replace all scripts with yours),
+    1. build and install: `mvn -Pinstall`, target server and credentials can be set via `-Dcrx....`
 
 2. dev-style:
-- copy the JAR to your content package:
-```<plugin>
-    <groupId>org.apache.maven.plugins</groupId>
-    <artifactId>maven-dependency-plugin</artifactId>
-    <executions>
-        <execution>
-            <id>copy</id>
-            <phase>prepare-package</phase>
-            <goals>
+    1. copy the JAR to your content package:
+        ```
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-dependency-plugin</artifactId>
+          <executions>
+            <execution>
+              <id>copy</id>
+              <phase>prepare-package</phase>
+              <goals>
                 <goal>copy</goal>
-            </goals>
-            <configuration>
+              </goals>
+              <configuration>
                 <artifactItems>
                     <artifactItem>
                         <groupId>biz.netcentric.vlt.upgrade</groupId>
@@ -52,11 +53,12 @@ Two general ways of how to use it:
                         <outputDirectory>${project.build.directory}/vault-work/META-INF/vault/hooks</outputDirectory>
                     </artifactItem>
                 </artifactItems>
-            </configuration>
-        </execution>
-    </executions>
-</plugin>```
-- create an `UpgradeInfo` directory (like `samples/groovy-package/src/main/upgrader/test-groovy`) and place it in your content package under `META-INF/vault/definition/upgrader`.
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+        ```
+    2. create an `UpgradeInfo` directory (like `samples/groovy-package/src/main/upgrader/test-groovy`) and place it in your content package under `META-INF/vault/definition/upgrader`.
 
 Note that the general structure of the package is always the same. There is a node `META-INF/vault/definition/upgrader/<upgrade-info>` in the content package which contains the configuration for its child nodes. Depending on the used handler the child nodes are e.g. Groovy scripts or SlingPipes.   
 
@@ -71,11 +73,9 @@ An `UpgradeInfo` loads a `biz.netcentric.vlt.upgrade.handler.UpgradeHandler` imp
 Whether an `UpgradeInfo` and an `UpgradeAction` is executed depends on some attributes:
 
 - an UpgradeInfo is relevant if
-```
-it is not the first upgrade with this content package
-  AND
-current info version is higher or equals to the last execution
-```
+  `it is not the first upgrade with this content package`
+    AND
+  `current info version is higher or equals to the last execution`
 - an action is executed if `it was not executed before`
 
 This behaviour can be changed by configuration options 
