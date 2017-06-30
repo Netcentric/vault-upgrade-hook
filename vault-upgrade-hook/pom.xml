@@ -95,9 +95,9 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>com.citytechinc.aem.groovy.console</groupId>
+            <groupId>com.icfolson.aem.groovy.console</groupId>
             <artifactId>aem-groovy-console</artifactId>
-            <version>7.0.2</version>
+            <version>9.0.0</version>
             <optional>true</optional>
             <!-- some of the transitive dependencies are provided in non publically available versions -->
             <exclusions>

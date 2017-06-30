@@ -53,10 +53,11 @@ public class UpgradeStatus {
         }
     }
 
-    public boolean isExecuted(InstallContext ctx, UpgradeInfo info, String actionId)
+    public boolean isExecuted(InstallContext ctx, UpgradeInfo info, UpgradeAction action)
             throws RepositoryException {
         Node infoStatus = getInfoStatus(info);
-        if (infoStatus != null && infoStatus.hasProperty(PN_ACTIONS)) {
+        String actionId = buildActionId(action);
+        if (infoStatus.hasProperty(PN_ACTIONS)) {
             for (Value executedAction : infoStatus.getProperty(PN_ACTIONS).getValues()) {
                 if (executedAction.getString().equals(actionId)) {
                     LOG.debug(ctx, "action [{}] already exected: [{}]", actionId, infoStatus);
@@ -68,10 +69,13 @@ public class UpgradeStatus {
         return false;
     }
 
+    protected String buildActionId(UpgradeAction action) {
+        return action.getName() + "_" + action.getContentHash();
+    }
+
     protected Node getInfoStatus(UpgradeInfo info) throws RepositoryException {
         String packagePath = getNode().getPath() + "/" + info.getNode().getName();
-        JcrUtils.getOrCreateByPath(packagePath, JcrConstants.NT_UNSTRUCTURED, getNode().getSession());
-        return JcrUtils.getNodeIfExists(packagePath, getNode().getSession());
+        return JcrUtils.getOrCreateByPath(packagePath, JcrConstants.NT_UNSTRUCTURED, getNode().getSession());
     }
 
     /**
@@ -92,21 +96,25 @@ public class UpgradeStatus {
      * 
      * @param ctx
      * @param info
+     * @param executedActions
      * @throws RepositoryException
      */
-    public void update(InstallContext ctx, UpgradeInfo info) throws RepositoryException {
+    public void update(InstallContext ctx, UpgradeInfo info, List<UpgradeAction> executedActions) throws RepositoryException {
         Node infoStatus = getInfoStatus(info);
-        String[] actions = getActionStringArray(info);
+        String[] actions = getActionStringArray(infoStatus, executedActions);
         infoStatus.setProperty(PN_ACTIONS, actions);
         LOG.info(ctx, "stored status to [{}] actions: [{}]", infoStatus, actions);
     }
 
-    protected String[] getActionStringArray(UpgradeInfo info) throws RepositoryException {
+    protected String[] getActionStringArray(Node infoStatus, List<UpgradeAction> executedActions) throws RepositoryException {
         List<String> actions = new ArrayList<>();
-        for (List<UpgradeAction> phaseActions : info.getActions().values()) {
-            for (UpgradeAction action : phaseActions) {
-                actions.add(action.getName());
+        if (infoStatus.hasProperty(PN_ACTIONS)) {
+            for (Value action : infoStatus.getProperty(PN_ACTIONS).getValues()) {
+                actions.add(action.getString());
             }
+        }
+        for (UpgradeAction action : executedActions) {
+            actions.add(buildActionId(action));
         }
         return actions.toArray(new String[actions.size()]);
     }

@@ -39,10 +39,10 @@ public class UpgradeActionTest {
 
         Mockito.when(info.getStatus()).thenReturn(status);
 
-        Mockito.when(status.isExecuted(ctx, info, "testName_testHash")).thenReturn(false);
+        Mockito.when(status.isExecuted(ctx, info, action)).thenReturn(false);
         Assert.assertTrue(action.isRelevant(ctx, info));
 
-        Mockito.when(status.isExecuted(ctx, info, "testName_testHash")).thenReturn(true);
+        Mockito.when(status.isExecuted(ctx, info, action)).thenReturn(true);
         Assert.assertFalse(action.isRelevant(ctx, info));
     }
 

@@ -58,7 +58,7 @@ public abstract class UpgradeAction implements Comparable<UpgradeAction> {
     }
 
     public boolean isRelevant(final InstallContext ctx, final UpgradeInfo info) throws RepositoryException {
-        return !info.getStatus().isExecuted(ctx, info, getName() + "_" + getContentHash());
+        return !info.getStatus().isExecuted(ctx, info, this);
     }
 
     /**

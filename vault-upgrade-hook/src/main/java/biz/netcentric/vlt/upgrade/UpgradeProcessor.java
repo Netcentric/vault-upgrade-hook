@@ -55,6 +55,8 @@ public class UpgradeProcessor implements InstallHook {
     // fields are package private for unit tests
     UpgradeStatus status;
     List<UpgradeInfo> infos;
+    final List<UpgradeAction> executedActions = new ArrayList<>();
+    boolean failed = false;
 
     @Override
     public void execute(InstallContext ctx) throws PackageException {
@@ -62,39 +64,56 @@ public class UpgradeProcessor implements InstallHook {
 
         try {
             switch (ctx.getPhase()) {
-            case PREPARE:
-                loadStatus(ctx);
-                loadInfos(ctx);
-                executeActions(ctx);
-                break;
-            case INSTALLED:
-            case PREPARE_FAILED:
-            case INSTALL_FAILED:
-                executeActions(ctx);
-                break;
-            case END:
-                executeActions(ctx);
-                status.update(ctx);
-                updateInfoStatus(ctx);
-                ctx.getSession().save();
-                break;
+                case PREPARE:
+                    loadStatus(ctx);
+                    loadInfos(ctx);
+                    executeActions(ctx);
+                    break;
+                case PREPARE_FAILED:
+                case INSTALLED:
+                case INSTALL_FAILED:
+                    executeActions(ctx);
+                    break;
+                case END:
+                    executeActionsAndSaveStatus(ctx);
+                    break;
             }
         } catch (Exception e) {
+            failed = true;
             LOG.error(ctx, "Error during content upgrade", e);
-            throw new PackageException(e);
+            throw new PackageException("Error during content upgrade", e);
         } finally {
             LOG.debug(ctx, "finished [{}]", ctx.getPhase());
         }
     }
 
-    protected void updateInfoStatus(InstallContext ctx) throws RepositoryException {
-        LOG.debug(ctx, "updating info status [{}]", infos);
-        for (UpgradeInfo info : infos) {
-            status.update(ctx, info);
+    protected void executeActionsAndSaveStatus(InstallContext ctx) throws Exception {
+        try {
+            executeActions(ctx);
+        } finally {
+            // even if the execution fails the status is saved
+            saveStatus(ctx);
         }
     }
 
-    protected void executeActions(InstallContext ctx) throws RepositoryException {
+    protected void saveStatus(InstallContext ctx) throws RepositoryException {
+        status.update(ctx);
+        updateInfoStatus(ctx);
+        ctx.getSession().save();
+    }
+
+    protected void updateInfoStatus(InstallContext ctx) throws RepositoryException {
+        LOG.debug(ctx, "updating info status [{}]", infos);
+        for (UpgradeInfo info : infos) {
+            status.update(ctx, info, executedActions);
+        }
+    }
+
+    protected void executeActions(InstallContext ctx) throws Exception {
+        if (failed) {
+            LOG.info(ctx, "skipping execution because upgrade failed.");
+            return;
+        }
         LOG.debug(ctx, "starting execution [{}]", infos);
         for (UpgradeInfo info : infos) {
             List<UpgradeAction> actionsOfPhase = info.getActions().get(ctx.getPhase());
@@ -103,6 +122,9 @@ public class UpgradeProcessor implements InstallHook {
                 if (info.getRunMode() == RunMode.ALWAYS || action.isRelevant(ctx, info)) {
                     LOG.debug(ctx, "executing action [{}]", action);
                     action.execute(ctx);
+                    // the session is saved automatically after each action
+                    ctx.getSession().save();
+                    executedActions.add(action);
                 } else {
                     LOG.debug(ctx, "action not executed because it did not change since last execution [{}]", action);
                 }

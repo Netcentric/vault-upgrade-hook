@@ -17,7 +17,7 @@ import javax.jcr.RepositoryException;
 
 import org.apache.jackrabbit.vault.packaging.InstallContext;
 
-import com.citytechinc.aem.groovy.console.GroovyConsoleService;
+import com.icfolson.aem.groovy.console.GroovyConsoleService;
 
 import biz.netcentric.vlt.upgrade.UpgradeAction;
 import biz.netcentric.vlt.upgrade.UpgradeInfo;
