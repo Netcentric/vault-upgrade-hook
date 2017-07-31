@@ -6,7 +6,7 @@ InstallHooks are executed for each install phase: `PREPARE`, `INSTALLED` and `EN
 
 The *Vault-Upgrade-Hook* is an easy way to add additional logic to the installation of content packages instead of implementing and creating new Jars for every job. For example it can be used to upgrade existing user generated content.
 
-The Hook runs so called `UpgradeAction`s embedded in `UpgradeInfo`s. Out-of-the-box GroovyConsole scripts and SlingPipes are supported.
+The Hook runs so called `UpgradeAction`s embedded in `UpgradeInfo`s.
 
 ## Feature Overview
 
@@ -84,13 +84,20 @@ This behaviour can be changed by configuration options
 
 `UpgradeAction`s are bound to a specific execution phase. The default Phase is `INSTALLED`. This means an arbitrary action is executed after the content got installed. This can be overridden by prefixing the groovy script name with the name of another phase e.g. "prepare_failed-myscript.groovy".
 
-### Groovy
+### Upgrade Actions
+Multiple different upgrade actions are included with this hook. Those are also referred to as handlers. For details refer to the following sections.
 
-For usage and details please see the sample package `samples/groovy-package`.
+#### Groovy
 
-### Sling Pipes
+For usage and details please see the [sample package](samples/groovy-package).
 
-For details about Sling Pipes please have a look at [https://sling.apache.org/documentation/bundles/sling-pipes.html]
+#### Sling Pipes
+
+For details about Sling Pipes please have a look at [Sling documentation](https://sling.apache.org/documentation/bundles/sling-pipes.html) and the [sample package](samples/sling-pipes-package).
+
+#### User Preferences
+
+For usage and details please see the [sample package](samples/userpreferences-package).
 
 ### Configuration
 
