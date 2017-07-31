@@ -1,7 +1,15 @@
 
-# Sample Package
+# User Preferences Sample Package
 
-## create package with hook
+## Features
+
+- modifies the preferences of an arbitrary user
+- decouples the configuration from the actual user node location (as this became [random by default with Oak](https://jackrabbit.apache.org/oak/docs/security/user/authorizablenodename.html))
+- could be used to e.g. disable the nagging screens for first time AEM users (look in the [example package's configuration](src/main/upgrader/test-user-preferences/user.preferences.xml))
+
+## Usage 
+
+### Create package with hook
 
 1. Copy `vault-upgrade-hook-0.0.1-SNAPSHOT.jar` to `META-INF/vault/hooks`
 1. Create a node below `META-INF/vault/definition/upgrader/`.
@@ -22,7 +30,7 @@ Package to a zip like this:
 
 Upload to AEM and install. Notice the user preferences of the admin user are being replaced during the installation.
 
-## upload and install package - with output sample
+### Upload and install package - with output sample
 
 For a quick turnaround you can install via cUrl like this
 
