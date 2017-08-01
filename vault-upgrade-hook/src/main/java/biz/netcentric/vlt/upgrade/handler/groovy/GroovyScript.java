@@ -45,7 +45,7 @@ public class GroovyScript extends UpgradeAction {
             LOG.debug(ctx, "Executing [{}]", getName());
             final RunScriptResponse scriptResponse = run(request);
             LOG.debug(ctx, "Executed script [{}]: [{}]\n{}\n---\n", getName(), scriptResponse.getRunningTime(),
-                    scriptResponse.getExceptionStackTrace().trim());
+                    scriptResponse.getExceptionStackTrace());
             if (scriptResponse.getExceptionStackTrace() != null && scriptResponse.getExceptionStackTrace().trim().length() > 0) {
                 throw new RuntimeException("Error executing script " + getName());
             } else {
