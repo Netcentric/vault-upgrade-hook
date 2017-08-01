@@ -61,7 +61,6 @@ public class UpgradeProcessorTest {
 
     @Before
     public void setup() throws Exception {
-        Mockito.reset(action);
         processor = new UpgradeProcessor();
         Mockito.when(ctx.getOptions()).thenReturn(Mockito.mock(ImportOptions.class));
         Mockito.when(ctx.getSession()).thenReturn(sling.resourceResolver().adaptTo(Session.class));
@@ -114,6 +113,8 @@ public class UpgradeProcessorTest {
         processor.status = status;
         processor.infos = Arrays.asList(info);
 
+        Mockito.when(action.isRelevant(ctx, info)).thenReturn(true);
+
         Mockito.when(ctx.getPhase()).thenReturn(Phase.END);
         Mockito.when(info.getActions()).thenReturn(Collections.singletonMap(Phase.END, Arrays.asList(action)));
 
@@ -124,8 +125,10 @@ public class UpgradeProcessorTest {
         processor.execute(ctx);
 
         Assert.assertFalse(ctx.getSession().hasPendingChanges());
+        Assert.assertArrayEquals(new UpgradeAction[] { action }, processor.executedActions.toArray(new UpgradeAction[1]));
+        Mockito.verify(action).execute(ctx);
         Mockito.verify(status).update(ctx);
-        Mockito.verify(status).update(ctx, info);
+        Mockito.verify(status).update(ctx, info, processor.executedActions);
     }
 
     @Test(expected = PackageException.class)
@@ -136,6 +139,24 @@ public class UpgradeProcessorTest {
         Mockito.doThrow(new IllegalArgumentException("testException")).when(info).getActions();
 
         processor.execute(ctx);
+    }
+
+    @Test(expected = PackageException.class)
+    public void testActionException() throws Exception {
+        processor.infos = Arrays.asList(info);
+
+        Mockito.when(ctx.getPhase()).thenReturn(Phase.INSTALLED);
+        Mockito.when(info.getActions()).thenReturn(Collections.singletonMap(Phase.INSTALLED, Arrays.asList(action)));
+        Mockito.when(action.isRelevant(ctx, info)).thenReturn(true);
+
+        Mockito.doThrow(new RuntimeException("testException")).when(action).execute(ctx);
+
+        try {
+            processor.execute(ctx);
+        } catch (Exception e) {
+            Assert.assertTrue(processor.executedActions.isEmpty());
+            throw e;
+        }
     }
 
     public static class TestHandler implements UpgradeHandler {

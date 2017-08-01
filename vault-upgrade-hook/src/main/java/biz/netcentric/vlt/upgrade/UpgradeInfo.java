@@ -10,7 +10,7 @@ package biz.netcentric.vlt.upgrade;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
@@ -65,7 +65,7 @@ public class UpgradeInfo {
     private final RunMode runMode;
     private final Phase defaultPhase;
     private final UpgradeHandler handler;
-    private final Map<Phase, List<UpgradeAction>> actions = new HashMap<>();
+    private final Map<Phase, List<UpgradeAction>> actions = new EnumMap<>(Phase.class);
 
     public UpgradeInfo(InstallContext ctx, UpgradeStatus status, Node node) throws RepositoryException {
         this.status = status;
@@ -141,4 +141,5 @@ public class UpgradeInfo {
     public Node getNode() {
         return node;
     }
+
 }

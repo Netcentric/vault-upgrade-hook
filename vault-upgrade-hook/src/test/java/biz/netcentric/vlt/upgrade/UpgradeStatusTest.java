@@ -9,9 +9,6 @@
 package biz.netcentric.vlt.upgrade;
 
 import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 
 import javax.jcr.Session;
 import javax.jcr.Value;
@@ -19,7 +16,6 @@ import javax.jcr.Value;
 import org.apache.jackrabbit.JcrConstants;
 import org.apache.jackrabbit.commons.JcrUtils;
 import org.apache.jackrabbit.vault.packaging.InstallContext;
-import org.apache.jackrabbit.vault.packaging.InstallContext.Phase;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.apache.sling.testing.mock.sling.junit.SlingContext;
 import org.junit.Assert;
@@ -76,14 +72,19 @@ public class UpgradeStatusTest {
     public void testIsExecuted() throws Exception {
         Mockito.when(info.getNode().getName()).thenReturn("testInfo");
 
-        Assert.assertFalse(status.isExecuted(ctx, info, "test"));
+        Mockito.when(action.getName()).thenReturn("testName");
+        Mockito.when(action.getContentHash()).thenReturn("testHash");
+
+        Assert.assertFalse(status.isExecuted(ctx, info, action));
 
         sling.build().resource("/test/testInfo");
-        Assert.assertFalse(status.isExecuted(ctx, info, "test"));
+        Assert.assertFalse(status.isExecuted(ctx, info, action));
 
-        sling.build().resource("/test/testInfo", UpgradeStatus.PN_ACTIONS, new String[] { "test1", "test2" });
-        Assert.assertFalse(status.isExecuted(ctx, info, "test"));
-        Assert.assertTrue(status.isExecuted(ctx, info, "test1"));
+        sling.build().resource("/test/testInfo", UpgradeStatus.PN_ACTIONS, new String[] { "testName_testHash", "anotherTest" });
+        Assert.assertTrue(status.isExecuted(ctx, info, action));
+
+        Mockito.when(action.getName()).thenReturn("anotherTest");
+        Assert.assertFalse(status.isExecuted(ctx, info, action));
     }
 
     @Test
@@ -99,15 +100,13 @@ public class UpgradeStatusTest {
     public void testInfoUpdate() throws Exception {
         UpgradeAction action1 = Mockito.mock(UpgradeAction.class);
         Mockito.when(action1.getName()).thenReturn("test1");
+        Mockito.when(action1.getContentHash()).thenReturn("testHash1");
         UpgradeAction action2 = Mockito.mock(UpgradeAction.class);
         Mockito.when(action2.getName()).thenReturn("test2");
-        Map<Phase, List<UpgradeAction>> actions = new LinkedHashMap<>();
-        actions.put(Phase.INSTALL_FAILED, Arrays.asList(action1));
-        actions.put(Phase.END, Arrays.asList(action2));
-        Mockito.when(info.getActions()).thenReturn(actions);
+        Mockito.when(action2.getContentHash()).thenReturn("testHash2");
         Mockito.when(info.getNode().getName()).thenReturn("testInfo");
-        status.update(ctx, info);
-        Assert.assertArrayEquals(new String[] { "test1", "test2" },
+        status.update(ctx, info, Arrays.asList(action1, action2));
+        Assert.assertArrayEquals(new String[] { "test1_testHash1", "test2_testHash2" },
                 toStringArray(session.getProperty("/test/testInfo/" + UpgradeStatus.PN_ACTIONS).getValues()));
     }
 

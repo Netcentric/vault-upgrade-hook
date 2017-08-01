@@ -18,8 +18,8 @@ import org.apache.jackrabbit.vault.packaging.InstallContext;
 import org.apache.jackrabbit.vault.packaging.InstallContext.Phase;
 import org.apache.sling.api.SlingHttpServletRequest;
 
-import com.citytechinc.aem.groovy.console.GroovyConsoleService;
-import com.citytechinc.aem.groovy.console.response.RunScriptResponse;
+import com.icfolson.aem.groovy.console.GroovyConsoleService;
+import com.icfolson.aem.groovy.console.response.RunScriptResponse;
 
 import biz.netcentric.vlt.upgrade.UpgradeAction;
 import biz.netcentric.vlt.upgrade.handler.OsgiUtil.ServiceWrapper;
@@ -44,8 +44,13 @@ public class GroovyScript extends UpgradeAction {
         if (request != null) {
             LOG.debug(ctx, "Executing [{}]", getName());
             final RunScriptResponse scriptResponse = run(request);
-            LOG.info(ctx, "Executed [{}]: [{}]\n{}\n---\n", getName(), scriptResponse.getRunningTime(),
-                    scriptResponse.getOutput().trim());
+            LOG.debug(ctx, "Executed script [{}]: [{}]\n{}\n---\n", getName(), scriptResponse.getRunningTime(),
+                    scriptResponse.getExceptionStackTrace());
+            if (scriptResponse.getExceptionStackTrace() != null && scriptResponse.getExceptionStackTrace().trim().length() > 0) {
+                throw new RuntimeException("Error executing script " + getName());
+            } else {
+                LOG.info(ctx, "Executed [{}]: [{}]\n{}\n---\n", getName(), scriptResponse.getRunningTime(), scriptResponse.getOutput().trim());
+            }
         }
     }
 
