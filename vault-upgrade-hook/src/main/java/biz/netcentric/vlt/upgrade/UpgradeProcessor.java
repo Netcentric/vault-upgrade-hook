@@ -80,7 +80,6 @@ public class UpgradeProcessor implements InstallHook {
             }
         } catch (Exception e) {
             failed = true;
-            LOG.error(ctx, "Error during content upgrade", e);
             throw new PackageException("Error during content upgrade", e);
         } finally {
             LOG.debug(ctx, "finished [{}]", ctx.getPhase());
