@@ -81,10 +81,10 @@ public abstract class UpgradeAction implements Comparable<UpgradeAction> {
 
     protected static String getDataMd5(final Node script) throws RepositoryException {
         final String encoding = JcrUtils.getStringProperty(script, JcrConstants.JCR_CONTENT + "/" + JcrConstants.JCR_ENCODING, "utf-8");
-        return getMd5(getData(script), encoding);
+        return getMd5(getScriptContent(script), encoding);
     }
 
-    protected static String getData(final Node script) throws RepositoryException {
+    protected static String getScriptContent(final Node script) throws RepositoryException {
         final String dataPath = JcrConstants.JCR_CONTENT + "/" + JcrConstants.JCR_DATA;
         if (script.hasProperty(dataPath)) {
             return JcrUtils.getStringProperty(script, dataPath, "");
