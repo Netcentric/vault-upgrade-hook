@@ -70,12 +70,8 @@ public class GroovyScript extends UpgradeAction {
     }
 
     private String getData() throws RepositoryException {
-        String data = script.hasProperty("data") ? script.getProperty("data").getString() : "";
-        if (data.equals("")) {
-            Node parent = script.getParent();
-            data = parent.hasProperty("data") ? parent.getProperty("data").getString() : "";
-        }
-        return data;
+        Node parent = script.getParent();
+        return parent.hasProperty("data") ? parent.getProperty("data").getString() : "";
     }
 
 }
