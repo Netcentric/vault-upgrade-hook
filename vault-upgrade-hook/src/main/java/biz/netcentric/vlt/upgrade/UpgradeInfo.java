@@ -11,8 +11,10 @@ package biz.netcentric.vlt.upgrade;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
@@ -66,6 +68,7 @@ public class UpgradeInfo {
     private final Phase defaultPhase;
     private final UpgradeHandler handler;
     private final Map<Phase, List<UpgradeAction>> actions = new EnumMap<>(Phase.class);
+	private final Set<UpgradeAction> executedActions = new LinkedHashSet<>();
 
     public UpgradeInfo(InstallContext ctx, UpgradeStatus status, Node node) throws RepositoryException {
         this.status = status;
@@ -90,6 +93,10 @@ public class UpgradeInfo {
                                                            // correctly sorted
         }
     }
+
+	public void executed(UpgradeAction action) {
+		getExecutedActions().add(action);
+	}
 
     /**
      * This configuration affects the installation behavior of
@@ -140,6 +147,10 @@ public class UpgradeInfo {
 
     public Node getNode() {
         return node;
+    }
+
+    public Set<UpgradeAction> getExecutedActions() {
+        return executedActions;
     }
 
 }

@@ -9,6 +9,7 @@
 package biz.netcentric.vlt.upgrade;
 
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 
 import javax.jcr.Session;
 import javax.jcr.Value;
@@ -80,7 +81,8 @@ public class UpgradeStatusTest {
         sling.build().resource("/test/testInfo");
         Assert.assertFalse(status.isExecuted(ctx, info, action));
 
-        sling.build().resource("/test/testInfo", UpgradeStatus.PN_ACTIONS, new String[] { "testName_testHash", "anotherTest" });
+        sling.build().resource("/test/testInfo", UpgradeStatus.PN_ACTIONS,
+                new String[] { "testName_testHash", "anotherTest" });
         Assert.assertTrue(status.isExecuted(ctx, info, action));
 
         Mockito.when(action.getName()).thenReturn("anotherTest");
@@ -105,7 +107,8 @@ public class UpgradeStatusTest {
         Mockito.when(action2.getName()).thenReturn("test2");
         Mockito.when(action2.getContentHash()).thenReturn("testHash2");
         Mockito.when(info.getNode().getName()).thenReturn("testInfo");
-        status.update(ctx, info, Arrays.asList(action1, action2));
+        Mockito.when(info.getExecutedActions()).thenReturn(new LinkedHashSet<>(Arrays.asList(action1, action2)));
+        status.update(ctx, info);
         Assert.assertArrayEquals(new String[] { "test1_testHash1", "test2_testHash2" },
                 toStringArray(session.getProperty("/test/testInfo/" + UpgradeStatus.PN_ACTIONS).getValues()));
     }

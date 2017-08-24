@@ -11,6 +11,7 @@ package biz.netcentric.vlt.upgrade;
 import java.util.Arrays;
 import java.util.Collections;
 
+import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
@@ -64,6 +65,10 @@ public class UpgradeProcessorTest {
         processor = new UpgradeProcessor();
         Mockito.when(ctx.getOptions()).thenReturn(Mockito.mock(ImportOptions.class));
         Mockito.when(ctx.getSession()).thenReturn(sling.resourceResolver().adaptTo(Session.class));
+        Mockito.when(status.getNode()).thenReturn(Mockito.mock(Node.class));
+        Mockito.when(info.getNode()).thenReturn(Mockito.mock(Node.class));
+        Mockito.when(info.getHandler()).thenReturn(Mockito.mock(UpgradeHandler.class));
+        Mockito.when(info.getExecutedActions()).thenReturn(Collections.<UpgradeAction>emptySet());
     }
 
     @Test
@@ -125,10 +130,10 @@ public class UpgradeProcessorTest {
         processor.execute(ctx);
 
         Assert.assertFalse(ctx.getSession().hasPendingChanges());
-        Assert.assertArrayEquals(new UpgradeAction[] { action }, processor.executedActions.toArray(new UpgradeAction[1]));
+        Mockito.verify(info).executed(action);
         Mockito.verify(action).execute(ctx);
         Mockito.verify(status).update(ctx);
-        Mockito.verify(status).update(ctx, info, processor.executedActions);
+        Mockito.verify(status).update(ctx, info);
     }
 
     @Test(expected = PackageException.class)
@@ -154,7 +159,7 @@ public class UpgradeProcessorTest {
         try {
             processor.execute(ctx);
         } catch (Exception e) {
-            Assert.assertTrue(processor.executedActions.isEmpty());
+            Assert.assertTrue(info.getExecutedActions().isEmpty());
             throw e;
         }
     }

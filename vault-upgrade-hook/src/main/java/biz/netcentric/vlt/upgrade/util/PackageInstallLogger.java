@@ -20,10 +20,10 @@ import org.slf4j.helpers.MessageFormatter;
  * Helper class to log during content package installation.
  */
 public class PackageInstallLogger {
-    private final Logger log;
+    private final Logger base;
 
     public PackageInstallLogger(Logger log) {
-        this.log = log;
+        base = log;
     }
 
     public static PackageInstallLogger create(Class<?> clazz) {
@@ -31,42 +31,46 @@ public class PackageInstallLogger {
     }
 
     public void debug(InstallContext ctx, String format, Object... arguments) {
-        if (log.isDebugEnabled()) {
-            FormattingTuple message = build(ctx, format, arguments);
-            log.debug(message.getMessage(), message.getThrowable());
-            log(ctx, message);
+        if (getBase().isDebugEnabled()) {
+            FormattingTuple message = build(format, arguments);
+            getBase().debug(message.getMessage(), message.getThrowable());
         }
     }
 
     public void info(InstallContext ctx, String format, Object... arguments) {
-        FormattingTuple message = build(ctx, format, arguments);
-        log.info(message.getMessage(), message.getThrowable());
-        log(ctx, message);
+        FormattingTuple message = build(format, arguments);
+        getBase().info(message.getMessage(), message.getThrowable());
+    }
+
+    public void status(InstallContext ctx, String format, String path, Object... arguments) {
+        info(ctx, format + " - " + path, arguments);
+        progressLog(ctx, build(format, arguments), path);
     }
 
     public void warn(InstallContext ctx, String format, Object... arguments) {
-        FormattingTuple message = build(ctx, format, arguments);
-        log.warn(message.getMessage(), message.getThrowable());
-        log(ctx, message);
+        FormattingTuple message = build(format, arguments);
+        getBase().warn(message.getMessage(), message.getThrowable());
+        progressLog(ctx, message, null);
     }
 
     public void error(InstallContext ctx, String format, Object... arguments) {
-        FormattingTuple message = build(ctx, format, arguments);
-        log.error(message.getMessage(), message.getThrowable());
-        log(ctx, message);
+        FormattingTuple message = build(format, arguments);
+        getBase().error(message.getMessage(), message.getThrowable());
+        progressLog(ctx, message, null);
     }
 
-    protected FormattingTuple build(InstallContext ctx, String format, Object[] arguments) {
+    protected FormattingTuple build(String format, Object[] arguments) {
         return MessageFormatter.arrayFormat(format, arguments);
     }
 
-    protected void log(InstallContext ctx, FormattingTuple message) {
+    protected void progressLog(InstallContext ctx, FormattingTuple message, String path) {
         ProgressTrackerListener l = ctx.getOptions().getListener();
         if (l != null) {
             if (message.getThrowable() != null) {
                 l.onError(Mode.TEXT, message.getMessage(), toException(message.getThrowable()));
             } else {
-                l.onMessage(Mode.TEXT, "Upgrade", message.getMessage());
+                l.onMessage(path == null ? Mode.TEXT : Mode.PATHS, "Upgrade " + message.getMessage(),
+                        path == null ? "" : path);
             }
         }
     }
@@ -77,6 +81,10 @@ public class PackageInstallLogger {
         } else {
             return new Exception(throwable);
         }
+    }
+
+    public Logger getBase() {
+        return base;
     }
 
 }

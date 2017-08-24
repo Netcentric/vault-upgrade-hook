@@ -55,12 +55,11 @@ public class UpgradeProcessor implements InstallHook {
     // fields are package private for unit tests
     UpgradeStatus status;
     List<UpgradeInfo> infos;
-    final List<UpgradeAction> executedActions = new ArrayList<>();
     boolean failed = false;
 
     @Override
     public void execute(InstallContext ctx) throws PackageException {
-        LOG.info(ctx, "starting [{}]", ctx.getPhase());
+        LOG.status(ctx, "phase [{}]", null, ctx.getPhase());
 
         try {
             switch (ctx.getPhase()) {
@@ -80,6 +79,9 @@ public class UpgradeProcessor implements InstallHook {
             }
         } catch (Exception e) {
             failed = true;
+            if (ctx.getPhase() == Phase.END) {
+                LOG.error(ctx, "Error during END phase, this will *not* mark the package installation as failed.", e);
+            }
             throw new PackageException("Error during content upgrade", e);
         } finally {
             LOG.debug(ctx, "finished [{}]", ctx.getPhase());
@@ -99,31 +101,37 @@ public class UpgradeProcessor implements InstallHook {
         status.update(ctx);
         updateInfoStatus(ctx);
         ctx.getSession().save();
+        LOG.status(ctx, "saved status", status.getNode().getPath());
     }
 
     protected void updateInfoStatus(InstallContext ctx) throws RepositoryException {
         LOG.debug(ctx, "updating info status [{}]", infos);
         for (UpgradeInfo info : infos) {
-            status.update(ctx, info, executedActions);
+            LOG.status(ctx, "[{}] actions executed for {}[{}]", info.getNode().getPath(),
+                    info.getExecutedActions().size(), info.getHandler().getClass().getSimpleName(), info.getRunMode());
+            status.update(ctx, info);
         }
     }
 
     protected void executeActions(InstallContext ctx) throws Exception {
         if (failed) {
-            LOG.info(ctx, "skipping execution because upgrade failed.");
+            LOG.warn(ctx, "skipping execution because upgrade failed.");
             return;
         }
-        LOG.debug(ctx, "starting execution [{}]", infos);
+        LOG.info(ctx, "starting execution [{}]", infos);
         for (UpgradeInfo info : infos) {
             List<UpgradeAction> actionsOfPhase = info.getActions().get(ctx.getPhase());
             LOG.info(ctx, "executing [{}]: [{}]", info, actionsOfPhase);
             for (UpgradeAction action : actionsOfPhase) {
                 if (info.getRunMode() == RunMode.ALWAYS || action.isRelevant(ctx, info)) {
                     LOG.debug(ctx, "executing action [{}]", action);
+                    long start = System.currentTimeMillis();
                     action.execute(ctx);
                     // the session is saved automatically after each action
                     ctx.getSession().save();
-                    executedActions.add(action);
+                    LOG.status(ctx, "executed {}[{}, {}ms]", info.getNode().getPath() + "/" + action.getName(),
+                            action.getClass().getSimpleName(), action.getName(), (System.currentTimeMillis() - start));
+                    info.executed(action);
                 } else {
                     LOG.debug(ctx, "action not executed because it did not change since last execution [{}]", action);
                 }
@@ -132,7 +140,6 @@ public class UpgradeProcessor implements InstallHook {
     }
 
     protected void loadInfos(final InstallContext ctx) throws RepositoryException {
-
         String upgradeInfoPath = ctx.getPackage().getId().getInstallationPath() + UPGRADER_PATH_IN_PACKAGE;
         Node upgradeInfoNode = ctx.getSession().getNode(upgradeInfoPath);
         LOG.debug(ctx, "loading packages [{}]: [{}]", upgradeInfoPath, upgradeInfoNode);

@@ -8,9 +8,9 @@
  */
 package biz.netcentric.vlt.upgrade;
 
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
@@ -39,10 +39,10 @@ public class UpgradeStatus {
     private final Version version;
 
     public UpgradeStatus(InstallContext ctx, String path) throws RepositoryException {
-        LOG.debug(ctx, "loading status [{}]", path);
+        LOG.debug(ctx, "loading [{}]", path);
         node = JcrUtils.getOrCreateByPath(path, JcrConstants.NT_UNSTRUCTURED, ctx.getSession());
         version = createVersion(getNode());
-        LOG.info(ctx, "loaded status [{}]", this);
+        LOG.info(ctx, "loaded [{}]", this);
     }
 
     protected static Version createVersion(Node node) throws RepositoryException {
@@ -96,18 +96,18 @@ public class UpgradeStatus {
      * 
      * @param ctx
      * @param info
-     * @param executedActions
      * @throws RepositoryException
      */
-    public void update(InstallContext ctx, UpgradeInfo info, List<UpgradeAction> executedActions) throws RepositoryException {
+    public void update(InstallContext ctx, UpgradeInfo info) throws RepositoryException {
         Node infoStatus = getInfoStatus(info);
-        String[] actions = getActionStringArray(infoStatus, executedActions);
+        String[] actions = getActionStringArray(infoStatus, info.getExecutedActions());
         infoStatus.setProperty(PN_ACTIONS, actions);
         LOG.info(ctx, "stored status to [{}] actions: [{}]", infoStatus, actions);
     }
 
-    protected String[] getActionStringArray(Node infoStatus, List<UpgradeAction> executedActions) throws RepositoryException {
-        List<String> actions = new ArrayList<>();
+    protected String[] getActionStringArray(Node infoStatus, Set<UpgradeAction> executedActions)
+            throws RepositoryException {
+        Set<String> actions = new HashSet<>();
         if (infoStatus.hasProperty(PN_ACTIONS)) {
             for (Value action : infoStatus.getProperty(PN_ACTIONS).getValues()) {
                 actions.add(action.getString());
