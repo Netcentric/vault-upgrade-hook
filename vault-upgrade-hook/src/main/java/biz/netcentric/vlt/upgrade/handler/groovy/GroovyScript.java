@@ -62,10 +62,16 @@ public class GroovyScript extends UpgradeAction {
 
     protected SlingHttpServletRequest getRequestForScript() throws RepositoryException {
         final Map<String, Object> parameters = new HashMap<>();
-        parameters.put("script", getData(script));
+        parameters.put("script", getScriptContent(script));
         parameters.put("scriptPath", script.getPath());
+        parameters.put("data", getData());
         return new FakeRequest(sling.getResourceResolver(script.getSession()), "GET", "/bin/groovyconsole/post.json",
                 parameters);
+    }
+
+    private String getData() throws RepositoryException {
+        Node parent = script.getParent();
+        return parent.hasProperty("data") ? parent.getProperty("data").getString() : "";
     }
 
 }
