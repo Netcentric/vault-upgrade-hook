@@ -79,8 +79,9 @@ public class UpgradeProcessor implements InstallHook {
             }
         } catch (Exception e) {
             failed = true;
-            if (ctx.getPhase() == Phase.END) {
-                LOG.error(ctx, "Error during END phase, this will *not* mark the package installation as failed.", e);
+            if (ctx.getPhase() != Phase.PREPARE) {
+                LOG.error(ctx, "Error during " + ctx.getPhase()
+                        + " phase, this will *not* mark the package installation as failed.", e);
             }
             throw new PackageException("Error during content upgrade", e);
         } finally {
@@ -98,7 +99,7 @@ public class UpgradeProcessor implements InstallHook {
     }
 
     protected void saveStatus(InstallContext ctx) throws RepositoryException {
-        status.update(ctx);
+        status.update(ctx, failed);
         updateInfoStatus(ctx);
         ctx.getSession().save();
         LOG.status(ctx, "saved status", status.getNode().getPath());
@@ -126,9 +127,15 @@ public class UpgradeProcessor implements InstallHook {
                 if (info.getRunMode() == RunMode.ALWAYS || action.isRelevant(ctx, info)) {
                     LOG.debug(ctx, "executing action [{}]", action);
                     long start = System.currentTimeMillis();
-                    action.execute(ctx);
-                    // the session is saved automatically after each action
-                    ctx.getSession().save();
+                    try {
+                        action.execute(ctx);
+                        // the session is saved automatically after each action
+                        ctx.getSession().save();
+                    } catch (Exception e) {
+                        LOG.status(ctx, "aborting upgrade because of failing action [{}]",
+                                info.getNode().getPath() + "/" + action.getName(), action.getName(), e);
+                        throw e;
+                    }
                     LOG.status(ctx, "executed {}[{}, {}ms]", info.getNode().getPath() + "/" + action.getName(),
                             action.getClass().getSimpleName(), action.getName(), (System.currentTimeMillis() - start));
                     info.executed(action);

@@ -132,7 +132,7 @@ public class UpgradeProcessorTest {
         Assert.assertFalse(ctx.getSession().hasPendingChanges());
         Mockito.verify(info).executed(action);
         Mockito.verify(action).execute(ctx);
-        Mockito.verify(status).update(ctx);
+        Mockito.verify(status).update(ctx, false);
         Mockito.verify(status).update(ctx, info);
     }
 

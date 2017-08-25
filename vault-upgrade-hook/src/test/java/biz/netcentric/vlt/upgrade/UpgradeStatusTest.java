@@ -92,7 +92,7 @@ public class UpgradeStatusTest {
     @Test
     public void testGeneralUpdate() throws Exception {
         Mockito.when(ctx.getPackage().getId().getVersionString()).thenReturn("2.1.0");
-        status.update(ctx);
+        status.update(ctx, false);
         Assert.assertEquals("2.1.0",
                 JcrUtils.getStringProperty(session, "/test/" + UpgradeStatus.PN_VERSION, "failed"));
         Assert.assertNotNull(JcrUtils.getDateProperty(session, "/test/" + UpgradeStatus.PN_UPGRADE_TIME, null));

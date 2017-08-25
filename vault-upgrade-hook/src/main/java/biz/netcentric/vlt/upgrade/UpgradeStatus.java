@@ -33,6 +33,7 @@ public class UpgradeStatus {
 
     public static final String PN_UPGRADE_TIME = "time";
     public static final String PN_VERSION = "version";
+    public static final String PN_STATUS = "status";
     public static final String PN_ACTIONS = "actions";
 
     private final Node node;
@@ -84,10 +85,11 @@ public class UpgradeStatus {
      * @param ctx
      * @throws RepositoryException
      */
-    public void update(InstallContext ctx) throws RepositoryException {
+    public void update(InstallContext ctx, boolean failed) throws RepositoryException {
         getNode().setProperty(PN_UPGRADE_TIME, Calendar.getInstance());
         String versionString = ctx.getPackage().getId().getVersionString();
         getNode().setProperty(PN_VERSION, versionString);
+        getNode().setProperty(PN_STATUS, failed ? "FAILED" : "SUCCESS");
         LOG.info(ctx, "stored new status [{}]: [{}]", getNode(), versionString);
     }
 

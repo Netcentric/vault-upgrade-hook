@@ -54,7 +54,7 @@ public class UpgradeInfo {
      * This configuration is optional and defaults to {@link #DEFAULT_PHASE}.
      */
     public static final String PN_DEFAULT_PHASE = "defaultPhase";
-    public static final String DEFAULT_PHASE = Phase.INSTALLED.toString();
+    public static final String DEFAULT_PHASE = Phase.PREPARE.toString();
 
     /**
      * @see RunMode
