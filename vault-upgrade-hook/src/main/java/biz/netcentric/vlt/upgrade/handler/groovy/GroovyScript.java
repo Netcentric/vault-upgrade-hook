@@ -18,8 +18,8 @@ import org.apache.jackrabbit.vault.packaging.InstallContext;
 import org.apache.jackrabbit.vault.packaging.InstallContext.Phase;
 import org.apache.sling.api.SlingHttpServletRequest;
 
-import com.icfolson.aem.groovy.console.GroovyConsoleService;
-import com.icfolson.aem.groovy.console.response.RunScriptResponse;
+import com.citytechinc.aem.groovy.console.GroovyConsoleService;
+import com.citytechinc.aem.groovy.console.response.RunScriptResponse;
 
 import biz.netcentric.vlt.upgrade.UpgradeAction;
 import biz.netcentric.vlt.upgrade.handler.OsgiUtil.ServiceWrapper;

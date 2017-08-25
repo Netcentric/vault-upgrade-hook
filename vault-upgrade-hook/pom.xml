@@ -94,11 +94,11 @@
             <version>2.4.10</version>
             <optional>true</optional>
         </dependency>
-        <dependency>
-            <groupId>com.icfolson.aem.groovy.console</groupId>
-            <artifactId>aem-groovy-console</artifactId>
-            <version>9.0.0</version>
-            <optional>true</optional>
+		<dependency>
+			<groupId>com.citytechinc.aem.groovy.console</groupId>
+			<artifactId>aem-groovy-console</artifactId>
+			<version>8.0.0</version>
+			<optional>true</optional>
             <!-- some of the transitive dependencies are provided in non publically available versions -->
             <exclusions>
                 <exclusion>
