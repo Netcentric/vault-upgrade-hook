@@ -34,8 +34,42 @@
 
     <modules>
         <module>vault-upgrade-hook</module>
-        <module>samples</module>
     </modules>
+
+	<developers>
+        <developer>
+            <name>Andreas Haller</name>
+            <email>andreas.haller@netcentric.biz</email>
+            <organization>Netcentric</organization>
+            <organizationUrl>http://www.netcentric.biz/</organizationUrl>
+        </developer>
+    </developers>
+
+    <licenses>
+        <license>
+            <name>Eclipse Public License, Version 1.0</name>
+            <url>https://www.eclipse.org/legal/epl-v10.html</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:git:https://github.com/Netcentric/vault-upgrade-hook.git</connection>
+        <developerConnection>scm:git:https://github.com/Netcentric/vault-upgrade-hook.git</developerConnection>
+        <url>https://github.com/Netcentric/vault-upgrade-hook.git</url>
+        <tag>HEAD</tag>
+    </scm>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
 
     <issueManagement>
         <system>GitHub</system>
@@ -79,10 +113,36 @@
                     <configuration>
                         <verbose>true</verbose>
                         <filterSource>META-INF/vault/filter.xml</filterSource>
-                        
                     </configuration>
                 </plugin>
+       			<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-source-plugin</artifactId>
+					<version>3.0.1</version>
+	        		</plugin>        
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-javadoc-plugin</artifactId>
+					<version>2.10.4</version>
+				</plugin>
+	            <plugin>
+	                <groupId>org.apache.maven.plugins</groupId>
+	                <artifactId>maven-gpg-plugin</artifactId>
+	                <version>1.6</version>
+	            </plugin>
             </plugins>
         </pluginManagement>
     </build>
+    
+    <profiles>
+    		<profile>
+    			<id>samples</id>
+    			<activation>
+    				<activeByDefault>true</activeByDefault>
+    			</activation>
+    			<modules>
+    				<module>samples</module>	
+    			</modules>
+    		</profile>
+    </profiles>
 </project>
