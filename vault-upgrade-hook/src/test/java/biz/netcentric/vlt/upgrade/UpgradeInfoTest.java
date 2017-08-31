@@ -28,7 +28,7 @@ import org.mockito.Mockito;
 import org.mockito.internal.util.MockUtil;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import biz.netcentric.vlt.upgrade.UpgradeInfo.RunMode;
+import biz.netcentric.vlt.upgrade.UpgradeInfo.InstallationMode;
 import biz.netcentric.vlt.upgrade.handler.UpgradeHandler;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -71,7 +71,7 @@ public class UpgradeInfoTest {
         UpgradeInfo info = new UpgradeInfo(ctx, status, node);
         Assert.assertSame(node, info.getNode());
         Assert.assertSame(status, info.getStatus());
-        Assert.assertEquals(UpgradeInfo.DEFAULT_RUN_MODE, info.getRunMode().toString());
+        Assert.assertEquals(UpgradeInfo.DEFAULT_INSTALLATION_MODE, info.getInstallationMode().toString());
         Assert.assertEquals(UpgradeInfo.DEFAULT_PHASE, info.getDefaultPhase().toString());
         Assert.assertTrue(info.getHandler() instanceof TestHandler);
         Assert.assertEquals(Phase.values().length, info.getActions().size());
@@ -83,13 +83,13 @@ public class UpgradeInfoTest {
     @Test
     public void testConstructor() throws Exception {
         sling.build().resource("/test", //
-                UpgradeInfo.PN_RUN_MODE, "always", //
+                UpgradeInfo.PN_INSTALLATION_MODE, "always", //
                 UpgradeInfo.PN_DEFAULT_PHASE, "prepare", //
                 UpgradeInfo.PN_HANDLER, TEST_HANDLER);
         Node node = session.getNode("/test");
         UpgradeInfo info = new UpgradeInfo(ctx, status, node);
 
-        Assert.assertEquals(RunMode.ALWAYS, info.getRunMode());
+        Assert.assertEquals(InstallationMode.ALWAYS, info.getInstallationMode());
         Assert.assertEquals(Phase.PREPARE, info.getDefaultPhase());
         Assert.assertTrue(info.getHandler() instanceof TestHandler);
     }

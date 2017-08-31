@@ -34,7 +34,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import biz.netcentric.vlt.upgrade.UpgradeInfo.RunMode;
+import biz.netcentric.vlt.upgrade.UpgradeInfo.InstallationMode;
 import biz.netcentric.vlt.upgrade.handler.UpgradeHandler;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -98,12 +98,12 @@ public class UpgradeProcessorTest {
         processor.infos = Arrays.asList(info);
         Mockito.when(info.getActions()).thenReturn(Collections.singletonMap(Phase.INSTALLED, Arrays.asList(action)));
 
-        Mockito.when(info.getRunMode()).thenReturn(RunMode.ALWAYS);
+        Mockito.when(info.getInstallationMode()).thenReturn(InstallationMode.ALWAYS);
         processor.execute(ctx);
         Mockito.verify(action).execute(ctx);
 
         Mockito.reset(action);
-        Mockito.when(info.getRunMode()).thenReturn(RunMode.ON_CHANGE);
+        Mockito.when(info.getInstallationMode()).thenReturn(InstallationMode.ON_CHANGE);
         processor.execute(ctx);
         Mockito.verify(action, Mockito.never()).execute(ctx);
 

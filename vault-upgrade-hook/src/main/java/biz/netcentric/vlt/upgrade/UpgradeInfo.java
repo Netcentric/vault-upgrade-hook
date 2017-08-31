@@ -57,14 +57,14 @@ public class UpgradeInfo {
     public static final String DEFAULT_PHASE = Phase.PREPARE.toString();
 
     /**
-     * @see RunMode
+     * @see InstallationMode
      */
-    public static final String PN_RUN_MODE = "runMode";
-    public static final String DEFAULT_RUN_MODE = RunMode.ON_CHANGE.toString();
+    public static final String PN_INSTALLATION_MODE = "mode";
+    public static final String DEFAULT_INSTALLATION_MODE = InstallationMode.ON_CHANGE.toString();
 
     private final Node node;
     private final UpgradeStatus status;
-    private final RunMode runMode;
+    private final InstallationMode installationMode;
     private final Phase defaultPhase;
     private final UpgradeHandler handler;
     private final Map<Phase, List<UpgradeAction>> actions = new EnumMap<>(Phase.class);
@@ -73,7 +73,7 @@ public class UpgradeInfo {
     public UpgradeInfo(InstallContext ctx, UpgradeStatus status, Node node) throws RepositoryException {
         this.status = status;
         this.node = node;
-        runMode = RunMode.valueOf(JcrUtils.getStringProperty(node, PN_RUN_MODE, DEFAULT_RUN_MODE).toUpperCase());
+        installationMode = InstallationMode.valueOf(JcrUtils.getStringProperty(node, PN_INSTALLATION_MODE, DEFAULT_INSTALLATION_MODE).toUpperCase());
         defaultPhase = Phase.valueOf(JcrUtils.getStringProperty(node, PN_DEFAULT_PHASE, DEFAULT_PHASE).toUpperCase());
         handler = UpgradeType.create(ctx, JcrUtils.getStringProperty(node, PN_HANDLER, DEFAULT_HANDLER));
         loadActions(ctx);
@@ -107,7 +107,7 @@ public class UpgradeInfo {
      * <li>{@link #ALWAYS} - actions will be executed on every intallation.</li>
      * </ul>
      */
-    public enum RunMode {
+    public enum InstallationMode {
         /**
          * Run all new or changed actions.
          */
@@ -121,8 +121,8 @@ public class UpgradeInfo {
 
     @Override
     public String toString() {
-        return super.toString() + " [node=" + node + ", status=" + status + ", runMode=" + runMode + ", defaultPhase="
-                + defaultPhase + ", handler=" + handler + ", actions=" + actions + "]";
+        return super.toString() + " [node=" + node + ", status=" + status + ", installationMode=" + installationMode
+                + ", defaultPhase=" + defaultPhase + ", handler=" + handler + ", actions=" + actions + "]";
     }
 
     public Map<Phase, List<UpgradeAction>> getActions() throws RepositoryException {
@@ -133,8 +133,8 @@ public class UpgradeInfo {
         return status;
     }
 
-    public RunMode getRunMode() {
-        return runMode;
+    public InstallationMode getInstallationMode() {
+        return installationMode;
     }
 
     public Phase getDefaultPhase() {

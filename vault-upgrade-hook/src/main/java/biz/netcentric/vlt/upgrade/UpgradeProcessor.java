@@ -24,7 +24,7 @@ import org.apache.jackrabbit.vault.packaging.InstallHook;
 import org.apache.jackrabbit.vault.packaging.PackageException;
 import org.apache.jackrabbit.vault.packaging.PackageId;
 
-import biz.netcentric.vlt.upgrade.UpgradeInfo.RunMode;
+import biz.netcentric.vlt.upgrade.UpgradeInfo.InstallationMode;
 import biz.netcentric.vlt.upgrade.util.PackageInstallLogger;
 
 /**
@@ -109,7 +109,7 @@ public class UpgradeProcessor implements InstallHook {
         LOG.debug(ctx, "updating info status [{}]", infos);
         for (UpgradeInfo info : infos) {
             LOG.status(ctx, "[{}] actions executed for {}[{}]", info.getNode().getPath(),
-                    info.getExecutedActions().size(), info.getHandler().getClass().getSimpleName(), info.getRunMode());
+                    info.getExecutedActions().size(), info.getHandler().getClass().getSimpleName(), info.getInstallationMode());
             status.update(ctx, info);
         }
     }
@@ -124,7 +124,7 @@ public class UpgradeProcessor implements InstallHook {
             List<UpgradeAction> actionsOfPhase = info.getActions().get(ctx.getPhase());
             LOG.info(ctx, "executing [{}]: [{}]", info, actionsOfPhase);
             for (UpgradeAction action : actionsOfPhase) {
-                if (info.getRunMode() == RunMode.ALWAYS || action.isRelevant(ctx, info)) {
+                if (info.getInstallationMode() == InstallationMode.ALWAYS || action.isRelevant(ctx, info)) {
                     LOG.debug(ctx, "executing action [{}]", action);
                     long start = System.currentTimeMillis();
                     try {
