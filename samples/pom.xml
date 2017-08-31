@@ -9,10 +9,12 @@
     <parent>
         <groupId>biz.netcentric.vlt.upgrade</groupId>
         <artifactId>vault-upgrade-hook-reactor</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <!-- detaching samples from parent release cycle to simplify copy/paste -->
+        <version>1.0.0</version>
     </parent>
 
     <artifactId>vault-upgrade-hook-samples</artifactId>
+	<version>1.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Vault Upgrade Hook :: Samples</name>
