@@ -14,7 +14,8 @@
 
     <name>Vault Upgrade Hook :: Reactor</name>
 
-    <description>Reactor project to build hook and sample package.</description>
+    <description>Vault Upgrade Hook: simplifies content upgrades through package installation hooks.</description>
+    <url>https://github.com/Netcentric/vault-upgrade-hook</url>
 
     <!-- ====================================================================== -->
     <!-- P R O P E R T I E S -->
