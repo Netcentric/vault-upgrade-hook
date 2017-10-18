@@ -1,6 +1,7 @@
 package biz.netcentric.vlt.upgrade.handler.userpreferences;
 
-import javax.jcr.Node;
+import java.nio.charset.StandardCharsets;
+
 import javax.jcr.RepositoryException;
 
 import org.apache.jackrabbit.api.JackrabbitSession;
@@ -8,20 +9,22 @@ import org.apache.jackrabbit.api.security.user.Authorizable;
 import org.apache.jackrabbit.api.security.user.User;
 import org.apache.jackrabbit.vault.packaging.InstallContext;
 import org.apache.jackrabbit.vault.packaging.InstallContext.Phase;
+import org.apache.sling.api.resource.Resource;
 
 import biz.netcentric.vlt.upgrade.UpgradeAction;
 import biz.netcentric.vlt.upgrade.util.PackageInstallLogger;
+import biz.netcentric.vlt.upgrade.util.impl.JsonResourceSerializer;
 
 public class UserPreferencesUpgradeAction extends UpgradeAction {
 
     private static final PackageInstallLogger LOG = PackageInstallLogger.create(UserPreferencesUpgradeAction.class);
     
-    private final Node xmlFileNode;
+    private final Resource xmlFileResource;
     private final String userId;
     
-    public UserPreferencesUpgradeAction(String userId, Node xmlFileNode) throws RepositoryException {
-        super(xmlFileNode.getName() + "/" + userId, Phase.PREPARE, "");
-        this.xmlFileNode = xmlFileNode;
+    public UserPreferencesUpgradeAction(String userId, Resource xmlFileResource) {
+        super(xmlFileResource.getName() + "/" + userId, Phase.PREPARE, getMd5(userId, xmlFileResource));
+        this.xmlFileResource = xmlFileResource;
         this.userId = userId;
     }
 
@@ -47,8 +50,12 @@ public class UserPreferencesUpgradeAction extends UpgradeAction {
             ctx.getSession().save();
         }
         // copy the given node to the user preference
-        ctx.getSession().getWorkspace().copy(xmlFileNode.getPath(), userPreferencesPath);
+        ctx.getSession().getWorkspace().copy(xmlFileResource.getPath(), userPreferencesPath);
         LOG.info(ctx, "updated user preferences of user '{}' in '{}'", userId, userPreferencesPath);
     }
 
+    private static String getMd5(final String userId, final Resource xmlFileResource) {
+        String serializedAction = new JsonResourceSerializer().serialize(xmlFileResource);
+        return getMd5(String.format("%s:%s", userId, serializedAction), StandardCharsets.UTF_8.name());
+    }
 }

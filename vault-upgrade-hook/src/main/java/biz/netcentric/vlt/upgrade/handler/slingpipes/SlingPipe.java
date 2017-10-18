@@ -8,6 +8,8 @@
  */
 package biz.netcentric.vlt.upgrade.handler.slingpipes;
 
+import java.nio.charset.StandardCharsets;
+
 import org.apache.jackrabbit.commons.JcrUtils;
 import org.apache.jackrabbit.vault.packaging.InstallContext;
 import org.apache.jackrabbit.vault.packaging.InstallContext.Phase;
@@ -19,6 +21,7 @@ import biz.netcentric.vlt.upgrade.UpgradeAction;
 import biz.netcentric.vlt.upgrade.handler.OsgiUtil;
 import biz.netcentric.vlt.upgrade.handler.OsgiUtil.ServiceWrapper;
 import biz.netcentric.vlt.upgrade.util.PackageInstallLogger;
+import biz.netcentric.vlt.upgrade.util.impl.JsonResourceSerializer;
 
 public class SlingPipe extends UpgradeAction {
 
@@ -29,7 +32,8 @@ public class SlingPipe extends UpgradeAction {
     private final Resource resource;
 
     public SlingPipe(Resource resource, Phase defaultPhase) {
-        super(resource.getName(), UpgradeAction.getPhaseFromPrefix(defaultPhase, resource.getName()), "");
+        super(resource.getName(), UpgradeAction.getPhaseFromPrefix(defaultPhase, resource.getName()),
+                getMd5(new JsonResourceSerializer().serialize(resource), StandardCharsets.UTF_8.name()));
         this.resource = resource;
     }
 
