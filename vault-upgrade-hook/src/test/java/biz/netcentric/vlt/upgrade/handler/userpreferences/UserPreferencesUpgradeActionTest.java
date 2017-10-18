@@ -24,11 +24,6 @@ public class UserPreferencesUpgradeActionTest {
         @Rule
         public final SlingContext sling = new SlingContext(ResourceResolverType.RESOURCERESOLVER_MOCK);
 
-        @Before
-        public void setUp() {
-            sling.bundleContext().registerService(ResourceResolverFactory.class.getName(), sling.getService(ResourceResolverFactory.class), new Hashtable<String, String>());
-        }
-
         @Test
         public void shouldHaveMd5() throws RepositoryException {
             Resource resource = sling.create().resource("/content/resource/path/resourcename");
