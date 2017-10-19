@@ -22,6 +22,7 @@ import com.icfolson.aem.groovy.console.GroovyConsoleService;
 import biz.netcentric.vlt.upgrade.UpgradeAction;
 import biz.netcentric.vlt.upgrade.UpgradeInfo;
 import biz.netcentric.vlt.upgrade.handler.OsgiUtil;
+import biz.netcentric.vlt.upgrade.handler.UpgradeActionInfo;
 import biz.netcentric.vlt.upgrade.handler.UpgradeHandler;
 import biz.netcentric.vlt.upgrade.util.PackageInstallLogger;
 import biz.netcentric.vlt.upgrade.util.PackageInstallLoggerImpl;
@@ -34,7 +35,7 @@ import biz.netcentric.vlt.upgrade.util.PackageInstallLoggerImpl;
  */
 public class GroovyConsoleHandler implements UpgradeHandler {
 
-    private static final PackageInstallLogger LOG = PackageInstallLoggerImpl.create(GroovyConsoleHandler.class);
+    static PackageInstallLogger LOG = PackageInstallLoggerImpl.create(GroovyConsoleHandler.class);
 
     OsgiUtil osgi = new OsgiUtil();
 
@@ -50,7 +51,7 @@ public class GroovyConsoleHandler implements UpgradeHandler {
 
 
     @Override
-    public List<UpgradeAction> create(InstallContext ctx, UpgradeInfo info) throws RepositoryException {
+    public List<UpgradeAction> create(InstallContext ctx, UpgradeActionInfo info) throws RepositoryException {
         List<UpgradeAction> scripts = new ArrayList<>();
 
         NodeIterator nodes = info.getNode().getNodes();

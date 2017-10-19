@@ -39,6 +39,6 @@ public interface UpgradeHandler {
      * @return
      * @throws RepositoryException
      */
-    Iterable<UpgradeAction> create(InstallContext ctx, UpgradeInfo info) throws RepositoryException;
+    Iterable<UpgradeAction> create(InstallContext ctx, UpgradeActionInfo info) throws RepositoryException;
 
 }

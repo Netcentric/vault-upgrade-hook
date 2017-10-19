@@ -23,6 +23,7 @@ import org.apache.jackrabbit.commons.JcrUtils;
 import org.apache.jackrabbit.vault.packaging.InstallContext;
 import org.apache.jackrabbit.vault.packaging.InstallContext.Phase;
 
+import biz.netcentric.vlt.upgrade.handler.UpgradeActionInfo;
 import biz.netcentric.vlt.upgrade.handler.UpgradeHandler;
 import biz.netcentric.vlt.upgrade.handler.UpgradeType;
 import biz.netcentric.vlt.upgrade.util.PackageInstallLogger;
@@ -85,7 +86,7 @@ public class UpgradeInfo {
         for (Phase availablePhase : Phase.values()) {
             actions.put(availablePhase, new ArrayList<UpgradeAction>());
         }
-        for (UpgradeAction action : handler.create(ctx, this)) {
+        for (UpgradeAction action : handler.create(ctx, new UpgradeActionInfo(node, defaultPhase))) {
             actions.get(action.getPhase()).add(action);
         }
         for (Phase availablePhase : Phase.values()) {
@@ -126,7 +127,7 @@ public class UpgradeInfo {
                 + ", defaultPhase=" + defaultPhase + ", handler=" + handler + ", actions=" + actions + "]";
     }
 
-    public Map<Phase, List<UpgradeAction>> getActions() throws RepositoryException {
+    public Map<Phase, List<UpgradeAction>> getActions() {
         return actions;
     }
 

@@ -14,7 +14,7 @@ import javax.jcr.Value;
 import org.apache.jackrabbit.vault.packaging.InstallContext;
 
 import biz.netcentric.vlt.upgrade.UpgradeAction;
-import biz.netcentric.vlt.upgrade.UpgradeInfo;
+import biz.netcentric.vlt.upgrade.handler.UpgradeActionInfo;
 import biz.netcentric.vlt.upgrade.handler.UpgradeHandler;
 import biz.netcentric.vlt.upgrade.util.PackageInstallLogger;
 import biz.netcentric.vlt.upgrade.util.PackageInstallLoggerImpl;
@@ -32,7 +32,7 @@ public class UserPreferencesHandler implements UpgradeHandler {
     }
 
     @Override
-    public Iterable<UpgradeAction> create(InstallContext ctx, UpgradeInfo info) throws RepositoryException {
+    public Iterable<UpgradeAction> create(InstallContext ctx, UpgradeActionInfo info) throws RepositoryException {
         List<UpgradeAction> actions = new ArrayList<>();
 
         // extract user id from upgrade info node

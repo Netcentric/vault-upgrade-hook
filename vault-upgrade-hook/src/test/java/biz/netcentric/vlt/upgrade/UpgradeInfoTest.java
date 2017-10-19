@@ -29,6 +29,7 @@ import org.mockito.internal.util.MockUtil;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import biz.netcentric.vlt.upgrade.UpgradeInfo.InstallationMode;
+import biz.netcentric.vlt.upgrade.handler.UpgradeActionInfo;
 import biz.netcentric.vlt.upgrade.handler.UpgradeHandler;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -104,7 +105,7 @@ public class UpgradeInfoTest {
         }
 
         @Override
-        public Iterable<UpgradeAction> create(InstallContext ctx, UpgradeInfo info) {
+        public Iterable<UpgradeAction> create(InstallContext ctx, UpgradeActionInfo info) {
             UpgradeAction action = Mockito.mock(UpgradeAction.class);
             Mockito.when(action.getPhase()).thenReturn(PHASE);
             return Arrays.asList(action);
