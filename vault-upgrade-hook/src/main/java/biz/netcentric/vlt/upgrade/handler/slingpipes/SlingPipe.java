@@ -19,10 +19,11 @@ import biz.netcentric.vlt.upgrade.UpgradeAction;
 import biz.netcentric.vlt.upgrade.handler.OsgiUtil;
 import biz.netcentric.vlt.upgrade.handler.OsgiUtil.ServiceWrapper;
 import biz.netcentric.vlt.upgrade.util.PackageInstallLogger;
+import biz.netcentric.vlt.upgrade.util.PackageInstallLoggerImpl;
 
 public class SlingPipe extends UpgradeAction {
 
-    private static final PackageInstallLogger LOG = PackageInstallLogger.create(SlingPipe.class);
+    private static final PackageInstallLogger LOG = PackageInstallLoggerImpl.create(SlingPipe.class);
 
     OsgiUtil osgi = new OsgiUtil();
 

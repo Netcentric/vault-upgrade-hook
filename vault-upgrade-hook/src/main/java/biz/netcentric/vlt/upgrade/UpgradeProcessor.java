@@ -26,6 +26,7 @@ import org.apache.jackrabbit.vault.packaging.PackageId;
 
 import biz.netcentric.vlt.upgrade.UpgradeInfo.InstallationMode;
 import biz.netcentric.vlt.upgrade.util.PackageInstallLogger;
+import biz.netcentric.vlt.upgrade.util.PackageInstallLoggerImpl;
 
 /**
  * This class is the main entry point for the <b>vault-upgrade-hook</b>
@@ -38,7 +39,7 @@ import biz.netcentric.vlt.upgrade.util.PackageInstallLogger;
  */
 public class UpgradeProcessor implements InstallHook {
 
-    private static final PackageInstallLogger LOG = PackageInstallLogger.create(UpgradeProcessor.class);
+    private static final PackageInstallLogger LOG = PackageInstallLoggerImpl.create(UpgradeProcessor.class);
 
     /**
      * Absolute path where information of the {@link UpgradeInfo} execution are

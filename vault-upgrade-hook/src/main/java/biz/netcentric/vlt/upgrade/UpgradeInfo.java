@@ -26,6 +26,7 @@ import org.apache.jackrabbit.vault.packaging.InstallContext.Phase;
 import biz.netcentric.vlt.upgrade.handler.UpgradeHandler;
 import biz.netcentric.vlt.upgrade.handler.UpgradeType;
 import biz.netcentric.vlt.upgrade.util.PackageInstallLogger;
+import biz.netcentric.vlt.upgrade.util.PackageInstallLoggerImpl;
 
 /**
  * This class represents the wrapper to execute {@link UpgradeAction}s. It loads
@@ -33,7 +34,7 @@ import biz.netcentric.vlt.upgrade.util.PackageInstallLogger;
  */
 public class UpgradeInfo {
 
-    private static final PackageInstallLogger LOG = PackageInstallLogger.create(UpgradeInfo.class);
+    private static final PackageInstallLogger LOG = PackageInstallLoggerImpl.create(UpgradeInfo.class);
 
     /**
      * This property configures the handler to execute this {@link UpgradeInfo}s

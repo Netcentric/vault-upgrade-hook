@@ -24,6 +24,7 @@ import biz.netcentric.vlt.upgrade.UpgradeInfo;
 import biz.netcentric.vlt.upgrade.handler.OsgiUtil;
 import biz.netcentric.vlt.upgrade.handler.UpgradeHandler;
 import biz.netcentric.vlt.upgrade.util.PackageInstallLogger;
+import biz.netcentric.vlt.upgrade.util.PackageInstallLoggerImpl;
 
 /**
  * This handler creates {@link GroovyScript} instances which are executed via
@@ -33,7 +34,7 @@ import biz.netcentric.vlt.upgrade.util.PackageInstallLogger;
  */
 public class GroovyConsoleHandler implements UpgradeHandler {
 
-    private static final PackageInstallLogger LOG = PackageInstallLogger.create(GroovyConsoleHandler.class);
+    private static final PackageInstallLogger LOG = PackageInstallLoggerImpl.create(GroovyConsoleHandler.class);
 
     OsgiUtil osgi = new OsgiUtil();
 

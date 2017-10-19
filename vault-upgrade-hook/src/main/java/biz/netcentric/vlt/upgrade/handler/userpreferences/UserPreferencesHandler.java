@@ -17,12 +17,13 @@ import biz.netcentric.vlt.upgrade.UpgradeAction;
 import biz.netcentric.vlt.upgrade.UpgradeInfo;
 import biz.netcentric.vlt.upgrade.handler.UpgradeHandler;
 import biz.netcentric.vlt.upgrade.util.PackageInstallLogger;
+import biz.netcentric.vlt.upgrade.util.PackageInstallLoggerImpl;
 
 public class UserPreferencesHandler implements UpgradeHandler {
 
     private static final String PN_USER_IDS = "handler.userIds";
     private static final String NAME_SUFFIX_USER_PREFERENCES = "user.preferences";
-    private static final PackageInstallLogger LOG = PackageInstallLogger.create(UserPreferencesHandler.class);
+    private static final PackageInstallLogger LOG = PackageInstallLoggerImpl.create(UserPreferencesHandler.class);
 
     @Override
     public boolean isAvailable(InstallContext ctx) {

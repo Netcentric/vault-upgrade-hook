@@ -25,10 +25,11 @@ import biz.netcentric.vlt.upgrade.UpgradeAction;
 import biz.netcentric.vlt.upgrade.handler.OsgiUtil.ServiceWrapper;
 import biz.netcentric.vlt.upgrade.handler.SlingUtils;
 import biz.netcentric.vlt.upgrade.util.PackageInstallLogger;
+import biz.netcentric.vlt.upgrade.util.PackageInstallLoggerImpl;
 
 public class GroovyScript extends UpgradeAction {
 
-    private static final PackageInstallLogger LOG = PackageInstallLogger.create(GroovyScript.class);
+    private static final PackageInstallLogger LOG = PackageInstallLoggerImpl.create(GroovyScript.class);
 
     SlingUtils sling = new SlingUtils();
     private final Node script;

@@ -22,10 +22,11 @@ import biz.netcentric.vlt.upgrade.UpgradeInfo;
 import biz.netcentric.vlt.upgrade.handler.SlingUtils;
 import biz.netcentric.vlt.upgrade.handler.UpgradeHandler;
 import biz.netcentric.vlt.upgrade.util.PackageInstallLogger;
+import biz.netcentric.vlt.upgrade.util.PackageInstallLoggerImpl;
 
 public class SlingPipesHandler implements UpgradeHandler {
 
-    private static final PackageInstallLogger LOG = PackageInstallLogger.create(SlingPipesHandler.class);
+    private static final PackageInstallLogger LOG = PackageInstallLoggerImpl.create(SlingPipesHandler.class);
 
     SlingUtils sling = new SlingUtils();
 
