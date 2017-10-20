@@ -12,11 +12,9 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 
 import org.apache.jackrabbit.vault.packaging.InstallContext;
-import org.apache.sling.api.resource.ResourceResolver;
 
 import biz.netcentric.vlt.upgrade.UpgradeAction;
 import biz.netcentric.vlt.upgrade.UpgradeInfo;
-import biz.netcentric.vlt.upgrade.handler.SlingUtils;
 import biz.netcentric.vlt.upgrade.handler.UpgradeHandler;
 import biz.netcentric.vlt.upgrade.util.PackageInstallLogger;
 
@@ -51,13 +49,12 @@ public class UserPreferencesHandler implements UpgradeHandler {
             userIds.add(property.getString());
         }
         NodeIterator children = info.getNode().getNodes();
-        ResourceResolver resourceResolver = new SlingUtils().getResourceResolver(ctx.getSession());
         while (children.hasNext()) {
             Node child = children.nextNode();
             if (NAME_SUFFIX_USER_PREFERENCES.equals(child.getName())) {
                 LOG.debug(ctx, "Found user preferences node '{}' below upgrade info {}", child.getPath(), info);
                 for (String userId : userIds) {
-                    actions.add(new UserPreferencesUpgradeAction(userId, resourceResolver.getResource(child.getPath())));
+                    actions.add(new UserPreferencesUpgradeAction(userId, child));
                     LOG.debug(ctx, "Added UserPreferencesUpgradeAction for userId '{}'.", userId);
                 }
             }

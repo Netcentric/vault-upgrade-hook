@@ -21,7 +21,7 @@ import biz.netcentric.vlt.upgrade.UpgradeAction;
 import biz.netcentric.vlt.upgrade.handler.OsgiUtil;
 import biz.netcentric.vlt.upgrade.handler.OsgiUtil.ServiceWrapper;
 import biz.netcentric.vlt.upgrade.util.PackageInstallLogger;
-import biz.netcentric.vlt.upgrade.util.impl.JsonResourceSerializer;
+import biz.netcentric.vlt.upgrade.util.JsonResourceSerializer;
 
 public class SlingPipe extends UpgradeAction {
 

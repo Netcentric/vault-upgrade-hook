@@ -17,7 +17,7 @@ public class SlingPipeTest {
     public static final class Constructor {
 
         @Rule
-        public final SlingContext sling = new SlingContext(ResourceResolverType.RESOURCERESOLVER_MOCK);
+        public final SlingContext sling = new SlingContext(ResourceResolverType.JCR_MOCK);
 
         @Test
         public void shouldHaveMd5() {
