@@ -11,15 +11,14 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.scripting.SlingScript;
 
 import biz.netcentric.vlt.upgrade.UpgradeAction;
+import biz.netcentric.vlt.upgrade.UpgradeInfo;
 import biz.netcentric.vlt.upgrade.handler.SlingUtils;
-import biz.netcentric.vlt.upgrade.handler.UpgradeActionInfo;
 import biz.netcentric.vlt.upgrade.handler.UpgradeHandler;
 import biz.netcentric.vlt.upgrade.util.PackageInstallLogger;
-import biz.netcentric.vlt.upgrade.util.PackageInstallLoggerImpl;
 
 public class ScriptHandler implements UpgradeHandler {
 
-    private static final PackageInstallLogger LOG = PackageInstallLoggerImpl.create(ScriptHandler.class);
+    private static final PackageInstallLogger LOG = PackageInstallLogger.create(ScriptHandler.class);
 
     SlingUtils                                sling = new SlingUtils();
 
@@ -29,7 +28,7 @@ public class ScriptHandler implements UpgradeHandler {
     }
 
     @Override
-    public Iterable<UpgradeAction> create(final InstallContext ctx, final UpgradeActionInfo info) throws RepositoryException {
+    public Iterable<UpgradeAction> create(final InstallContext ctx, final UpgradeInfo info) throws RepositoryException {
         final List<UpgradeAction> scripts = new ArrayList<>();
 
         final Resource root = sling.getResourceResolver(ctx.getSession()).getResource(info.getNode().getPath());

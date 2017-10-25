@@ -22,10 +22,8 @@ import com.icfolson.aem.groovy.console.GroovyConsoleService;
 import biz.netcentric.vlt.upgrade.UpgradeAction;
 import biz.netcentric.vlt.upgrade.UpgradeInfo;
 import biz.netcentric.vlt.upgrade.handler.OsgiUtil;
-import biz.netcentric.vlt.upgrade.handler.UpgradeActionInfo;
 import biz.netcentric.vlt.upgrade.handler.UpgradeHandler;
 import biz.netcentric.vlt.upgrade.util.PackageInstallLogger;
-import biz.netcentric.vlt.upgrade.util.PackageInstallLoggerImpl;
 
 /**
  * This handler creates {@link GroovyScript} instances which are executed via
@@ -35,7 +33,7 @@ import biz.netcentric.vlt.upgrade.util.PackageInstallLoggerImpl;
  */
 public class GroovyConsoleHandler implements UpgradeHandler {
 
-    static PackageInstallLogger LOG = PackageInstallLoggerImpl.create(GroovyConsoleHandler.class);
+    static PackageInstallLogger log = PackageInstallLogger.create(GroovyConsoleHandler.class);
 
     OsgiUtil osgi = new OsgiUtil();
 
@@ -43,7 +41,7 @@ public class GroovyConsoleHandler implements UpgradeHandler {
     public boolean isAvailable(InstallContext ctx) {
         boolean available = osgi.hasService(GroovyConsoleService.class);
         if (!available) {
-            LOG.warn(ctx, "Could not load GroovyConsoleService.");
+            log.warn(ctx, "Could not load GroovyConsoleService.");
         }
         return available;
 
@@ -51,7 +49,7 @@ public class GroovyConsoleHandler implements UpgradeHandler {
 
 
     @Override
-    public List<UpgradeAction> create(InstallContext ctx, UpgradeActionInfo info) throws RepositoryException {
+    public List<UpgradeAction> create(InstallContext ctx, UpgradeInfo info) throws RepositoryException {
         List<UpgradeAction> scripts = new ArrayList<>();
 
         NodeIterator nodes = info.getNode().getNodes();

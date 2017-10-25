@@ -13,11 +13,10 @@ import org.apache.sling.api.scripting.SlingScript;
 
 import biz.netcentric.vlt.upgrade.UpgradeAction;
 import biz.netcentric.vlt.upgrade.util.PackageInstallLogger;
-import biz.netcentric.vlt.upgrade.util.PackageInstallLoggerImpl;
 
 public class Script extends UpgradeAction {
 
-    private static final PackageInstallLogger LOG = PackageInstallLoggerImpl.create(Script.class);
+    private static final PackageInstallLogger LOG = PackageInstallLogger.create(Script.class);
 
     private final SlingScript                 delegate;
 

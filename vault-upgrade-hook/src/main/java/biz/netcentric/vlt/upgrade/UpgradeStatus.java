@@ -22,7 +22,6 @@ import org.apache.jackrabbit.vault.packaging.InstallContext;
 import org.apache.jackrabbit.vault.packaging.Version;
 
 import biz.netcentric.vlt.upgrade.util.PackageInstallLogger;
-import biz.netcentric.vlt.upgrade.util.PackageInstallLoggerImpl;
 
 /**
  * This class represents a previous upgrade execution and has methods to compare
@@ -30,7 +29,7 @@ import biz.netcentric.vlt.upgrade.util.PackageInstallLoggerImpl;
  */
 public class UpgradeStatus {
 
-    private static final PackageInstallLogger LOG = PackageInstallLoggerImpl.create(UpgradeStatus.class);
+    private static final PackageInstallLogger LOG = PackageInstallLogger.create(UpgradeStatus.class);
 
     public static final String PN_UPGRADE_TIME = "time";
     public static final String PN_VERSION = "version";

@@ -35,7 +35,6 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import biz.netcentric.vlt.upgrade.UpgradeInfo.InstallationMode;
-import biz.netcentric.vlt.upgrade.handler.UpgradeActionInfo;
 import biz.netcentric.vlt.upgrade.handler.UpgradeHandler;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -183,7 +182,7 @@ public class UpgradeProcessorTest {
         }
 
         @Override
-        public Iterable<UpgradeAction> create(InstallContext ctx, UpgradeActionInfo info) {
+        public Iterable<UpgradeAction> create(InstallContext ctx, UpgradeInfo info) {
             return Arrays.asList(action);
         }
 

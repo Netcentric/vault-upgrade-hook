@@ -23,11 +23,9 @@ import org.apache.jackrabbit.commons.JcrUtils;
 import org.apache.jackrabbit.vault.packaging.InstallContext;
 import org.apache.jackrabbit.vault.packaging.InstallContext.Phase;
 
-import biz.netcentric.vlt.upgrade.handler.UpgradeActionInfo;
 import biz.netcentric.vlt.upgrade.handler.UpgradeHandler;
 import biz.netcentric.vlt.upgrade.handler.UpgradeType;
 import biz.netcentric.vlt.upgrade.util.PackageInstallLogger;
-import biz.netcentric.vlt.upgrade.util.PackageInstallLoggerImpl;
 
 /**
  * This class represents the wrapper to execute {@link UpgradeAction}s. It loads
@@ -35,7 +33,7 @@ import biz.netcentric.vlt.upgrade.util.PackageInstallLoggerImpl;
  */
 public class UpgradeInfo {
 
-    private static final PackageInstallLogger LOG = PackageInstallLoggerImpl.create(UpgradeInfo.class);
+    private static final PackageInstallLogger LOG = PackageInstallLogger.create(UpgradeInfo.class);
 
     /**
      * This property configures the handler to execute this {@link UpgradeInfo}s
@@ -78,15 +76,14 @@ public class UpgradeInfo {
         installationMode = InstallationMode.valueOf(JcrUtils.getStringProperty(node, PN_INSTALLATION_MODE, DEFAULT_INSTALLATION_MODE).toUpperCase());
         defaultPhase = Phase.valueOf(JcrUtils.getStringProperty(node, PN_DEFAULT_PHASE, DEFAULT_PHASE).toUpperCase());
         handler = UpgradeType.create(ctx, JcrUtils.getStringProperty(node, PN_HANDLER, DEFAULT_HANDLER));
-        loadActions(ctx);
         LOG.debug(ctx, "UpgradeInfo loaded [{}]", this);
     }
 
-    private void loadActions(InstallContext ctx) throws RepositoryException {
+    public void loadActions(InstallContext ctx) throws RepositoryException {
         for (Phase availablePhase : Phase.values()) {
             actions.put(availablePhase, new ArrayList<UpgradeAction>());
         }
-        for (UpgradeAction action : handler.create(ctx, new UpgradeActionInfo(node, defaultPhase))) {
+        for (UpgradeAction action : handler.create(ctx, this)) {
             actions.get(action.getPhase()).add(action);
         }
         for (Phase availablePhase : Phase.values()) {

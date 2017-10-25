@@ -11,11 +11,10 @@ import org.apache.jackrabbit.vault.packaging.InstallContext.Phase;
 
 import biz.netcentric.vlt.upgrade.UpgradeAction;
 import biz.netcentric.vlt.upgrade.util.PackageInstallLogger;
-import biz.netcentric.vlt.upgrade.util.PackageInstallLoggerImpl;
 
 public class UserPreferencesUpgradeAction extends UpgradeAction {
 
-    private static final PackageInstallLogger LOG = PackageInstallLoggerImpl.create(UserPreferencesUpgradeAction.class);
+    private static final PackageInstallLogger LOG = PackageInstallLogger.create(UserPreferencesUpgradeAction.class);
     
     private final Node xmlFileNode;
     private final String userId;

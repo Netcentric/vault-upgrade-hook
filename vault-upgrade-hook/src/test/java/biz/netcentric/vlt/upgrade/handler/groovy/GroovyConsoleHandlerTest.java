@@ -32,8 +32,8 @@ import org.mockito.Mockito;
 import com.icfolson.aem.groovy.console.GroovyConsoleService;
 
 import biz.netcentric.vlt.upgrade.UpgradeAction;
+import biz.netcentric.vlt.upgrade.UpgradeInfo;
 import biz.netcentric.vlt.upgrade.handler.OsgiUtil;
-import biz.netcentric.vlt.upgrade.handler.UpgradeActionInfo;
 import biz.netcentric.vlt.upgrade.testUtils.LoggerStub;
 
 @RunWith(Enclosed.class)
@@ -63,13 +63,13 @@ public class GroovyConsoleHandlerTest {
 
         @Test
         public void shouldReturnGroovyScriptActions() throws RepositoryException {
-            List<UpgradeAction> upgradeActions = groovyConsoleHandler.create(installContext, new UpgradeActionInfo(node, null));
+            List<UpgradeAction> upgradeActions = groovyConsoleHandler.create(installContext, info);
             assertThat(upgradeActions).hasSize(2);
         }
 
         @Test
         public void shouldReturnOnlyGroovyScripts() throws RepositoryException {
-            List<UpgradeAction> upgradeActions = groovyConsoleHandler.create(installContext, new UpgradeActionInfo(node, null));
+            List<UpgradeAction> upgradeActions = groovyConsoleHandler.create(installContext, info);
 
             for (UpgradeAction action : upgradeActions) {
                 assertThat(action.getName()).endsWith(".groovy");
@@ -86,11 +86,12 @@ public class GroovyConsoleHandlerTest {
         OsgiUtil osgi;
         InstallContextImpl installContext;
         Node node;
+        UpgradeInfo info;
 
         @Before
         public void setUp() throws RepositoryException, UnsupportedEncodingException {
             groovyConsoleHandler = new GroovyConsoleHandler();
-            GroovyConsoleHandler.LOG = new LoggerStub();
+            GroovyConsoleHandler.log = new LoggerStub();
 
             osgi = Mockito.spy(new OsgiUtil());
             groovyConsoleHandler.osgi = osgi;
@@ -106,6 +107,7 @@ public class GroovyConsoleHandlerTest {
 
             node = sling.resourceResolver().getResource("/some/resource").adaptTo(Node.class);
             installContext = new InstallContextImpl(node, null, null, null);
+            info = new UpgradeInfo(installContext, null, node);
         }
     }
 }
