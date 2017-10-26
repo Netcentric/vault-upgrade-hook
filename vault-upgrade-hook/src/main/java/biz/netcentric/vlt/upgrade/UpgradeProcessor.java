@@ -159,6 +159,7 @@ public class UpgradeProcessor implements InstallHook {
             while (nodes.hasNext()) {
                 Node child = nodes.nextNode();
                 final UpgradeInfo info = new UpgradeInfo(ctx, status, child);
+                info.loadActions(ctx);
                 LOG.debug(ctx, "info [{}]", info);
                 infos.add(info);
             }
