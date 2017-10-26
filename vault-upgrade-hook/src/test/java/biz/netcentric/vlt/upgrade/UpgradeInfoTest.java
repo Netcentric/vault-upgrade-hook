@@ -58,7 +58,9 @@ public class UpgradeInfoTest {
         try {
             sling.build().resource("/test");
             Node node = session.getNode("/test");
-            new UpgradeInfo(ctx, status, node);
+            UpgradeInfo upgradeInfo = new UpgradeInfo(ctx, status, node);
+            upgradeInfo.loadActions(ctx);
+
             Assert.fail("Exception expected");
         } catch (IllegalStateException e) {
             Assert.assertNotNull(e);
@@ -69,6 +71,7 @@ public class UpgradeInfoTest {
         Node node = session.getNode("/test");
         Mockito.when(ctx.getPackage().getId().getVersionString()).thenReturn("1.0.0");
         UpgradeInfo info = new UpgradeInfo(ctx, status, node);
+        info.loadActions(ctx);
         Assert.assertSame(node, info.getNode());
         Assert.assertSame(status, info.getStatus());
         Assert.assertEquals(UpgradeInfo.DEFAULT_INSTALLATION_MODE, info.getInstallationMode().toString());
@@ -88,6 +91,7 @@ public class UpgradeInfoTest {
                 UpgradeInfo.PN_HANDLER, TEST_HANDLER);
         Node node = session.getNode("/test");
         UpgradeInfo info = new UpgradeInfo(ctx, status, node);
+        info.loadActions(ctx);
 
         Assert.assertEquals(InstallationMode.ALWAYS, info.getInstallationMode());
         Assert.assertEquals(Phase.PREPARE, info.getDefaultPhase());

@@ -76,11 +76,10 @@ public class UpgradeInfo {
         installationMode = InstallationMode.valueOf(JcrUtils.getStringProperty(node, PN_INSTALLATION_MODE, DEFAULT_INSTALLATION_MODE).toUpperCase());
         defaultPhase = Phase.valueOf(JcrUtils.getStringProperty(node, PN_DEFAULT_PHASE, DEFAULT_PHASE).toUpperCase());
         handler = UpgradeType.create(ctx, JcrUtils.getStringProperty(node, PN_HANDLER, DEFAULT_HANDLER));
-        loadActions(ctx);
         LOG.debug(ctx, "UpgradeInfo loaded [{}]", this);
     }
 
-    private void loadActions(InstallContext ctx) throws RepositoryException {
+    public void loadActions(InstallContext ctx) throws RepositoryException {
         for (Phase availablePhase : Phase.values()) {
             actions.put(availablePhase, new ArrayList<UpgradeAction>());
         }
@@ -125,7 +124,7 @@ public class UpgradeInfo {
                 + ", defaultPhase=" + defaultPhase + ", handler=" + handler + ", actions=" + actions + "]";
     }
 
-    public Map<Phase, List<UpgradeAction>> getActions() throws RepositoryException {
+    public Map<Phase, List<UpgradeAction>> getActions() {
         return actions;
     }
 

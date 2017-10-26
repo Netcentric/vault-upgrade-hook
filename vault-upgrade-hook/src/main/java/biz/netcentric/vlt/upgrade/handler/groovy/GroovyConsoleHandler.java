@@ -33,7 +33,7 @@ import biz.netcentric.vlt.upgrade.util.PackageInstallLogger;
  */
 public class GroovyConsoleHandler implements UpgradeHandler {
 
-    private static final PackageInstallLogger LOG = PackageInstallLogger.create(GroovyConsoleHandler.class);
+    static PackageInstallLogger log = PackageInstallLogger.create(GroovyConsoleHandler.class);
 
     OsgiUtil osgi = new OsgiUtil();
 
@@ -41,7 +41,7 @@ public class GroovyConsoleHandler implements UpgradeHandler {
     public boolean isAvailable(InstallContext ctx) {
         boolean available = osgi.hasService(GroovyConsoleService.class);
         if (!available) {
-            LOG.warn(ctx, "Could not load GroovyConsoleService.");
+            log.warn(ctx, "Could not load GroovyConsoleService.");
         }
         return available;
 
