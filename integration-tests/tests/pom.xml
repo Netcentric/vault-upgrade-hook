@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <!-- ====================================================================== -->
+    <!-- P R O J E C T D E S C R I P T I O N -->
+    <!-- ====================================================================== -->
+
+    <parent>
+        <groupId>biz.netcentric.vlt.upgrade</groupId>
+        <artifactId>integration-tests</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>tests</artifactId>
+
+    <name>Vault Upgrade Hook :: Integration Tests :: Integration tests module</name>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>integration-test</id>
+                        <goals>
+                            <goal>integration-test</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>verify</id>
+                        <goals>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <systemPropertyVariables>
+                        <test.server.url>http://${crx.host}:${crx.port}/</test.server.url>
+
+                        <!--General properties for integration tests-->
+                        <vaultUpgradeHook.testsettings.request.wait>2000</vaultUpgradeHook.testsettings.request.wait>
+                        <vaultUpgradeHook.testsettings.request.retries>5</vaultUpgradeHook.testsettings.request.retries>
+                        <vaultUpgradeHook.testpackage.group>${vaultUpgradeHook.testpackage.group}</vaultUpgradeHook.testpackage.group>
+                        <vaultUpgradeHook.testpackage.version>${project.version}</vaultUpgradeHook.testpackage.version>
+
+                        <!--Properties for User Preferences Upgrader-->
+                        <vaultUpgradeHook.testpackage.userconfig.testUser>test-vault-hook</vaultUpgradeHook.testpackage.userconfig.testUser>
+                        <vaultUpgradeHook.testpackage.userconfig.always>it-userconfig_always</vaultUpgradeHook.testpackage.userconfig.always>
+                        <vaultUpgradeHook.testpackage.userconfig.testProperty>testUserPreference</vaultUpgradeHook.testpackage.userconfig.testProperty>
+                        <vaultUpgradeHook.testpackage.userconfig.testPropertyValue>TestValue</vaultUpgradeHook.testpackage.userconfig.testPropertyValue>
+                    </systemPropertyVariables>
+                    <includes>
+                        <include>**/*IT.java</include>
+                    </includes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.sling</groupId>
+            <artifactId>org.apache.sling.testing.rules</artifactId>
+            <version>1.0.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+        </dependency>
+    </dependencies>
+</project>

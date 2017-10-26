@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <!-- ====================================================================== -->
+    <!-- P R O J E C T D E S C R I P T I O N -->
+    <!-- ====================================================================== -->
+
+    <parent>
+        <groupId>biz.netcentric.vlt.upgrade</groupId>
+        <artifactId>integration-tests</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>it-packages</artifactId>
+    <packaging>pom</packaging>
+
+    <name>Vault Upgrade Hook :: Integration Tests :: Content for the integration tests</name>
+
+    <modules>
+        <module>it-userconfig_always</module>
+    </modules>
+
+    <profiles>
+        <profile>
+            <id>packaging-contentpackage</id>
+            <activation>
+                <file>
+                    <exists>${basedir}/src/main/jcr_root</exists>
+                </file>
+            </activation>
+            <build>
+                <resources>
+                    <resource>
+                        <directory>${basedir}/src/main/jcr_root</directory>
+                        <targetPath>${project.build.directory}/package/jcr_root</targetPath>
+                        <excludes>
+                            <exclude>**/*.vlt</exclude>
+                            <exclude>**/*.svn</exclude>
+                            <exclude>**/*.gitignore</exclude>
+                            <exclude>**/*.DS_Store</exclude>
+                        </excludes>
+                    </resource>
+                    <resource>
+                        <directory>${basedir}/src/main/upgrader</directory>
+                        <targetPath>${project.build.directory}/vault-work/META-INF/vault/definition/upgrader</targetPath>
+                    </resource>
+                </resources>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-resources-plugin</artifactId>
+                        <configuration>
+                            <includeEmptyDirs>true</includeEmptyDirs>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>copy</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>biz.netcentric.vlt.upgrade</groupId>
+                                            <artifactId>vault-upgrade-hook</artifactId>
+                                            <version>1.0.1-SNAPSHOT</version>
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>${project.build.directory}/vault-work/META-INF/vault/hooks</outputDirectory>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>com.day.jcr.vault</groupId>
+                        <artifactId>content-package-maven-plugin</artifactId>
+                        <configuration>
+                            <group>${vaultUpgradeHook.testpackage.group}</group>
+                            <filterSource>src/main/META-INF/vault/filter.xml</filterSource>
+                            <builtContentDirectory>${project.build.directory}/package/jcr_root</builtContentDirectory>
+                            <targetURL>http://${crx.host}:${crx.port}/crx/packmgr/service.jsp</targetURL>
+                            <userId>${crx.username}</userId>
+                            <password>${crx.password}</password>
+                            <install>false</install>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>install-content-package</id>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>install</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>
