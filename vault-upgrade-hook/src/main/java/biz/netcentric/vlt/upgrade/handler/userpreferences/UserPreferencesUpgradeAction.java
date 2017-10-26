@@ -1,5 +1,7 @@
 package biz.netcentric.vlt.upgrade.handler.userpreferences;
 
+import java.nio.charset.StandardCharsets;
+
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
@@ -8,9 +10,12 @@ import org.apache.jackrabbit.api.security.user.Authorizable;
 import org.apache.jackrabbit.api.security.user.User;
 import org.apache.jackrabbit.vault.packaging.InstallContext;
 import org.apache.jackrabbit.vault.packaging.InstallContext.Phase;
+import org.apache.sling.api.resource.Resource;
 
 import biz.netcentric.vlt.upgrade.UpgradeAction;
+import biz.netcentric.vlt.upgrade.util.JsonNodeSerializer;
 import biz.netcentric.vlt.upgrade.util.PackageInstallLogger;
+import biz.netcentric.vlt.upgrade.util.JsonResourceSerializer;
 
 public class UserPreferencesUpgradeAction extends UpgradeAction {
 
@@ -20,7 +25,7 @@ public class UserPreferencesUpgradeAction extends UpgradeAction {
     private final String userId;
     
     public UserPreferencesUpgradeAction(String userId, Node xmlFileNode) throws RepositoryException {
-        super(xmlFileNode.getName() + "/" + userId, Phase.PREPARE, "");
+        super(xmlFileNode.getName() + "/" + userId, Phase.PREPARE, getMd5(userId, xmlFileNode));
         this.xmlFileNode = xmlFileNode;
         this.userId = userId;
     }
@@ -51,4 +56,8 @@ public class UserPreferencesUpgradeAction extends UpgradeAction {
         LOG.info(ctx, "updated user preferences of user '{}' in '{}'", userId, userPreferencesPath);
     }
 
+    private static String getMd5(final String userId, final Node xmlFileNode) throws RepositoryException {
+        String serializedAction = new JsonNodeSerializer().serialize(xmlFileNode);
+        return getMd5(String.format("%s:%s", userId, serializedAction), StandardCharsets.UTF_8.name());
+    }
 }
