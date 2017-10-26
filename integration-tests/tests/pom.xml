@@ -40,6 +40,8 @@
                         <test.server.url>http://${crx.host}:${crx.port}/</test.server.url>
 
                         <!--General properties for integration tests-->
+                        <vaultUpgradeHook.testsettings.request.wait>2000</vaultUpgradeHook.testsettings.request.wait>
+                        <vaultUpgradeHook.testsettings.request.retries>5</vaultUpgradeHook.testsettings.request.retries>
                         <vaultUpgradeHook.testpackage.group>${vaultUpgradeHook.testpackage.group}</vaultUpgradeHook.testpackage.group>
                         <vaultUpgradeHook.testpackage.version>${project.version}</vaultUpgradeHook.testpackage.version>
 

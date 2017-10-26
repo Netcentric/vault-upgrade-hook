@@ -1,3 +1,11 @@
+/*
+ * (C) Copyright 2017 Netcentric AG.
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
 package biz.netcentric.vlt.upgrade;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -22,12 +30,16 @@ import org.junit.ClassRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import biz.netcentric.vlt.upgrade.util.GetExecutor;
+import biz.netcentric.vlt.upgrade.util.PostExecutor;
+import biz.netcentric.vlt.upgrade.util.Predicate;
+
 public abstract class UserPreferencesAbstract {
 
+    private static String packageVersion;
+    private static String packageGroup;
+    private static String alwaysPackageName;
     static String testUser;
-    static String packageVersion;
-    static String packageGroup;
-    static String alwaysPackageName;
     static String testPropertyName;
     static String testPropertyValue;
 
@@ -52,9 +64,9 @@ public abstract class UserPreferencesAbstract {
     }
 
     @Before
-    public void setUp() throws ClientException, IOException {
+    public void setUp() throws ClientException, IOException, InterruptedException {
         adminClient = slingInstanceRule.getAdminClient();
-        if (adminClient != null && checkIfUserExist()) {
+        if (adminClient != null && checkIfUserExist(testUser)) {
 
             LOG.warn("### WARNING ### test user 'test-vault-hook' already exists." +
                     "This may be the result of failed test or test without clean up");
@@ -66,8 +78,8 @@ public abstract class UserPreferencesAbstract {
     }
 
     @After
-    public void tearDown() throws ClientException, IOException {
-        if (adminClient != null && checkIfUserExist()) {
+    public void tearDown() throws ClientException, IOException, InterruptedException {
+        if (adminClient != null && checkIfUserExist(testUser)) {
             deleteUser(getUserPath(testUser));
         } else {
             LOG.warn("### WARNING ### adminClient is null, so I can not clean up repo after the test.");
@@ -76,7 +88,9 @@ public abstract class UserPreferencesAbstract {
 
     void assertTestPropertyValue(String testUserPath, String testPrefPropertyName, String testPrefPropertyExpectedValue)
             throws ClientException, InterruptedException {
-        JsonNode testProperty = adminClient.getJsonNode(testUserPath + "/preferences/testUserPreference", 1);
+        String propertyPath = testUserPath + "/preferences/testUserPreference";
+        new GetExecutor(adminClient, propertyPath, null, 200).callAndWait();
+        JsonNode testProperty = adminClient.getJsonNode(propertyPath, 1);
 
         assertThat(testProperty).as("Test preference property should exist").isNotNull();
         assertThat(testProperty.get(testPrefPropertyName).getTextValue()).isEqualTo(
@@ -98,25 +112,51 @@ public abstract class UserPreferencesAbstract {
         adminClient.doPost("/libs/granite/security/post/authorizables", httpEntity, Collections.<Header>emptyList(), 201);
     }
 
-    String getUserPath(final String userId) throws IOException, ClientException {
-        JsonNode userInfo = findUserInfo();
-        return userInfo.get("authorizables").get(0).get("home").getValueAsText();
+    String getUserPath(final String userId) throws IOException, ClientException, InterruptedException {
+        return findUserInfo(userId, true).get("authorizables").get(0).get("home").getValueAsText();
     }
 
-    private void deleteUser(final String userPath) throws ClientException {
+    private void deleteUser(final String userPath) throws ClientException, InterruptedException {
         HttpEntity httpEntity = EntityBuilder.create().setParameters()
-                .setParameters(new BasicNameValuePair("deleteAuthorizable", ""))
+                .setParameters(new BasicNameValuePair("deleteAuthorizable", testUser))
                 .build();
-        adminClient.doPost(userPath, httpEntity, 200);
+        new PostExecutor(adminClient, userPath, httpEntity, 200).callAndWait();
     }
 
-    private boolean checkIfUserExist() throws ClientException, IOException {
-        return findUserInfo().get("authorizables").get(0) != null;
+    private boolean checkIfUserExist(final String userId) throws ClientException, IOException, InterruptedException {
+        return findUserInfo(userId, false).get("authorizables").get(0) != null;
     }
 
-    private JsonNode findUserInfo() throws IOException, ClientException {
-        SlingHttpResponse slingHttpResponse = adminClient.doGet(String.format("/bin/security/authorizables.json?filter=%s&limit=1&_charset_=utf-8", testUser), 200);
+    private JsonNode findUserInfo(final String userId, final boolean expectExist) throws IOException, ClientException, InterruptedException {
+        SlingHttpResponse response;
+        if (expectExist) {
+            Predicate userExistPredicate = new UserExistPredicate();
+            new GetExecutor(adminClient,
+                    String.format("/bin/security/authorizables.json?filter=%s&limit=1&_charset_=utf-8", userId),
+                    userExistPredicate,
+                    200)
+                    .callAndWait();
+            response = userExistPredicate.getLastResponse();
+        } else {
+            response = adminClient.doGet(String.format("/bin/security/authorizables.json?filter=%s&limit=1&_charset_=utf-8", testUser), 200);
+        }
+
         ObjectMapper mapper = new ObjectMapper();
-        return mapper.readTree(slingHttpResponse.getContent());
+        return mapper.readTree(response.getContent());
+    }
+
+    private class UserExistPredicate implements Predicate {
+
+        private SlingHttpResponse response;
+
+        public boolean test(SlingHttpResponse response) throws IOException {
+            this.response = response;
+
+            return new ObjectMapper().readTree(response.getContent()).get("authorizables").get(0) != null;
+        }
+
+        public SlingHttpResponse getLastResponse() {
+            return response;
+        }
     }
 }
