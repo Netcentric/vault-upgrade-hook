@@ -6,9 +6,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package biz.netcentric.vlt.upgrade;
-
-import static org.assertj.core.api.Assertions.assertThat;
+package biz.netcentric.vlt.upgrade.userpreferences;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -18,54 +16,35 @@ import org.apache.http.HttpEntity;
 import org.apache.http.client.entity.EntityBuilder;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.sling.testing.clients.ClientException;
-import org.apache.sling.testing.clients.SlingClient;
 import org.apache.sling.testing.clients.SlingHttpResponse;
-import org.apache.sling.testing.junit.rules.SlingInstanceRule;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import biz.netcentric.vlt.upgrade.util.AbstractIT;
 import biz.netcentric.vlt.upgrade.util.GetExecutor;
 import biz.netcentric.vlt.upgrade.util.PostExecutor;
 import biz.netcentric.vlt.upgrade.util.Predicate;
 
-public abstract class UserPreferencesAbstract {
+public abstract class UserPreferencesAbstract extends AbstractIT {
 
-    private static String packageVersion;
-    private static String packageGroup;
-    private static String alwaysPackageName;
     static String testUser;
     static String testPropertyName;
     static String testPropertyValue;
 
-    Logger LOG = LoggerFactory.getLogger(this.getClass());
-
-    private String packageGroupAndName = String.format("%s/%s", packageGroup, alwaysPackageName);
-    String packageRelPath = String.format("%s-%s.zip", packageGroupAndName, packageVersion);
-
-    @ClassRule
-    public static SlingInstanceRule slingInstanceRule = new SlingInstanceRule();
-
-    SlingClient adminClient;
-
     @BeforeClass
     public static void setUpClass() {
+        AbstractIT.setUpClass();
         testUser = System.getProperty("vaultUpgradeHook.testpackage.userconfig.testUser");
-        packageVersion = System.getProperty("vaultUpgradeHook.testpackage.version");
-        packageGroup = System.getProperty("vaultUpgradeHook.testpackage.group");
-        alwaysPackageName = System.getProperty("vaultUpgradeHook.testpackage.userconfig.always");
         testPropertyName = System.getProperty("vaultUpgradeHook.testpackage.userconfig.testProperty");
         testPropertyValue = System.getProperty("vaultUpgradeHook.testpackage.userconfig.testPropertyValue");
     }
 
     @Before
-    public void setUp() throws ClientException, IOException, InterruptedException {
-        adminClient = slingInstanceRule.getAdminClient();
+    public void setUp() throws Exception {
+        super.setUp();
         if (adminClient != null && checkIfUserExist(testUser)) {
 
             LOG.warn("### WARNING ### test user 'test-vault-hook' already exists." +
@@ -86,19 +65,10 @@ public abstract class UserPreferencesAbstract {
         }
     }
 
-    void assertTestPropertyValue(String testUserPath, String testPrefPropertyName, String testPrefPropertyExpectedValue)
+    void assertTestUserPropertyValue(String testUserPath, String testPrefPropertyName, String testPrefPropertyExpectedValue)
             throws ClientException, InterruptedException {
         String propertyPath = testUserPath + "/preferences/testUserPreference";
-        new GetExecutor(adminClient, propertyPath, null, 200).callAndWait();
-        JsonNode testProperty = adminClient.getJsonNode(propertyPath, 1);
-
-        assertThat(testProperty).as("Test preference property should exist").isNotNull();
-        assertThat(testProperty.get(testPrefPropertyName).getTextValue()).isEqualTo(
-                testPrefPropertyExpectedValue);
-    }
-
-    SlingHttpResponse installPackage(String packageRelPath) throws ClientException {
-        return adminClient.doPost("/crx/packmgr/service/.json/etc/packages/" + packageRelPath + "?cmd=install", null, 200);
+        assertTestPropertyValue(propertyPath, testPrefPropertyName, testPrefPropertyExpectedValue);
     }
 
     void createUser() throws ClientException {

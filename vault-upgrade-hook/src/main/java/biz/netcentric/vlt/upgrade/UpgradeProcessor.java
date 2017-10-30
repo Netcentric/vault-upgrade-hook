@@ -115,10 +115,6 @@ public class UpgradeProcessor implements InstallHook {
     }
 
     protected void executeActions(InstallContext ctx) throws Exception {
-        if (failed) {
-            LOG.warn(ctx, "skipping execution because upgrade failed.");
-            return;
-        }
         LOG.info(ctx, "starting execution [{}]", infos);
         for (UpgradeInfo info : infos) {
             List<UpgradeAction> actionsOfPhase = info.getActions().get(ctx.getPhase());

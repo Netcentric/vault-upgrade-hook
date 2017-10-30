@@ -21,6 +21,10 @@ public class GetExecutor extends ConfiguredAbstractPoller {
     private final Predicate predicate;
     private final int expectedStatus;
 
+    public GetExecutor(AbstractSlingClient client, String path, int expectedStatus) {
+        this(client, path, null, expectedStatus);
+    }
+
     public GetExecutor(AbstractSlingClient client, String path, Predicate predicate, int expectedStatus) {
         this.client = client;
         this.path = path;

@@ -6,7 +6,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package biz.netcentric.vlt.upgrade;
+package biz.netcentric.vlt.upgrade.userpreferences;
 
 import java.io.IOException;
 
@@ -17,19 +17,25 @@ public class UserPreferencesAlwaysIT extends UserPreferencesAbstract {
 
     @Test
     public void shouldUpdateUserPreferencePropertyOnFirstInstall() throws ClientException, InterruptedException, IOException {
-        assertTestPropertyValue(getUserPath(testUser), testPropertyName, testPropertyValue);
+        assertTestUserPropertyValue(getUserPath(testUser), testPropertyName, testPropertyValue);
+        assertSuccessStatus();
     }
 
     @Test
     public void shouldAlwaysExecuteAction() throws ClientException, InterruptedException, IOException {
         String userPath = getUserPath(testUser);
-        assertTestPropertyValue(userPath, testPropertyName, testPropertyValue);
+        assertTestUserPropertyValue(userPath, testPropertyName, testPropertyValue);
 
         String anotherValue = "anotherValue";
         adminClient.setPropertyString(userPath + "/preferences", testPropertyName, anotherValue, 200);
-        assertTestPropertyValue(userPath, testPropertyName, anotherValue);
+        assertTestUserPropertyValue(userPath, testPropertyName, anotherValue);
 
         installPackage(packageRelPath);
-        assertTestPropertyValue(userPath, testPropertyName, testPropertyValue);
+        assertTestUserPropertyValue(userPath, testPropertyName, testPropertyValue);
+        assertSuccessStatus();
+    }
+
+    protected String getPackageName() {
+        return System.getProperty("vaultUpgradeHook.testpackage.userconfig.always");
     }
 }
