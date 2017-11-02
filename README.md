@@ -65,7 +65,12 @@ AEM/Jackrabbit content packages allow to place JARs to a package in `META-INF/va
 
 ### Upgrade Process
 
-The upgrade process is embedded in the installation phases of the package. On `PREPARE` the status of the last execution will be loaded and on `END` the status will be saved. On all phases `UpgradeAction`s will be executed if the package contains actions for the current phase. `UpgradeAction`s are bundled in so called `UpgradeInfo`s which provide general configuration how the actions should be executed. For example does the `UpgradeInfo`s define to use Groovy scripts for the upgrade or SlingPipes. Also options like the `mode` which decides about whether to execute actions will be configured there.
+There are 3 main items in upgrading process:
+- `UpgradeAction` - a piece of logic (like groovy script) that will be executed during upgrade;
+- `UpgradeInfo` - contains `UpgradeAction`s and provides general configuration how the actions should be executed;
+- `UpgradeHandler` - interface, which implementations create `UpgradeAction`s.
+
+The upgrade process is embedded in the installation phases of the package. On `PREPARE` the status of the last execution will be loaded and on `END` the status will be saved. On all phases `UpgradeAction`s will be executed if the package contains actions for the current phase. At stated above, `UpgradeAction`s are bundled in `UpgradeInfo`s which provide general configuration how the actions should be executed. For example does the `UpgradeInfo`s define to use Groovy scripts for the upgrade or SlingPipes. Also options like the `mode` which decides about whether to execute actions will be configured there.
 
 Digging a level deeper in the implementation the process is as follows: on installation of the content package `biz.netcentric.vlt.upgrade.UpgradeProcessor.execute(InstallContext)` will be called for each of the phases ([https://jackrabbit.apache.org/filevault/apidocs/org/apache/jackrabbit/vault/packaging/InstallContext.Phase.html]). The processor will read the status of previous executions from `/var/upgrade` and loads the `biz.netcentric.vlt.upgrade.UpgradeInfo` child nodes from the current content package under `<package-path>/jcr:content/vlt:definition/upgrader`. On `END` the the list of all executed actions is stored to `/var/upgrade`.
 
@@ -102,4 +107,4 @@ For usage and details please see the [sample package](samples/userpreferences-pa
 
 ### Configuration
 
-For a full list of configuration options and their descriptions please see the JavaDocs of biz.netcentric.vlt.upgrade.UpgradeInfo.
+For a full list of configuration options and their descriptions please see the JavaDocs of `biz.netcentric.vlt.upgrade.UpgradeInfo`.
