@@ -48,3 +48,6 @@ Notice output:
     
     Package installed in 178ms.
 
+## Versioning
+
+[JsonNodeSerializer](https://github.com/Netcentric/vault-upgrade-hook/blob/develop/vault-upgrade-hook/src/main/java/biz/netcentric/vlt/upgrade/util/JsonNodeSerializer.java) is used to serialize configuration XML file. Result string and user id used to generate md5 which is used as its version.

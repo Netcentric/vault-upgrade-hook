@@ -16,4 +16,6 @@ To execute a script place it under `META-INF/vault/definition/upgrader/<upgrade-
 
 Note that the scripts will be sorted and executed by name.
 
+## Versioning
 
+Script's content is used to generate md5 hash which is used as its version.

@@ -55,3 +55,9 @@ Notice output:
 ## package versions and run
 
 The sample package has a settings as `mode=on_change` (no mode specified is equal to `on_change`) where the version check would prevent the pipes from being executed multiple times but can also run as `run=always`.
+
+## Versioning
+
+[JsonResourceSerializer](https://github.com/Netcentric/vault-upgrade-hook/blob/develop/vault-upgrade-hook/src/main/java/biz/netcentric/vlt/upgrade/util/JsonResourceSerializer.java) is used to serialize the whole sling pipe's resource tree to String. Then it's used to generate md5 hash which is used as its version. 
+
+Groovy script's content is used to generate md5 hash which together with script's name is used as its version.

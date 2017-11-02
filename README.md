@@ -5,7 +5,7 @@ The *Vault-Upgrade-Hook* is an easy way to add additional logic to the installat
 ## Feature Overview
 
 - installation mode "always" to execute on every package installation 
-- installation mode "on_change" to execute only new and changed actions
+- installation mode "on_change" to execute only new and changed actions (see section **Versioning** in specific readme files for more info)
 - minimum dependencies
 - flexible API for custom action functionality
 - convention over configuration, but still many options
