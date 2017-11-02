@@ -6,6 +6,7 @@
 - modifies the preferences of an arbitrary user
 - decouples the configuration from the actual user node location (as this became [random by default with Oak](https://jackrabbit.apache.org/oak/docs/security/user/authorizablenodename.html))
 - could be used to e.g. disable the nagging screens for first time AEM users (look in the [example package's configuration](src/main/upgrader/test-user-preferences/user.preferences.xml))
+- action is always executed on `PREPARE` phase regardless of the specified phase
 
 ## Usage 
 

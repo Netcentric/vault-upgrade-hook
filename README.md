@@ -5,7 +5,7 @@ The *Vault-Upgrade-Hook* is an easy way to add additional logic to the installat
 ## Feature Overview
 
 - installation mode "always" to execute on every package installation 
-- installation mode "onChange" to execute only new and changed actions
+- installation mode "on_change" to execute only new and changed actions
 - minimum dependencies
 - flexible API for custom action functionality
 - convention over configuration, but still many options
@@ -13,6 +13,8 @@ The *Vault-Upgrade-Hook* is an easy way to add additional logic to the installat
 ## Requirements
  
 `AEM6.0 SP3` and above, if you are using Sling without AEM see the detailed dependencies in `vault-upgrade-hook/pom.xml`.
+
+Some provided samples also have additional requirements. You can find them in local readme files.
 
 ## Usage
 
@@ -59,7 +61,7 @@ Note that the general structure of the package is always the same. There is a fo
 
 ### Jackrabbit hook
 
-AEM/Jackrabbit content packages allow to place JARs to a package in `META-INF/vault/hooks` those must contain a class implementing `InstallHook` and will be executed during installation. The installation is split into phases: `PREPARE`, `INSTALLED` and `END`. `END` is only called if installation was successful otherwise `PREPARE_FAILED` or `INSTALL_FAILED` are called on errors. The *Vault-Upgrade-Hook* uses this mechanism and builds an upgrade process on top of it.
+AEM/Jackrabbit content packages allow to place JARs to a package in `META-INF/vault/hooks` those must contain a class implementing `InstallHook` and will be executed during installation. The installation is split into phases: `PREPARE`, `INSTALLED` and `END`. `END` is guaranteed to be called at the end of an installation process. If `PREPARE` phase or installation process fails, then `PREPARE_FAILED` or `INSTALL_FAILED` respectively are called. The *Vault-Upgrade-Hook* uses this mechanism and builds an upgrade process on top of it.
 
 ### Upgrade Process
 
@@ -67,16 +69,17 @@ The upgrade process is embedded in the installation phases of the package. On `P
 
 Digging a level deeper in the implementation the process is as follows: on installation of the content package `biz.netcentric.vlt.upgrade.UpgradeProcessor.execute(InstallContext)` will be called for each of the phases ([https://jackrabbit.apache.org/filevault/apidocs/org/apache/jackrabbit/vault/packaging/InstallContext.Phase.html]). The processor will read the status of previous executions from `/var/upgrade` and loads the `biz.netcentric.vlt.upgrade.UpgradeInfo` child nodes from the current content package under `<package-path>/jcr:content/vlt:definition/upgrader`. On `END` the the list of all executed actions is stored to `/var/upgrade`.
 
-An `UpgradeInfo` loads a `biz.netcentric.vlt.upgrade.handler.UpgradeHandler` implementation to create `biz.netcentric.vlt.upgrade.handler.UpgradeAction`s which are executed during the upgrade. Whether an `UpgradeInfo` and an `UpgradeAction` is executed depends on some attributes:
+An `UpgradeInfo` loads a `biz.netcentric.vlt.upgrade.handler.UpgradeHandler` implementation to create `biz.netcentric.vlt.upgrade.handler.UpgradeAction`s which are executed during the upgrade. Whether an `UpgradeInfo` and an `UpgradeAction` is executed depends on next attribute:
 
-- if the `installationMode` is not set explicitly or set to `OnChange` (default) only new and changed actions are executed 
-- if the `installationMode` is explicitly set to "Always" 
+- if the `mode` is not set explicitly or set to `on_change` (default) only new and changed actions are executed 
+- if the `mode` is explicitly set to `always` - actions always are executed
 
 This behaviour can be changed by configuration options 
-- `installationMode="always"` - actions of this info will always be executed disregarding of previous upgrades
-- `skipOnInitial="false"` - actions will also be executed if it is the first execution of the upgrade
+- `mode="always"` - actions of this info will always be executed disregarding of previous upgrades
 
-`UpgradeAction`s are bound to a specific execution phase. The default Phase is `INSTALLED`. This means an arbitrary action is executed after the content got installed. This can be overridden by prefixing the groovy script name with the name of another phase e.g. "prepare_failed-myscript.groovy".
+In case of specifying incorrect value for `mode` - current action will not be executed and the package installation is failed.
+
+`UpgradeAction`s are bound to a specific execution phase. The default Phase is `PREPARE`. This means an arbitrary action is executed before the content is installed. Specific handlers may provide additional way of configuring this or restrict to specific phase (for provided samples see corresponding readme files). This can be overridden by prefixing the script/configuration name with the name of another phase e.g. "prepare_failed-myscript.groovy".
 
 ### Upgrade Actions
 Multiple different upgrade actions are included with this hook. Those are also referred to as handlers. For details refer to the following sections.
@@ -84,6 +87,10 @@ Multiple different upgrade actions are included with this hook. Those are also r
 #### Groovy
 
 For usage and details please see the [sample package](samples/groovy-package).
+
+#### Sling Scripting
+
+For usage and details please see the [sample package](samples/script-package).
 
 #### Sling Pipes
 

@@ -1,7 +1,8 @@
-
-
-
 # Sample Package
+
+## Requirements
+
+- `org.apache.sling.pipes:0.0.10` requires `org.apache.sling.api.resource,version=[2.8,3)`. So it will not work in AEM 6.0 SP3 (which provides org.apache.sling.api.resource,version=2.6.0) 
 
 ## create package with hook
 
@@ -53,4 +54,4 @@ Notice output:
 
 ## package versions and run
 
-The sample package has a settings as `run=always` but can also run as `run=once` or `run=snapshot` where the version check would prevent the scripts from being executed multiple times
+The sample package has a settings as `mode=on_change` (no mode specified is equal to `on_change`) where the version check would prevent the pipes from being executed multiple times but can also run as `run=always`.
