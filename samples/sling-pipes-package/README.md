@@ -1,7 +1,8 @@
-
-
-
 # Sample Package
+
+## Requirements
+
+- `org.apache.sling.pipes:0.0.10` requires `org.apache.sling.api.resource,version=[2.8,3)`. So it will not work in AEM 6.0 SP3 (which provides org.apache.sling.api.resource,version=2.6.0) 
 
 ## create package with hook
 
@@ -51,6 +52,7 @@ Notice output:
     
     Package installed in 178ms.
 
-## package versions and run
+## Versioning
 
-The sample package has a settings as `run=always` but can also run as `run=once` or `run=snapshot` where the version check would prevent the scripts from being executed multiple times
+[JsonResourceSerializer](https://github.com/Netcentric/vault-upgrade-hook/blob/develop/vault-upgrade-hook/src/main/java/biz/netcentric/vlt/upgrade/util/JsonResourceSerializer.java) is used to serialize the whole sling pipe's resource tree to String. Then it's used to generate md5 hash which is used as its version. 
+The sample package has no `mode` specified what is equal to `mode=on_change`. With such configuration version check would prevent the pipes from being executed multiple times (when no changes applied). Option `run=always` will force execution of them every package installation.
