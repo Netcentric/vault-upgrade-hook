@@ -19,6 +19,13 @@
 
     <modules>
         <module>it-userconfig_always</module>
+        <module>it-groovy_always</module>
+        <module>it-groovy_onchange</module>
+        <module>it-groovy_prepare_installed_end</module>
+        <module>it-groovy_prepare_failed</module>
+        <module>it-groovy_install_failed</module>
+        <module>it-slingpipes_always</module>
+        <module>it-script_always</module>
     </modules>
 
     <profiles>
