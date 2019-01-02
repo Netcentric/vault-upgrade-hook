@@ -9,7 +9,7 @@
     <parent>
         <groupId>biz.netcentric.vlt.upgrade</groupId>
         <artifactId>integration-tests</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.0.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>it-packages</artifactId>
@@ -74,9 +74,9 @@
                                 <configuration>
                                     <artifactItems>
                                         <artifactItem>
-                                            <groupId>biz.netcentric.vlt.upgrade</groupId>
+                                            <groupId>${project.groupId}</groupId>
                                             <artifactId>vault-upgrade-hook</artifactId>
-                                            <version>1.0.1-SNAPSHOT</version>
+                                            <version>${project.version}</version>
                                             <overWrite>true</overWrite>
                                             <outputDirectory>${project.build.directory}/vault-work/META-INF/vault/hooks</outputDirectory>
                                         </artifactItem>
