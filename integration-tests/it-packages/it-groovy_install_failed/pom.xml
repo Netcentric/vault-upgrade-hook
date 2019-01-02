@@ -9,7 +9,7 @@
     <parent>
         <groupId>biz.netcentric.vlt.upgrade</groupId>
         <artifactId>it-packages</artifactId>
-        <version>1.0.1</version>
+        <version>1.0.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>it-groovy_install_failed</artifactId>
