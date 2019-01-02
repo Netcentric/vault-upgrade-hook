@@ -1,0 +1,2 @@
+var greeting = "Hello World!"
+System.out.println(greeting + " from " + resource.getPath())

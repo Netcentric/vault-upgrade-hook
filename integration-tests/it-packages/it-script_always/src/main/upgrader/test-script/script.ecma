@@ -1,0 +1,7 @@
+importPackage(Packages.org.apache.sling.api.resource)
+
+var resourceResolver = resource.getResourceResolver()
+var resource = resourceResolver.resolve("/content/vault-upgrade-test-script-resource-name")
+var properties = resource.adaptTo(ModifiableValueMap)
+properties.put("testResourceValue", "TestValue")
+resourceResolver.commit()
