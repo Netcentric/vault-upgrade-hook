@@ -35,12 +35,7 @@ public class SlingUtils extends OsgiUtil {
     }
 
     public boolean hasRunModes(Set<String> requiredRunModes) {
-        Set<String> actualRunMode = getRunModes();
-        boolean hasAll = true;
-        for (Iterator<String> it = requiredRunModes.iterator(); it.hasNext() && hasAll; ) {
-            hasAll = actualRunMode.contains(it.next());
-        }
-        return hasAll;
+        return requiredRunModes.isEmpty() || getRunModes().containsAll(requiredRunModes);
     }
 
     private Set<String> getRunModes() {
