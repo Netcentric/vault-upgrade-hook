@@ -35,10 +35,10 @@ public class SlingUtils extends OsgiUtil {
     }
 
     public boolean hasRunModes(Set<String> requiredRunModes) {
-        return requiredRunModes.isEmpty() || getRunModes().containsAll(requiredRunModes);
+        return getRunModes().containsAll(requiredRunModes);
     }
 
-    private Set<String> getRunModes() {
+    protected Set<String> getRunModes() {
         try (ServiceWrapper<SlingSettingsService> serviceWrapper = getService(SlingSettingsService.class)) {
             return serviceWrapper.getService().getRunModes();
         } catch (IllegalStateException ex) {
