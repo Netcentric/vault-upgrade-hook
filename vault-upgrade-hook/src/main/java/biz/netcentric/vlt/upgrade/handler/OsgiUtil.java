@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
  */
 public class OsgiUtil {
 
-    private static final Logger LOG = LoggerFactory.getLogger(OsgiUtil.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(OsgiUtil.class);
 
     public <T> ServiceWrapper<T> getService(Class<T> clazz) {
         Bundle bundle = FrameworkUtil.getBundle(clazz);

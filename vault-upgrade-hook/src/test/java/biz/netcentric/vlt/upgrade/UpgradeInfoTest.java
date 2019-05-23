@@ -96,6 +96,44 @@ public class UpgradeInfoTest {
         Assert.assertEquals(InstallationMode.ALWAYS, info.getInstallationMode());
         Assert.assertEquals(Phase.PREPARE, info.getDefaultPhase());
         Assert.assertTrue(info.getHandler() instanceof TestHandler);
+        Assert.assertTrue(info.getRunModes().isEmpty());
+    }
+
+    @Test
+    public void testConstructorWithRunMode() throws Exception {
+        sling.build().resource("/test", //
+                UpgradeInfo.PN_INSTALLATION_MODE, "always", //
+                UpgradeInfo.PN_DEFAULT_PHASE, "prepare", //
+                UpgradeInfo.PN_HANDLER, TEST_HANDLER, //
+                UpgradeInfo.PN_RUNMODES, "publish" //
+        );
+        Node node = session.getNode("/test");
+        UpgradeInfo info = new UpgradeInfo(ctx, status, node);
+        info.loadActions(ctx);
+
+        Assert.assertEquals(InstallationMode.ALWAYS, info.getInstallationMode());
+        Assert.assertEquals(Phase.PREPARE, info.getDefaultPhase());
+        Assert.assertTrue(info.getHandler() instanceof TestHandler);
+        Assert.assertTrue(info.getRunModes().contains("publish"));
+    }
+
+    @Test
+    public void testConstructorWithRunModes() throws Exception {
+        sling.build().resource("/test", //
+                UpgradeInfo.PN_INSTALLATION_MODE, "always", //
+                UpgradeInfo.PN_DEFAULT_PHASE, "prepare", //
+                UpgradeInfo.PN_HANDLER, TEST_HANDLER, //
+                UpgradeInfo.PN_RUNMODES, new String[] { "publish", "author" } //
+        );
+        Node node = session.getNode("/test");
+        UpgradeInfo info = new UpgradeInfo(ctx, status, node);
+        info.loadActions(ctx);
+
+        Assert.assertEquals(InstallationMode.ALWAYS, info.getInstallationMode());
+        Assert.assertEquals(Phase.PREPARE, info.getDefaultPhase());
+        Assert.assertTrue(info.getHandler() instanceof TestHandler);
+        Assert.assertTrue(info.getRunModes().contains("publish"));
+        Assert.assertTrue(info.getRunModes().contains("author"));
     }
 
     public static class TestHandler implements UpgradeHandler {

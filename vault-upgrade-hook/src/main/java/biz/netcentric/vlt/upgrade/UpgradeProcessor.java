@@ -25,6 +25,7 @@ import org.apache.jackrabbit.vault.packaging.PackageException;
 import org.apache.jackrabbit.vault.packaging.PackageId;
 
 import biz.netcentric.vlt.upgrade.UpgradeInfo.InstallationMode;
+import biz.netcentric.vlt.upgrade.handler.SlingUtils;
 import biz.netcentric.vlt.upgrade.util.PackageInstallLogger;
 
 /**
@@ -63,19 +64,19 @@ public class UpgradeProcessor implements InstallHook {
 
         try {
             switch (ctx.getPhase()) {
-                case PREPARE:
-                    loadStatus(ctx);
-                    loadInfos(ctx);
-                    executeActions(ctx);
-                    break;
-                case PREPARE_FAILED:
-                case INSTALLED:
-                case INSTALL_FAILED:
-                    executeActions(ctx);
-                    break;
-                case END:
-                    executeActionsAndSaveStatus(ctx);
-                    break;
+            case PREPARE:
+                loadStatus(ctx);
+                loadInfos(ctx);
+                executeActions(ctx);
+                break;
+            case PREPARE_FAILED:
+            case INSTALLED:
+            case INSTALL_FAILED:
+                executeActions(ctx);
+                break;
+            case END:
+                executeActionsAndSaveStatus(ctx);
+                break;
             }
         } catch (Exception e) {
             failed = true;
@@ -115,8 +116,13 @@ public class UpgradeProcessor implements InstallHook {
     }
 
     protected void executeActions(InstallContext ctx) throws Exception {
+        SlingUtils sling = new SlingUtils();
         LOG.info(ctx, "starting execution [{}]", infos);
         for (UpgradeInfo info : infos) {
+            if (!sling.hasRunModes(info.getRunModes())) {
+                LOG.info(ctx, "skipping [{}]: run modes not met", info);
+                continue;
+            }
             List<UpgradeAction> actionsOfPhase = info.getActions().get(ctx.getPhase());
             LOG.info(ctx, "executing [{}]: [{}]", info, actionsOfPhase);
             for (UpgradeAction action : actionsOfPhase) {
