@@ -84,6 +84,8 @@ This behaviour can be changed by configuration options
 
 In case of specifying incorrect value for `mode` - current action will not be executed and the package installation is failed.
 
+Furthermore it is optionally possible to limit the execution of all `UpgradeAction`s within a single `UpgradeInfo` to specific runmodes. To do so set the `runmodes` property to an array of applicable runmodes.
+
 `UpgradeAction`s are bound to a specific execution phase. The default Phase is `PREPARE`. This means an arbitrary action is executed before the content is installed. Specific handlers may provide additional way of configuring this or restrict to specific phase (for provided samples see corresponding readme files). This can be overridden by prefixing the script/configuration name with the name of another phase e.g. "prepare_failed-myscript.groovy".
 
 ### Upgrade Actions
