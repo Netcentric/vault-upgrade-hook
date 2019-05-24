@@ -4,11 +4,11 @@ import java.nio.CharBuffer;
 
 public class StringUtils {
 
-    public static final String join(char separator, String... parts) {
+    public static String join(char separator, String... parts) {
         return join(CharBuffer.wrap(new char[] { separator }), parts);
     }
 
-    public static final String join(CharSequence separator, String... parts) {
+    public static String join(CharSequence separator, String... parts) {
         if (parts == null) {
             parts = new String[] { null };
         }
