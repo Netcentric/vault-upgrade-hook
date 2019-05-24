@@ -8,6 +8,8 @@
  */
 package biz.netcentric.vlt.upgrade.handler;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
@@ -35,7 +37,18 @@ public class SlingUtils extends OsgiUtil {
     }
 
     public boolean hasRunModes(Set<String> requiredRunModes) {
-        return getRunModes().containsAll(requiredRunModes);
+        Iterator<String> it = requiredRunModes.iterator();
+        boolean hasMatchingSetOfRunModes = requiredRunModes.isEmpty();
+        while (!hasMatchingSetOfRunModes && it.hasNext()) {
+            String next = it.next();
+            if (next == null || next.length() == 0) {
+                // Set allows at most one null object, also empty string doesn't make sense
+                throw new IllegalArgumentException("null or empty string cannot be a required runmode.");
+            }
+            Collection<String> collectionOfRequiredRunModes = Arrays.asList(next.split("\\."));
+            hasMatchingSetOfRunModes = getRunModes().containsAll(collectionOfRequiredRunModes);
+        }
+        return hasMatchingSetOfRunModes;
     }
 
     protected Set<String> getRunModes() {
