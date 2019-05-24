@@ -9,20 +9,25 @@
 package biz.netcentric.vlt.upgrade;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.jcr.Node;
+import javax.jcr.Property;
 import javax.jcr.RepositoryException;
+import javax.jcr.Value;
 
 import org.apache.jackrabbit.commons.JcrUtils;
 import org.apache.jackrabbit.vault.packaging.InstallContext;
 import org.apache.jackrabbit.vault.packaging.InstallContext.Phase;
 
+import biz.netcentric.vlt.upgrade.handler.StringUtils;
 import biz.netcentric.vlt.upgrade.handler.UpgradeHandler;
 import biz.netcentric.vlt.upgrade.handler.UpgradeType;
 import biz.netcentric.vlt.upgrade.util.PackageInstallLogger;
@@ -57,6 +62,13 @@ public class UpgradeInfo {
     public static final String DEFAULT_PHASE = Phase.PREPARE.toString();
 
     /**
+     * Can be set as a string or string[] and will cause the {@link UpgradeAction}
+     * to be only executed on environments running with the specified runmode. If
+     * not set it will run on all.
+     */
+    public static final String PN_RUNMODES = "runmodes";
+
+    /**
      * @see InstallationMode
      */
     public static final String PN_INSTALLATION_MODE = "mode";
@@ -67,15 +79,33 @@ public class UpgradeInfo {
     private final InstallationMode installationMode;
     private final Phase defaultPhase;
     private final UpgradeHandler handler;
+    private final String[] runmodes;
     private final Map<Phase, List<UpgradeAction>> actions = new EnumMap<>(Phase.class);
-	private final Set<UpgradeAction> executedActions = new LinkedHashSet<>();
+    private final Set<UpgradeAction> executedActions = new LinkedHashSet<>();
 
     public UpgradeInfo(InstallContext ctx, UpgradeStatus status, Node node) throws RepositoryException {
         this.status = status;
         this.node = node;
-        installationMode = InstallationMode.valueOf(JcrUtils.getStringProperty(node, PN_INSTALLATION_MODE, DEFAULT_INSTALLATION_MODE).toUpperCase());
+        installationMode = InstallationMode
+                .valueOf(JcrUtils.getStringProperty(node, PN_INSTALLATION_MODE, DEFAULT_INSTALLATION_MODE).toUpperCase());
         defaultPhase = Phase.valueOf(JcrUtils.getStringProperty(node, PN_DEFAULT_PHASE, DEFAULT_PHASE).toUpperCase());
         handler = UpgradeType.create(ctx, JcrUtils.getStringProperty(node, PN_HANDLER, DEFAULT_HANDLER));
+
+        if (node.hasProperty(PN_RUNMODES)) {
+            Property runmodesProp = node.getProperty(PN_RUNMODES);
+            if (runmodesProp.isMultiple()) {
+                Value[] values = runmodesProp.getValues();
+                runmodes = new String[values.length];
+                for (int i = 0; i < values.length; i++) {
+                    runmodes[i] = values[i].getString().trim();
+                }
+            } else {
+                runmodes = new String[] { runmodesProp.getString().trim() };
+            }
+        } else {
+            runmodes = null;
+        }
+
         LOG.debug(ctx, "UpgradeInfo loaded [{}]", this);
     }
 
@@ -88,19 +118,19 @@ public class UpgradeInfo {
         }
         for (Phase availablePhase : Phase.values()) {
             Collections.sort(actions.get(availablePhase)); // make sure the
-                                                           // scripts are
-                                                           // correctly sorted
+            // scripts are
+            // correctly sorted
         }
     }
 
-	public void executed(UpgradeAction action) {
-		getExecutedActions().add(action);
-	}
+    public void executed(UpgradeAction action) {
+        getExecutedActions().add(action);
+    }
 
     /**
      * This configuration affects the installation behavior of
      * {@link UpgradeAction}s, see
-     * 
+     *
      * <ul>
      * <li>{@link #ON_CHANGE} - actions will be executed once.</li>
      * <li>{@link #ALWAYS} - actions will be executed on every intallation.</li>
@@ -121,7 +151,8 @@ public class UpgradeInfo {
     @Override
     public String toString() {
         return super.toString() + " [node=" + node + ", status=" + status + ", installationMode=" + installationMode
-                + ", defaultPhase=" + defaultPhase + ", handler=" + handler + ", actions=" + actions + "]";
+                + ", defaultPhase=" + defaultPhase + ", handler=" + handler + ", actions=" + actions
+                + ", runmodes=" + StringUtils.join(',', runmodes) + "]";
     }
 
     public Map<Phase, List<UpgradeAction>> getActions() {
@@ -152,4 +183,7 @@ public class UpgradeInfo {
         return executedActions;
     }
 
+    public Set<String> getRunModes() {
+        return runmodes != null ? Collections.unmodifiableSet(new HashSet<>(Arrays.asList(runmodes))) : Collections.<String>emptySet();
+    }
 }
