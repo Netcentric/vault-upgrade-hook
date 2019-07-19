@@ -53,7 +53,7 @@ Two general ways of how to use it:
           </executions>
         </plugin>
         ```
-    2. create a directory (like `samples/groovy-package/src/main/upgrader/test-groovy`) and place it in your content package under `META-INF/vault/definition/upgrader`.
+    2. create a directory (like `samples/groovy-package/src/main/upgrader/always`) and place it in your content package under `META-INF/vault/definition/upgrader`.
 
 Note that the general structure of the package is always the same. There is a folder `META-INF/vault/definition/upgrader/<upgrade-info>` in the content package which contains the configuration properties for the contained actions. Depending on the used handler those actions are child nodes containing Groovy scripts or SlingPipes.   
 
