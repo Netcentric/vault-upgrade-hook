@@ -172,7 +172,7 @@ public class UpgradeProcessor implements InstallHook {
                 @Override
                 public int compare(UpgradeInfo info1, UpgradeInfo info2) {
                     try {
-                        return info1.getNode().getName().compareTo(info1.getNode().getName());
+                        return info1.getNode().getName().compareTo(info2.getNode().getName());
                     } catch (RepositoryException e) {
                         LOG.warn(ctx, "Could not compare upgrade infos [{}/{}]", info1.getNode(), info2.getNode(), e);
                         return 0;

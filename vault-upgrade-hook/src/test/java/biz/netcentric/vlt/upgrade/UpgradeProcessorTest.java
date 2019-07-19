@@ -8,6 +8,8 @@
  */
 package biz.netcentric.vlt.upgrade;
 
+import static org.mockito.Mockito.*;
+
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -144,6 +146,29 @@ public class UpgradeProcessorTest {
         Mockito.doThrow(new IllegalArgumentException("testException")).when(info).getActions();
 
         processor.execute(ctx);
+    }
+
+    @Test
+    public void testOrderedExecution() throws Exception {
+        Mockito.when(ctx.getPhase()).thenReturn(Phase.PREPARE);
+        Mockito.when(ctx.getPackage().getId().getName()).thenReturn("testVaultPackage");
+        Mockito.when(ctx.getPackage().getId().getGroup()).thenReturn("testVaultGroup");
+        Mockito.when(ctx.getPackage().getId().getInstallationPath()).thenReturn("/test/installation/path");
+        Mockito.when(ctx.getPackage().getId().getVersionString()).thenReturn("1.0.1-SNAPSHOT");
+
+        sling.build().resource(
+                "/test/installation/path.zip/jcr:content/vlt:definition/upgrader/second", //
+                "handler", "biz.netcentric.vlt.upgrade.UpgradeProcessorTest$TestHandler" //
+        );
+        sling.build().resource(
+                "/test/installation/path.zip/jcr:content/vlt:definition/upgrader/first", //
+                "handler", "biz.netcentric.vlt.upgrade.UpgradeProcessorTest$TestHandler" //
+        );
+
+        processor.execute(ctx);
+
+        Assert.assertEquals(2, processor.infos.size());
+        Assert.assertEquals("first", processor.infos.get(0).getNode().getName());
     }
 
     @Test(expected = PackageException.class)
