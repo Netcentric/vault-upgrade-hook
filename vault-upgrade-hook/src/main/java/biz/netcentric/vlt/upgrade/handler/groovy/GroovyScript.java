@@ -8,6 +8,8 @@
  */
 package biz.netcentric.vlt.upgrade.handler.groovy;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,6 +27,7 @@ import biz.netcentric.vlt.upgrade.UpgradeAction;
 import biz.netcentric.vlt.upgrade.handler.OsgiUtil.ServiceWrapper;
 import biz.netcentric.vlt.upgrade.handler.SlingUtils;
 import biz.netcentric.vlt.upgrade.util.PackageInstallLogger;
+import org.apache.sling.api.SlingHttpServletResponse;
 
 public class GroovyScript extends UpgradeAction {
 
@@ -58,7 +61,31 @@ public class GroovyScript extends UpgradeAction {
 
     protected RunScriptResponse run(final SlingHttpServletRequest request) {
         try (ServiceWrapper<GroovyConsoleService> serviceWrapper = sling.getService(GroovyConsoleService.class)) {
-            return serviceWrapper.getService().runScript(request);
+            Class consoleServiceClass = GroovyConsoleService.class;
+
+            try {
+                Method runScript = consoleServiceClass.getDeclaredMethod("runScript", SlingHttpServletRequest.class, SlingHttpServletResponse.class);
+                if (Modifier.isPublic(runScript.getModifiers()) && runScript.getReturnType().equals(RunScriptResponse.class)) {
+                    return (RunScriptResponse) runScript.invoke(serviceWrapper.getService(), request, FakeResponse.INSTANCE);
+                }
+            } catch (NoSuchMethodException nsm) {
+                // do nothing, this is an expected case
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+            try {
+                Method runScript = consoleServiceClass.getDeclaredMethod("runScript", SlingHttpServletRequest.class);
+                if (Modifier.isPublic(runScript.getModifiers()) && runScript.getReturnType().equals(RunScriptResponse.class)) {
+                    return (RunScriptResponse) runScript.invoke(serviceWrapper.getService(), request);
+                }
+            } catch (NoSuchMethodException nsm) {
+                // do nothing, this is an expected case
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+            return null;
         }
     }
 
