@@ -59,37 +59,41 @@ Note that the general structure of the package is always the same. There is a fo
 
 ## More information
 
-### Jackrabbit hook
+### Jackrabbit FileVault package hook
 
-AEM/Jackrabbit content packages allow to place JARs to a package in `META-INF/vault/hooks` those must contain a class implementing `InstallHook` and will be executed during installation. The installation is split into phases: `PREPARE`, `INSTALLED` and `END`. `END` is guaranteed to be called at the end of an installation process. If `PREPARE` phase or installation process fails, then `PREPARE_FAILED` or `INSTALL_FAILED` respectively are called. The *Vault-Upgrade-Hook* uses this mechanism and builds an upgrade process on top of it.
+AEM/Jackrabbit content packages allow to place JARs in a package below `META-INF/vault/hooks`. Those must contain a class implementing `InstallHook` and will be executed during installation. The installation is split into phases: `PREPARE`, `INSTALLED` and `END`. `END` is guaranteed to be called at the end of an installation process. If `PREPARE` phase or installation process fails, then `PREPARE_FAILED` or `INSTALL_FAILED` respectively are called. The *Vault-Upgrade-Hook* uses this mechanism and builds an upgrade process on top of it.
 
 ### Upgrade Process
 
-There are 3 main items in upgrading process:
-- `UpgradeAction` - a piece of logic (like groovy script) that will be executed during upgrade;
-- `UpgradeInfo` - contains `UpgradeAction`s and provides general configuration how the actions should be executed;
-- `UpgradeHandler` - interface, which implementations create `UpgradeAction`s.
+There are 3 main entities used in the upgrade process:
+
+1. `UpgradeAction` - a piece of logic (like a Groovy script) that will be executed during upgrade;
+1. `UpgradeInfo` - contains `UpgradeAction`s and provides general configuration how the actions should be executed;
+1. `UpgradeHandler` - creating `UpgradeAction`s.
 
 The upgrade process is embedded in the installation phases of the package. On `PREPARE` the status of the last execution will be loaded and on `END` the status will be saved. On all phases `UpgradeAction`s will be executed if the package contains actions for the current phase. At stated above, `UpgradeAction`s are bundled in `UpgradeInfo`s which provide general configuration how the actions should be executed. For example does the `UpgradeInfo`s define to use Groovy scripts for the upgrade or SlingPipes. Also options like the `mode` which decides about whether to execute actions will be configured there.
 
-Digging a level deeper in the implementation the process is as follows: on installation of the content package `biz.netcentric.vlt.upgrade.UpgradeProcessor.execute(InstallContext)` will be called for each of the phases ([https://jackrabbit.apache.org/filevault/apidocs/org/apache/jackrabbit/vault/packaging/InstallContext.Phase.html]). The processor will read the status of previous executions from `/var/upgrade` and loads the `biz.netcentric.vlt.upgrade.UpgradeInfo` child nodes from the current content package under `<package-path>/jcr:content/vlt:definition/upgrader`. On `END` the the list of all executed actions is stored to `/var/upgrade`.
+#### Upgrade Info 
 
-An `UpgradeInfo` loads a `biz.netcentric.vlt.upgrade.handler.UpgradeHandler` implementation to create `biz.netcentric.vlt.upgrade.handler.UpgradeAction`s which are executed during the upgrade. Whether an `UpgradeInfo` and an `UpgradeAction` is executed depends on next attribute:
+The upgrade info nodes carry the actual configuration as well as the actions to execute.
+They need to be placed in `META-INF/vault/definition/upgrader/<upgrade-info>` within the content package zip.
 
-- if the `mode` is not set explicitly or set to `on_change` (default) only new and changed actions are executed 
-- if the `mode` is explicitly set to `always` - actions always are executed
+The `<upgrade-info>` nodes (serialized as [DocView .content.xml files](https://jackrabbit.apache.org/filevault/docview.html)) support the following properties and must be of type `sling:Folder`.
 
-This behaviour can be changed by configuration options 
-- `mode="always"` - actions of this info will always be executed disregarding of previous upgrades
+Property Name | Property Type | Description | Default Value | Mandatory
+--- | --- | --- | --- | --- | ---
+`mode` | `String` | Either `on_change` or `always`.  With `on_change` only new and changed actions are executed, otherwise the given actions are always executed (in case the run mode condition is fullfilled and the phase is executed, independent of previous executions) | `on_change` | no
+`runmodes` | `String[]` | One or multiple [run mode values](https://sling.apache.org/documentation/bundles/sling-settings-org-apache-sling-settings.html) from which at least one value must be fullfilled for the action to be executed (Discjunction/OR). If none is set the action will always be executed! Each run mode value has the following grammar: `<runmode>{.<runmode>}` where multiple `<runmode>`s (concatenated by `.`) all need to be set (Conjunction/AND) | - (no restriction) | no
+`defaultPhase` | `Strings` | Specifies the default phase when the action is executed. One of `prepare`, `installed` or `end`. See also . Only relevant if the action name does not specify a phase. | `prepare` | no
+`handler` | `String` | Either `script`, `groovyconsole`, `slingpipes`, `userpreferences` or another fully-qualified classname of a class implementing `UpgradeHandler` | - | yes
 
-In case of specifying incorrect value for `mode` - current action will not be executed and the package installation is failed.
+In addition the update info contains the actions in subnodes. For details refer to the samples. 
 
-Furthermore it is possible to limit the execution of all `UpgradeAction`s within a single `UpgradeInfo` to specific runmodes. To do so set the `runmodes` property to an array of applicable runmodes. Multiple required runmodes are set concatenating them with a dot:
+During installation of the content package `biz.netcentric.vlt.upgrade.UpgradeProcessor.execute(InstallContext)` will be called for each of the [phases](https://jackrabbit.apache.org/filevault/apidocs/org/apache/jackrabbit/vault/packaging/InstallContext.Phase.html). The processor will read the status of previous executions from `/var/upgrade` and loads the `biz.netcentric.vlt.upgrade.UpgradeInfo` child nodes from the uploaded content package under `<package-path>/jcr:content/vlt:definition/upgrader`. On phase `END` the the list of all executed actions is stored in `/var/upgrade`.
 
-- if the `runmodes` are set to `[dev,test]` actions are executed on both dev and test runmode (disjunctive)
-- if the `runmodes` are set to `[author.dev1]` actions are executed only on instances with author and dev1 runmode (conjunctive)
+An `UpgradeInfo` loads a `biz.netcentric.vlt.upgrade.handler.UpgradeHandler` implementation to create `biz.netcentric.vlt.upgrade.handler.UpgradeAction`s which are executed during the upgrade. Whether an `UpgradeInfo` and an `UpgradeAction` is executed depends on the conditions set by `runmodes` and `mode`
 
-`UpgradeAction`s are bound to a specific execution phase. The default Phase is `PREPARE`. This means an arbitrary action is executed before the content is installed. Specific handlers may provide additional way of configuring this or restrict to specific phase (for provided samples see corresponding readme files). This can be overridden by prefixing the script/configuration name with the name of another phase e.g. "prepare_failed-myscript.groovy".
+`UpgradeAction`s are bound to a specific execution phase. The default phase is `PREPARE`. This means an arbitrary action is executed before the content is installed. Specific handlers may provide additional ways of executing at specific phases (for provided samples see corresponding readme files). Usually the `defaultPhase` can be overridden by prefixing the script/configuration name with the name of another phase e.g. "prepare_failed-myscript.groovy".
 
 ### Upgrade Actions
 Multiple different upgrade actions are included with this hook. Those are also referred to as handlers. For details refer to the following sections.
@@ -109,7 +113,3 @@ For details about Sling Pipes please have a look at [Sling documentation](https:
 #### User Preferences
 
 For usage and details please see the [sample package](samples/userpreferences-package).
-
-### Configuration
-
-For a full list of configuration options and their descriptions please see the JavaDocs of `biz.netcentric.vlt.upgrade.UpgradeInfo`.
