@@ -78,7 +78,7 @@ public class UpgradeProcessor implements InstallHook {
                 executeActionsAndSaveStatus(ctx);
                 break;
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             failed = true;
             if (ctx.getPhase() != Phase.PREPARE) {
                 LOG.error(ctx, "Error during " + ctx.getPhase()
