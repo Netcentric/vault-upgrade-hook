@@ -1,4 +1,4 @@
-name: Java CI/CD
+name: continuous-deployment
 
 on: [push]
 
