@@ -1,3 +1,7 @@
+![GitHub](https://img.shields.io/github/license/Netcentric/vault-upgrade-hook)
+[![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/Netcentric/vault-upgrade-hook/continuous-deployment/develop)](https://github.com/Netcentric/vault-upgrade-hook/actions)
+[![Maven Central](https://img.shields.io/maven-central/v/biz.netcentric.vlt.upgrade/vault-upgrade-hook.svg?label=Maven%20Central)](https://search.maven.org/artifact/biz.netcentric.vlt.upgrade/vault-upgrade-hook)
+
 # Vault Upgrade Hook
 
 The *Vault-Upgrade-Hook* is an easy way to add additional logic to the installation of content packages. Nearly all projects are facing sooner or later the problem that existing user generated content has to be upgraded. Often the existing mechanism with plain content packages, filters and install modes is not enough and more complex and flexible approaches are needed. The *Vault-Upgrade-Hook* provides an alternative to implementing new Jars for every of those jobs by embedding additional actions (i.e. groovy scripts) directly into the content package. 
