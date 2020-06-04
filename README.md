@@ -88,7 +88,7 @@ Property Name | Property Type | Description | Default Value | Mandatory
 --- | --- | --- | --- | ---
 `mode` | `String` | Either `on_change` or `always`.  With `on_change` only new and changed actions are executed, otherwise the given actions are always executed (in case the run mode condition is fullfilled and the phase is executed, independent of previous executions) | `on_change` | no
 `runmodes` | `String[]` | One or multiple [run mode values](https://sling.apache.org/documentation/bundles/sling-settings-org-apache-sling-settings.html) from which at least one value must be fullfilled for the action to be executed (Discjunction/OR). If none is set the action will always be executed! Each run mode value has the following grammar: `<runmode>{.<runmode>}` where multiple `<runmode>`s (concatenated by `.`) all need to be set (Conjunction/AND) | - (no restriction) | no
-`defaultPhase` | `Strings` | Specifies the default phase when the action is executed. One of `prepare`, `installed` or `end`. See also . Only relevant if the action name does not specify a phase. | `prepare` | no
+`defaultPhase` | `String` | Specifies the default phase when the action is executed. One of `prepare`, `installed` or `end`. See also <https://jackrabbit.apache.org/filevault/apidocs/org/apache/jackrabbit/vault/packaging/InstallContext.Phase.html>. Only relevant if the action name does not specify a phase. | `prepare` | no
 `handler` | `String` | Either `script`, `groovyconsole`, `slingpipes`, `userpreferences` or another fully-qualified classname of a class implementing `UpgradeHandler` | - | yes
 
 In addition the update info contains the actions in subnodes. For details refer to the samples. 
