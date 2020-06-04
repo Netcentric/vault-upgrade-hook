@@ -15,6 +15,11 @@
 
     <description>Vault Upgrade Hook: simplifies content upgrades through package installation hooks.</description>
     <url>https://github.com/Netcentric/vault-upgrade-hook</url>
+    
+    <organization>
+        <name>Netcentric - A Cognizant Digital Business</name>
+        <url>https://www.netcentric.biz/</url>
+    </organization>
 
     <!-- ====================================================================== -->
     <!-- P R O P E R T I E S -->
@@ -43,6 +48,13 @@
             <organization>Netcentric</organization>
             <organizationUrl>http://www.netcentric.biz/</organizationUrl>
         </developer>
+        <developer>
+            <name>Konrad Windszus</name>
+            <email>konrad.windszus@netcentric.biz</email>
+            <id>konrad.windszus@netcentric.biz</id>
+            <organization>Netcentric</organization>
+            <organizationUrl>https://www.netcentric.biz/</organizationUrl>
+        </developer>
     </developers>
 
     <licenses>
@@ -54,8 +66,8 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:https://github.com/Netcentric/vault-upgrade-hook.git</connection>
-        <developerConnection>scm:git:https://github.com/Netcentric/vault-upgrade-hook.git</developerConnection>
+        <connection>scm:git:ssh://git@github.com/Netcentric/vault-upgrade-hook.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/Netcentric/vault-upgrade-hook.git</developerConnection>
         <url>https://github.com/Netcentric/vault-upgrade-hook.git</url>
         <tag>HEAD</tag>
     </scm>
@@ -229,6 +241,12 @@
         </profile>
         <profile>
             <id>release</id>
+            <!-- automatically activated by the maven-release-plugin during perform -->
+            <activation>
+                <property>
+                    <name>performRelease</name>
+                </property>
+            </activation>
             <build>
                 <plugins>
                     <plugin>
