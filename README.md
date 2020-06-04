@@ -1,4 +1,4 @@
-![GitHub](https://img.shields.io/github/license/Netcentric/vault-upgrade-hook)
+[![GitHub](https://img.shields.io/github/license/Netcentric/vault-upgrade-hook)](LICENSE.txt)
 [![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/Netcentric/vault-upgrade-hook/continuous-deployment/develop)](https://github.com/Netcentric/vault-upgrade-hook/actions)
 [![Maven Central](https://img.shields.io/maven-central/v/biz.netcentric.vlt.upgrade/vault-upgrade-hook.svg?label=Maven%20Central)](https://search.maven.org/artifact/biz.netcentric.vlt.upgrade/vault-upgrade-hook)
 
