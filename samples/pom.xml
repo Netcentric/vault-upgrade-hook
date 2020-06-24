@@ -24,24 +24,6 @@
         <module>userpreferences-package</module>
     </modules>
 
-    <build>
-        <resources>
-            <resource>
-                <directory>${basedir}/src/main/jcr_root</directory>
-                <targetPath>${project.build.directory}/package/jcr_root</targetPath>
-                <excludes>
-                    <exclude>**/*.vlt</exclude>
-                    <exclude>**/*.svn</exclude>
-                    <exclude>**/*.gitignore</exclude>
-                    <exclude>**/*.DS_Store</exclude>
-                </excludes>
-            </resource>
-            <resource>
-                <directory>${basedir}/src/main/upgrader</directory>
-                <targetPath>${project.build.directory}/vault-work/META-INF/vault/definition/upgrader</targetPath>
-            </resource>
-        </resources>
-    </build>
     <profiles>
         <profile>
             <id>packaging-contentpackage</id>
@@ -51,6 +33,22 @@
                 </file>
             </activation>
             <build>
+                <resources>
+                    <resource>
+                        <directory>${basedir}/src/main/jcr_root</directory>
+                        <targetPath>${project.build.directory}/package/jcr_root</targetPath>
+                        <excludes>
+                            <exclude>**/*.vlt</exclude>
+                            <exclude>**/*.svn</exclude>
+                            <exclude>**/*.gitignore</exclude>
+                            <exclude>**/*.DS_Store</exclude>
+                        </excludes>
+                    </resource>
+                    <resource>
+                        <directory>${basedir}/src/main/upgrader</directory>
+                        <targetPath>${project.build.directory}/vault-work/META-INF/vault/definition/upgrader</targetPath>
+                    </resource>
+                </resources>
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>

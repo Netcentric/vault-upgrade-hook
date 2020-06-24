@@ -9,20 +9,13 @@
     <parent>
         <groupId>biz.netcentric.vlt.upgrade</groupId>
         <artifactId>vault-upgrade-hook-reactor</artifactId>
-        <version>1.0.4-SNAPSHOT</version>
+        <version>1.0.6-SNAPSHOT</version>
     </parent>
 
     <artifactId>integration-tests</artifactId>
     <packaging>pom</packaging>
 
     <name>Vault Upgrade Hook :: Integration Tests</name>
-
-    <!-- ====================================================================== -->
-    <!-- P R O P E R T I E S -->
-    <!-- ====================================================================== -->
-    <properties>
-        <vaultUpgradeHook.testpackage.group>vault-upgrade-it-test</vaultUpgradeHook.testpackage.group>
-    </properties>
 
     <modules>
         <module>it-packages</module>

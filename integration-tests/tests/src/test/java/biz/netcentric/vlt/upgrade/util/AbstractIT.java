@@ -43,7 +43,7 @@ public abstract class AbstractIT {
     @BeforeClass
     public static void setUpClass() {
         packageVersion = System.getProperty("vaultUpgradeHook.testpackage.version");
-        packageGroup = System.getProperty("vaultUpgradeHook.testpackage.group");
+        packageGroup = System.getProperty("vaultUpgradeHook.testpackage.group", "vault-upgrade-hook-samples");
     }
 
     @Before

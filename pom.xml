@@ -169,8 +169,11 @@
                         <verbose>true</verbose>
                         <builtContentDirectory>${project.build.directory}/package/jcr_root</builtContentDirectory>
                         <targetURL>http://${crx.host}:${crx.port}/crx/packmgr/service.jsp</targetURL>
+                        <serviceURL>http://${crx.host}:${crx.port}/crx/packmgr/service/.json</serviceURL>
                         <userId>${crx.username}</userId>
                         <password>${crx.password}</password>
+                        <useProxy>false</useProxy>
+                        <failOnError>true</failOnError>
                     </configuration>
                 </plugin>
                 <plugin>

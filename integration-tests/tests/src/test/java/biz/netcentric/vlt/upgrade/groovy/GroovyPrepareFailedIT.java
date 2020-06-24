@@ -19,7 +19,7 @@ public class GroovyPrepareFailedIT extends GroovyAbstractIT {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        testPropertyValue = System.getProperty("vaultUpgradeHook.testpackage.groovy.preparefailed.testPropertyValue");
+        testPropertyValue = System.getProperty("vaultUpgradeHook.testpackage.groovy.preparefailed.testPropertyValue", "prepare_preparefailed_end");
     }
 
     @Test
@@ -29,6 +29,6 @@ public class GroovyPrepareFailedIT extends GroovyAbstractIT {
     }
 
     protected String getPackageName() {
-        return System.getProperty("vaultUpgradeHook.testpackage.groovy.preparefailed");
+        return System.getProperty("vaultUpgradeHook.testpackage.groovy.preparefailed", "it-groovy_prepare_failed");
     }
 }

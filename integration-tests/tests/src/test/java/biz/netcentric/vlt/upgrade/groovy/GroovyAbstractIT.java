@@ -9,6 +9,7 @@
 package biz.netcentric.vlt.upgrade.groovy;
 
 import org.apache.sling.testing.clients.ClientException;
+import org.apache.sling.testing.clients.SlingHttpResponse;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -23,7 +24,7 @@ public abstract class GroovyAbstractIT extends AbstractIT {
     @BeforeClass
     public static void setUpClass() {
         AbstractIT.setUpClass();
-        testPropertyName = System.getProperty("vaultUpgradeHook.testpackage.groovy.testProperty");
+        testPropertyName = System.getProperty("vaultUpgradeHook.testpackage.groovy.testProperty", "testResourceValue");
     }
 
     @Before
@@ -43,6 +44,6 @@ public abstract class GroovyAbstractIT extends AbstractIT {
 
     @Override
     protected String getTestResourcePath() {
-        return System.getProperty("vaultUpgradeHook.testpackage.groovy.resourcePath");
+        return System.getProperty("vaultUpgradeHook.testpackage.groovy.resourcePath", "/content/vault-upgrade-test-resource-name");
     }
 }

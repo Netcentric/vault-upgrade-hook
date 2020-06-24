@@ -37,9 +37,9 @@ public abstract class UserPreferencesAbstract extends AbstractIT {
     @BeforeClass
     public static void setUpClass() {
         AbstractIT.setUpClass();
-        testUser = System.getProperty("vaultUpgradeHook.testpackage.userconfig.testUser");
-        testPropertyName = System.getProperty("vaultUpgradeHook.testpackage.userconfig.testProperty");
-        testPropertyValue = System.getProperty("vaultUpgradeHook.testpackage.userconfig.testPropertyValue");
+        testUser = System.getProperty("vaultUpgradeHook.testpackage.userconfig.testUser", "test-vault-hook");
+        testPropertyName = System.getProperty("vaultUpgradeHook.testpackage.userconfig.testProperty", "testUserPreference");
+        testPropertyValue = System.getProperty("vaultUpgradeHook.testpackage.userconfig.testPropertyValue", "TestValue");
     }
 
     @Before
