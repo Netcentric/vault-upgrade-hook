@@ -9,7 +9,7 @@
     <parent>
         <groupId>biz.netcentric.vlt.upgrade</groupId>
         <artifactId>integration-tests</artifactId>
-        <version>1.0.4-SNAPSHOT</version>
+        <version>1.0.6-SNAPSHOT</version>
     </parent>
 
     <artifactId>tests</artifactId>
@@ -38,46 +38,7 @@
                 <configuration>
                     <systemPropertyVariables>
                         <test.server.url>http://${crx.host}:${crx.port}/</test.server.url>
-
-                        <!--General properties for integration tests-->
-                        <vaultUpgradeHook.testsettings.request.wait>2000</vaultUpgradeHook.testsettings.request.wait>
-                        <vaultUpgradeHook.testsettings.request.retries>5</vaultUpgradeHook.testsettings.request.retries>
-                        <vaultUpgradeHook.testpackage.group>${vaultUpgradeHook.testpackage.group}</vaultUpgradeHook.testpackage.group>
                         <vaultUpgradeHook.testpackage.version>${project.version}</vaultUpgradeHook.testpackage.version>
-
-                        <!--Properties for User Preferences Upgrader-->
-                        <vaultUpgradeHook.testpackage.userconfig.testUser>test-vault-hook</vaultUpgradeHook.testpackage.userconfig.testUser>
-                        <vaultUpgradeHook.testpackage.userconfig.always>it-userconfig_always</vaultUpgradeHook.testpackage.userconfig.always>
-                        <vaultUpgradeHook.testpackage.userconfig.testProperty>testUserPreference</vaultUpgradeHook.testpackage.userconfig.testProperty>
-                        <vaultUpgradeHook.testpackage.userconfig.testPropertyValue>TestValue</vaultUpgradeHook.testpackage.userconfig.testPropertyValue>
-
-                        <!--Properties for Groovy Upgrader-->
-                        <vaultUpgradeHook.testpackage.groovy.resourcePath>/content/vault-upgrade-test-resource-name</vaultUpgradeHook.testpackage.groovy.resourcePath>
-                        <vaultUpgradeHook.testpackage.groovy.testProperty>testResourceValue</vaultUpgradeHook.testpackage.groovy.testProperty>
-                        <vaultUpgradeHook.testpackage.groovy.always>it-groovy_always</vaultUpgradeHook.testpackage.groovy.always>
-                        <vaultUpgradeHook.testpackage.groovy.always.testPropertyValue>TestValue</vaultUpgradeHook.testpackage.groovy.always.testPropertyValue>
-                        <vaultUpgradeHook.testpackage.groovy.prepareinstalledend>it-groovy_prepare_installed_end</vaultUpgradeHook.testpackage.groovy.prepareinstalledend>
-                        <vaultUpgradeHook.testpackage.groovy.prepareinstalledend.testPropertyValue>prepare_installed_end</vaultUpgradeHook.testpackage.groovy.prepareinstalledend.testPropertyValue>
-                        <vaultUpgradeHook.testpackage.groovy.preparefailed>it-groovy_prepare_failed</vaultUpgradeHook.testpackage.groovy.preparefailed>
-                        <vaultUpgradeHook.testpackage.groovy.preparefailed.testPropertyValue>prepare_preparefailed_end</vaultUpgradeHook.testpackage.groovy.preparefailed.testPropertyValue>
-                        <vaultUpgradeHook.testpackage.groovy.installfailed>it-groovy_install_failed</vaultUpgradeHook.testpackage.groovy.installfailed>
-                        <vaultUpgradeHook.testpackage.groovy.installfailed.testPropertyValue>installfailed_end</vaultUpgradeHook.testpackage.groovy.installfailed.testPropertyValue>
-                        <vaultUpgradeHook.testpackage.groovy.onchange>it-groovy_onchange</vaultUpgradeHook.testpackage.groovy.onchange>
-                        <vaultUpgradeHook.testpackage.groovy.onchange.testPropertyValue>TestValue</vaultUpgradeHook.testpackage.groovy.onchange.testPropertyValue>
-                        <vaultUpgradeHook.testpackage.groovy.onchange.actionFolder>test-groovy-script</vaultUpgradeHook.testpackage.groovy.onchange.actionFolder>
-                        <vaultUpgradeHook.testpackage.groovy.onchange.scriptName>script.groovy</vaultUpgradeHook.testpackage.groovy.onchange.scriptName>
-
-                        <!--Properties for Script Upgrader-->
-                        <vaultUpgradeHook.testpackage.script.resourcePath>/content/vault-upgrade-test-script-resource-name</vaultUpgradeHook.testpackage.script.resourcePath>
-                        <vaultUpgradeHook.testpackage.script.testProperty>testResourceValue</vaultUpgradeHook.testpackage.script.testProperty>
-                        <vaultUpgradeHook.testpackage.script.testPropertyValue>TestValue</vaultUpgradeHook.testpackage.script.testPropertyValue>
-                        <vaultUpgradeHook.testpackage.script.always>it-script_always</vaultUpgradeHook.testpackage.script.always>
-
-                        <!--Properties for Sling Pipes-->
-                        <vaultUpgradeHook.testpackage.slingpipes.resourcePath>/content/vault-upgrade-test-slingpipes-resource-name</vaultUpgradeHook.testpackage.slingpipes.resourcePath>
-                        <vaultUpgradeHook.testpackage.slingpipes.testProperty>testResourceValue</vaultUpgradeHook.testpackage.slingpipes.testProperty>
-                        <vaultUpgradeHook.testpackage.slingpipes.always>it-slingpipes_always</vaultUpgradeHook.testpackage.slingpipes.always>
-                        <vaultUpgradeHook.testpackage.slingpipes.testPropertyValue>TestValue</vaultUpgradeHook.testpackage.slingpipes.testPropertyValue>
                     </systemPropertyVariables>
                     <includes>
                         <include>**/*IT.java</include>

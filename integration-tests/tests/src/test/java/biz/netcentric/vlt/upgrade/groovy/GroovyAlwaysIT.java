@@ -19,7 +19,7 @@ public class GroovyAlwaysIT extends GroovyAbstractIT {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        testPropertyValue = System.getProperty("vaultUpgradeHook.testpackage.groovy.always.testPropertyValue");
+        testPropertyValue = System.getProperty("vaultUpgradeHook.testpackage.groovy.always.testPropertyValue", "TestValue");
     }
 
     @Test
@@ -43,6 +43,6 @@ public class GroovyAlwaysIT extends GroovyAbstractIT {
     }
 
     protected String getPackageName() {
-        return System.getProperty("vaultUpgradeHook.testpackage.groovy.always");
+        return System.getProperty("vaultUpgradeHook.testpackage.groovy.always", "it-groovy_always");
     }
 }

@@ -22,9 +22,9 @@ public class GroovyOnChangeIT extends GroovyAbstractIT {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        testPropertyValue = System.getProperty("vaultUpgradeHook.testpackage.groovy.onchange.testPropertyValue");
-        scriptName = System.getProperty("vaultUpgradeHook.testpackage.groovy.onchange.scriptName");
-        actionFolder = System.getProperty("vaultUpgradeHook.testpackage.groovy.onchange.actionFolder");
+        testPropertyValue = System.getProperty("vaultUpgradeHook.testpackage.groovy.onchange.testPropertyValue", "TestValue");
+        scriptName = System.getProperty("vaultUpgradeHook.testpackage.groovy.onchange.scriptName", "script.groovy");
+        actionFolder = System.getProperty("vaultUpgradeHook.testpackage.groovy.onchange.actionFolder", "test-groovy-script");
     }
 
     @Test
@@ -61,6 +61,6 @@ public class GroovyOnChangeIT extends GroovyAbstractIT {
     }
 
     protected String getPackageName() {
-        return System.getProperty("vaultUpgradeHook.testpackage.groovy.onchange");
+        return System.getProperty("vaultUpgradeHook.testpackage.groovy.onchange", "it-groovy_onchange");
     }
 }

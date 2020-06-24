@@ -19,7 +19,7 @@ public class GroovyPhasesIT extends GroovyAbstractIT {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        testPropertyValue = System.getProperty("vaultUpgradeHook.testpackage.groovy.prepareinstalledend.testPropertyValue");
+        testPropertyValue = System.getProperty("vaultUpgradeHook.testpackage.groovy.prepareinstalledend.testPropertyValue", "prepare_installed_end");
     }
 
     /*
@@ -33,6 +33,6 @@ public class GroovyPhasesIT extends GroovyAbstractIT {
     }
 
     protected String getPackageName() {
-        return System.getProperty("vaultUpgradeHook.testpackage.groovy.prepareinstalledend");
+        return System.getProperty("vaultUpgradeHook.testpackage.groovy.prepareinstalledend", "it-groovy_prepare_installed_end");
     }
 }

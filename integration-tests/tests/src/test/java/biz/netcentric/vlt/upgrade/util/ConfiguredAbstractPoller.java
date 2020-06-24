@@ -12,8 +12,8 @@ import org.apache.sling.testing.clients.util.poller.AbstractPoller;
 
 public abstract class ConfiguredAbstractPoller extends AbstractPoller {
 
-    private static final int WAIT = Integer.getInteger("vaultUpgradeHook.testsettings.request.wait", 0);
-    private static final int RETRIES = Integer.getInteger("vaultUpgradeHook.testsettings.request.retries", 0);
+    private static final int WAIT = Integer.getInteger("vaultUpgradeHook.testsettings.request.wait", 2000);
+    private static final int RETRIES = Integer.getInteger("vaultUpgradeHook.testsettings.request.retries", 5);
 
     public ConfiguredAbstractPoller() {
         super(WAIT, RETRIES);

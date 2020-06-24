@@ -24,8 +24,8 @@ public class ScriptIT extends AbstractIT {
     @Before
     public void setUp() throws Exception {
         testResourcePath = getTestResourcePath();
-        testPropertyName = System.getProperty("vaultUpgradeHook.testpackage.script.testProperty");
-        testPropertyValue = System.getProperty("vaultUpgradeHook.testpackage.script.testPropertyValue");
+        testPropertyName = System.getProperty("vaultUpgradeHook.testpackage.script.testProperty", "testResourceValue");
+        testPropertyValue = System.getProperty("vaultUpgradeHook.testpackage.script.testPropertyValue", "TestValue");
 
         super.setUp();
         cleanUpBefore();
@@ -46,11 +46,11 @@ public class ScriptIT extends AbstractIT {
 
     @Override
     protected String getPackageName() {
-        return System.getProperty("vaultUpgradeHook.testpackage.script.always");
+        return System.getProperty("vaultUpgradeHook.testpackage.script.always", "it-script_always");
     }
 
     @Override
     protected String getTestResourcePath() {
-        return System.getProperty("vaultUpgradeHook.testpackage.script.resourcePath");
+        return System.getProperty("vaultUpgradeHook.testpackage.script.resourcePath", "/content/vault-upgrade-test-script-resource-name");
     }
 }

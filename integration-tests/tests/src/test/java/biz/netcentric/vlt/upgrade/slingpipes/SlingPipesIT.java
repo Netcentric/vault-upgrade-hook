@@ -18,23 +18,21 @@ import biz.netcentric.vlt.upgrade.util.AbstractIT;
 
 public class SlingPipesIT extends AbstractIT {
 
-    private static String testResourcePath;
     private static String testPropertyName;
     private static String testPropertyValue;
 
     @BeforeClass
     public static void setUpClass() {
         AbstractIT.setUpClass();
-        testResourcePath = System.getProperty("vaultUpgradeHook.testpackage.slingpipes.resourcePath");
-        testPropertyName = System.getProperty("vaultUpgradeHook.testpackage.slingpipes.testProperty");
-        testPropertyValue = System.getProperty("vaultUpgradeHook.testpackage.slingpipes.testPropertyValue");
+        testPropertyName = System.getProperty("vaultUpgradeHook.testpackage.slingpipes.testProperty", "testResourceValue");
+        testPropertyValue = System.getProperty("vaultUpgradeHook.testpackage.slingpipes.testPropertyValue", "TestValue");
     }
 
     @Before
     public void setUp() throws Exception {
         super.setUp();
         cleanUpBefore();
-        createResource(testResourcePath);
+        createResource(getTestResourcePath());
         installPackage(packageRelPath);
     }
 
@@ -45,17 +43,17 @@ public class SlingPipesIT extends AbstractIT {
 
     @Test
     public void shouldExecuteAction() throws ClientException, InterruptedException {
-        assertTestPropertyValue(testResourcePath, testPropertyName, testPropertyValue);
+        assertTestPropertyValue(getTestResourcePath(), testPropertyName, testPropertyValue);
         assertSuccessStatus();
     }
 
     @Override
     protected String getPackageName() {
-        return System.getProperty("vaultUpgradeHook.testpackage.slingpipes.always");
+        return System.getProperty("vaultUpgradeHook.testpackage.slingpipes.always", "it-slingpipes_always");
     }
 
     @Override
     protected String getTestResourcePath() {
-        return System.getProperty("vaultUpgradeHook.testpackage.slingpipes.resourcePath");
+        return System.getProperty("vaultUpgradeHook.testpackage.slingpipes.resourcePath", "/content/vault-upgrade-test-slingpipes-resource-name");
     }
 }

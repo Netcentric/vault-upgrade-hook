@@ -36,6 +36,6 @@ public class UserPreferencesAlwaysIT extends UserPreferencesAbstract {
     }
 
     protected String getPackageName() {
-        return System.getProperty("vaultUpgradeHook.testpackage.userconfig.always");
+        return System.getProperty("vaultUpgradeHook.testpackage.userconfig.always", "it-userconfig_always");
     }
 }
