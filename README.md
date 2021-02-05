@@ -20,6 +20,8 @@ The *Vault-Upgrade-Hook* is an easy way to add additional logic to the installat
 
 Some provided samples also have additional requirements. You can find them in local readme files.
 
+*AEM as a Cloud Service is currently not supported!*
+
 ## Usage
 
 Two general ways of how to use it: 
