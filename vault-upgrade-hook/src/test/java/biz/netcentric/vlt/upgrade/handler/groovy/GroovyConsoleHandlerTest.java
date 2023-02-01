@@ -19,6 +19,7 @@ import java.util.List;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
+import be.orbinson.aem.groovy.console.GroovyConsoleService;
 import org.apache.jackrabbit.vault.packaging.impl.InstallContextImpl;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.apache.sling.testing.mock.sling.junit.SlingContext;
@@ -28,8 +29,6 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-
-import com.icfolson.aem.groovy.console.GroovyConsoleService;
 
 import biz.netcentric.vlt.upgrade.UpgradeAction;
 import biz.netcentric.vlt.upgrade.UpgradeInfo;
