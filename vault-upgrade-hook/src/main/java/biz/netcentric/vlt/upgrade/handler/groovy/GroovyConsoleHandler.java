@@ -15,9 +15,9 @@ import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 
+import be.orbinson.aem.groovy.console.GroovyConsoleService;
 import org.apache.jackrabbit.vault.packaging.InstallContext;
 
-import com.icfolson.aem.groovy.console.GroovyConsoleService;
 
 import biz.netcentric.vlt.upgrade.UpgradeAction;
 import biz.netcentric.vlt.upgrade.UpgradeInfo;
