@@ -113,17 +113,10 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>com.icfolson.aem.groovy.console</groupId>
-            <artifactId>aem-groovy-console</artifactId>
-            <version>15.1.0</version>
+            <groupId>be.orbinson.aem</groupId>
+            <artifactId>aem-groovy-console-bundle</artifactId>
+            <version>18.0.0</version>
             <optional>true</optional>
-            <!-- some of the transitive dependencies are provided in non publically available versions -->
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>

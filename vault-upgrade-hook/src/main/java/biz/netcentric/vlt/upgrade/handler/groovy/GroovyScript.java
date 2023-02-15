@@ -14,9 +14,9 @@ import javax.jcr.RepositoryException;
 import org.apache.jackrabbit.vault.packaging.InstallContext;
 import org.apache.jackrabbit.vault.packaging.InstallContext.Phase;
 
-import com.icfolson.aem.groovy.console.GroovyConsoleService;
-import com.icfolson.aem.groovy.console.api.context.ScriptContext;
-import com.icfolson.aem.groovy.console.response.RunScriptResponse;
+import be.orbinson.aem.groovy.console.GroovyConsoleService;
+import be.orbinson.aem.groovy.console.api.context.ScriptContext;
+import be.orbinson.aem.groovy.console.response.RunScriptResponse;
 
 import biz.netcentric.vlt.upgrade.UpgradeAction;
 import biz.netcentric.vlt.upgrade.handler.OsgiUtil.ServiceWrapper;

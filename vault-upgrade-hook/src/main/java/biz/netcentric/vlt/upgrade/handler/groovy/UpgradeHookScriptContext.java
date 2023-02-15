@@ -5,7 +5,7 @@ import java.io.PrintStream;
 
 import org.apache.sling.api.resource.ResourceResolver;
 
-import com.icfolson.aem.groovy.console.api.context.ScriptContext;
+import be.orbinson.aem.groovy.console.api.context.ScriptContext;
 
 public class UpgradeHookScriptContext implements ScriptContext {
 
