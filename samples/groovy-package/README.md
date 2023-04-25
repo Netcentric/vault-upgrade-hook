@@ -4,7 +4,7 @@
 
 - executing Groovy scripts within an AEM environment
 - the provided context includes many helper methods, Groovy extension methods and a DSL to create content
-- see [https://github.com/orbinson/aem-groovy-console] for a complete list of features
+- see <https://github.com/orbinson/aem-groovy-console> for a complete list of features
 
 ## Dependencies
 
@@ -12,9 +12,9 @@ This execution uses the following dependencies in version 18
 
 - `be.orbinson.aem.groovy.console:aem-groovy-console`
 
-Make sure the included bundles are installed and activated correctly and the `GroovyConsoleService` is active.
+Make sure the relevant bundles are installed and activated correctly and the `GroovyConsoleService` is active.
 
-The GroovyConsole was forked several times over the last year for support for the `icfolson` or `Citytechinc` variants please see version 2 of the `vault-upgrade-hook`. Furthermore the Groovy Console's compatibility changed with AEM 6.0/6.1, for support see the branch [groovy-console-v8](https://github.com/Netcentric/vault-upgrade-hook/tree/groovy-console-v8]groovy-console-v8).
+The Groovy Console was forked several times over the last years. For support of the [ICF/Citytech](https://github.com/icfnext/aem-groovy-console) variant please see version 2 of the `vault-upgrade-hook`. Furthermore the Groovy Console's compatibility changed with AEM 6.0/6.1, for support see the branch [groovy-console-v8](https://github.com/Netcentric/vault-upgrade-hook/tree/groovy-console-v8]groovy-console-v8).
 
 ## Usage
 
